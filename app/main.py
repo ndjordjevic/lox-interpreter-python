@@ -22,12 +22,12 @@ def main():
     # Uncomment this block to pass the first stage
     if file_contents:
         raise NotImplementedError("Scanner not implemented")
-    else:
-        for c in file_contents:
-            if c == "(":
-                print("LEFT_PAREN ( null")
-            elif c == ")":
-                print("RIGHT_PAREN ) null")
+
+    for c in file_contents:
+        if c == "(":
+            print("LEFT_PAREN ( null")
+        elif c == ")":
+            print("RIGHT_PAREN ) null")
     print("EOF  null")
 
 if __name__ == "__main__":
