@@ -24,6 +24,10 @@ def main():
             print("LEFT_PAREN ( null")
         elif c == ")":
             print("RIGHT_PAREN ) null")
+        elif c == "{":
+            print("LEFT_BRACE { null")
+        elif c == "}":
+            print("RIGHT_BRACE } null")
     print("EOF  null")
 
 if __name__ == "__main__":
