@@ -1,5 +1,6 @@
 import sys
 
+
 def main():
     if len(sys.argv) < 3:
         print("Usage: ./your_program.sh tokenize <filename>", file=sys.stderr)
@@ -70,13 +71,13 @@ def main():
         elif c == "/":
             if i + 1 < len(file_contents) and file_contents[i + 1] == "/":
                 # It's a comment, skip the rest of the line
-                while i < len(file_contents) and file_contents[i] != '\n':
+                while i < len(file_contents) and file_contents[i] != "\n":
                     i += 1
             else:
                 print("SLASH / null")
-        elif c in [' ', '\r', '\t']:
+        elif c in [" ", "\r", "\t"]:
             pass
-        elif c == '\n':
+        elif c == "\n":
             line += 1
         else:
             error = True
@@ -88,6 +89,7 @@ def main():
         exit(65)
     else:
         exit(0)
+
 
 if __name__ == "__main__":
     main()
