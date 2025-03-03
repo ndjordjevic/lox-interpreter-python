@@ -74,6 +74,8 @@ def main():
                     i += 1
             else:
                 print("SLASH / null")
+        elif c in [' ', '\r', '\t', '\n']:
+            pass
         else:
             error = True
             print(
