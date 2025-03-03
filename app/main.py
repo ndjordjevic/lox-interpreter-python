@@ -47,7 +47,6 @@ def main():
                 "[line 1] Error: Unexpected character: %s" % c,
                 file=sys.stderr,
             )
-            break
     print("EOF  null")
 
     if error:
