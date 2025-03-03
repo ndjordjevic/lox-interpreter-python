@@ -49,6 +49,12 @@ def main():
                 i += 1  # Skip the next character
             else:
                 print("EQUAL = null")
+        elif c == "!":
+            if i + 1 < len(file_contents) and file_contents[i + 1] == "=":
+                print("BANG_EQUAL != null")
+                i += 1  # Skip the next character
+            else:
+                print("BANG ! null")
         else:
             error = True
             print(
