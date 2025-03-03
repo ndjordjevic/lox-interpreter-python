@@ -1,6 +1,5 @@
 import sys
 
-
 def main():
     if len(sys.argv) < 3:
         print("Usage: ./your_program.sh tokenize <filename>", file=sys.stderr)
@@ -21,6 +20,7 @@ def main():
 
     error = False
     i = 0
+    line = 1
     while i < len(file_contents):
         c = file_contents[i]
         if c == "(":
@@ -74,14 +74,13 @@ def main():
                     i += 1
             else:
                 print("SLASH / null")
-        elif c in [' ', '\r', '\t', '\n']:
+        elif c in [' ', '\r', '\t']:
             pass
+        elif c == '\n':
+            line += 1
         else:
             error = True
-            print(
-                "[line 1] Error: Unexpected character: %s" % c,
-                file=sys.stderr,
-            )
+            print(f"[line {line}] Error: Unexpected character: {c}", file=sys.stderr)
         i += 1
     print("EOF  null")
 
@@ -89,7 +88,6 @@ def main():
         exit(65)
     else:
         exit(0)
-
 
 if __name__ == "__main__":
     main()
