@@ -67,6 +67,13 @@ def main():
                 i += 1  # Skip the next character
             else:
                 print("GREATER > null")
+        elif c == "/":
+            if i + 1 < len(file_contents) and file_contents[i + 1] == "/":
+                # It's a comment, skip the rest of the line
+                while i < len(file_contents) and file_contents[i] != '\n':
+                    i += 1
+            else:
+                print("SLASH / null")
         else:
             error = True
             print(
