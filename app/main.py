@@ -20,7 +20,9 @@ def main():
     print("Logs from your program will appear here!", file=sys.stderr)
 
     error = False
-    for c in file_contents:
+    i = 0
+    while i < len(file_contents):
+        c = file_contents[i]
         if c == "(":
             print("LEFT_PAREN ( null")
         elif c == ")":
@@ -53,6 +55,7 @@ def main():
                 "[line 1] Error: Unexpected character: %s" % c,
                 file=sys.stderr,
             )
+        i += 1
     print("EOF  null")
 
     if error:
