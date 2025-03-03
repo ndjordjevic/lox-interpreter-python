@@ -83,8 +83,6 @@ def main():
             error = True
             print(f"[line {line}] Error: Unexpected character: {c}", file=sys.stderr)
         i += 1
-        if c == "\n":
-            line += 1
     print("EOF  null")
 
     if error:
