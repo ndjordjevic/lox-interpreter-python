@@ -1,6 +1,5 @@
 import sys
 
-
 def main():
     if len(sys.argv) < 3:
         print("Usage: ./your_program.sh tokenize <filename>", file=sys.stderr)
@@ -18,8 +17,6 @@ def main():
 
     # You can use print statements as follows for debugging, they'll be visible when running tests.
     print("Logs from your program will appear here!", file=sys.stderr)
-
-    print(file_contents, file=sys.stderr)
 
     error = False
     i = 0
@@ -73,11 +70,24 @@ def main():
         elif c == "/":
             if i + 1 < len(file_contents) and file_contents[i + 1] == "/":
                 # It's a comment, skip the rest of the line
-                while i < len(file_contents) and file_contents[i] != "\n":
+                while i < len(file_contents) and file_contents[i] != '\n':
                     i += 1
                 line += 1
             else:
                 print("SLASH / null")
+        elif c == '"':
+            start = i
+            i += 1
+            while i < len(file_contents) and file_contents[i] != '"':
+                if file_contents[i] == '\n':
+                    line += 1
+                i += 1
+            if i >= len(file_contents):
+                error = True
+                print(f"[line {line}] Error: Unterminated string.", file=sys.stderr)
+            else:
+                string_value = file_contents[start + 1:i]
+                print(f'STRING "{file_contents[start:i + 1]}" {string_value}')
         elif c in [" ", "\r", "\t"]:
             pass
         elif c == "\n":
@@ -92,7 +102,6 @@ def main():
         exit(65)
     else:
         exit(0)
-
 
 if __name__ == "__main__":
     main()
