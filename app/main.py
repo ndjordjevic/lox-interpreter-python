@@ -75,6 +75,7 @@ def main():
                 # It's a comment, skip the rest of the line
                 while i < len(file_contents) and file_contents[i] != "\n":
                     i += 1
+                line += 1
             else:
                 print("SLASH / null")
         elif c in [" ", "\r", "\t"]:
