@@ -107,7 +107,7 @@ def main():
                 print(f"[line {line}] Error: Unterminated string.", file=sys.stderr)
             else:
                 string_value = file_contents[start + 1:i]
-                print(f'STRING "{file_contents[start:i + 1]}" {string_value}')
+                print(f'STRING {file_contents[start:i + 1]} {string_value}')
         elif c.isdigit():
             start = i
             while i < len(file_contents) and file_contents[i].isdigit():
