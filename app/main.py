@@ -99,6 +99,15 @@ def main():
             number_value = file_contents[start:i]
             print(f"NUMBER {number_value} {float(number_value)}")
             i -= 1  # Adjust for the increment at the end of the loop
+        elif c.isalpha() or c == "_":
+            start = i
+            while i < len(file_contents) and (
+                file_contents[i].isalnum() or file_contents[i] == "_"
+            ):
+                i += 1
+            identifier_value = file_contents[start:i]
+            print(f"IDENTIFIER {identifier_value} null")
+            i -= 1  # Adjust for the increment at the end of the loop
         elif c in [" ", "\r", "\t"]:
             pass
         elif c == "\n":
