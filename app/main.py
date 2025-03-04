@@ -1,5 +1,25 @@
 import sys
 
+# Define reserved words
+reserved_words = {
+    "and": "AND",
+    "class": "CLASS",
+    "else": "ELSE",
+    "false": "FALSE",
+    "for": "FOR",
+    "fun": "FUN",
+    "if": "IF",
+    "nil": "NIL",
+    "or": "OR",
+    "print": "PRINT",
+    "return": "RETURN",
+    "super": "SUPER",
+    "this": "THIS",
+    "true": "TRUE",
+    "var": "VAR",
+    "while": "WHILE"
+}
+
 def main():
     if len(sys.argv) < 3:
         print("Usage: ./your_program.sh tokenize <filename>", file=sys.stderr)
@@ -87,7 +107,7 @@ def main():
                 print(f"[line {line}] Error: Unterminated string.", file=sys.stderr)
             else:
                 string_value = file_contents[start + 1:i]
-                print(f'STRING {file_contents[start:i + 1]} {string_value}')
+                print(f'STRING "{file_contents[start:i + 1]}" {string_value}')
         elif c.isdigit():
             start = i
             while i < len(file_contents) and file_contents[i].isdigit():
@@ -101,12 +121,11 @@ def main():
             i -= 1  # Adjust for the increment at the end of the loop
         elif c.isalpha() or c == "_":
             start = i
-            while i < len(file_contents) and (
-                file_contents[i].isalnum() or file_contents[i] == "_"
-            ):
+            while i < len(file_contents) and (file_contents[i].isalnum() or file_contents[i] == "_"):
                 i += 1
             identifier_value = file_contents[start:i]
-            print(f"IDENTIFIER {identifier_value} null")
+            token_type = reserved_words.get(identifier_value, "IDENTIFIER")
+            print(f"{token_type} {identifier_value} null")
             i -= 1  # Adjust for the increment at the end of the loop
         elif c in [" ", "\r", "\t"]:
             pass
