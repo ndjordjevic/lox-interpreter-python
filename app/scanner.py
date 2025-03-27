@@ -132,6 +132,9 @@ class Scanner:
             self.advance()
 
         if self.is_at_end():
+            # Add the valid portion of the unterminated string as a token
+            value = self.source[self.start + 1 : self.current]
+            self.add_token(TokenType.STRING, value)
             error(self.line, "Unterminated string.")
             exit(65)  # Exit with code 65 for compile error
 
