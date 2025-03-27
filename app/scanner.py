@@ -130,19 +130,15 @@ class Scanner:
             if self.peek() == "\n":
                 self.line += 1
             self.advance()
-
+    
         # If we reach the end without finding a closing quote
         if self.is_at_end():
-            value = self.source[
-                self.start + 1 : self.current
-            ]  # Extract the valid portion
-            self.add_token(TokenType.STRING, value)  # Add the valid portion as a token
             error(self.line, "Unterminated string.")  # Report the error
             return  # Stop further tokenization
-
+    
         # The closing quote
         self.advance()
-
+    
         # Trim the surrounding quotes
         value = self.source[self.start + 1 : self.current - 1]
         self.add_token(TokenType.STRING, value)
