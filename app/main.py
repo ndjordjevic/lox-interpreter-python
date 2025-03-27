@@ -64,9 +64,13 @@ def run(source):
     scanner = Scanner(source)
     tokens = scanner.scan_tokens()
 
-    # For now, just print the tokens.
+    # Format and print tokens
     for token in tokens:
-        print(token)
+        token_type = (
+            token.type.name
+        )  # Get the uppercase string representation of the token type
+        literal = "null" if token.literal is None else token.literal
+        print(f"{token_type} {token.lexeme} {literal}")
 
 
 if __name__ == "__main__":
