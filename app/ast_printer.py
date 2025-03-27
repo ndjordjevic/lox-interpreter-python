@@ -1,0 +1,42 @@
+import sys
+import os
+
+# Add the parent directory of 'app' to the Python path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from app.expr import Visitor, Binary, Grouping, Literal, Unary
+
+
+class AstPrinter(Visitor):
+    def print(self, expr):
+        return expr.accept(self)
+
+    def visit_binary(self, binary):
+        return self.parenthesize(binary.operator, binary.left, binary.right)
+
+    def visit_grouping(self, grouping):
+        return self.parenthesize("group", grouping.expression)
+
+    def visit_literal(self, literal):
+        if literal.value is None:
+            return "nil"
+        return str(literal.value)
+
+    def visit_unary(self, unary):
+        return self.parenthesize(unary.operator, unary.right)
+
+    def parenthesize(self, name, *exprs):
+        builder = []
+        builder.append(f"({name}")
+        for expr in exprs:
+            builder.append(" ")
+            builder.append(expr.accept(self))
+        builder.append(")")
+        return "".join(builder)
+
+
+# Temporary main function to see how it works
+if __name__ == "__main__":
+    expression = Binary(Unary("-", Literal(123)), "*", Grouping(Literal(45.67)))
+
+    print(AstPrinter().print(expression))
