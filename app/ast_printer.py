@@ -9,6 +9,14 @@ from app.expr import Visitor, Binary, Grouping, Literal, Unary
 
 class AstPrinter(Visitor):
     def print(self, expr):
+        if isinstance(expr, Literal):
+            if expr.value is True:
+                return "true"
+            if expr.value is False:
+                return "false"
+            if expr.value is None:
+                return "nil"
+            return str(expr.value)
         return expr.accept(self)
 
     def visit_binary(self, binary):
