@@ -16,9 +16,6 @@ def parse(file_contents: str):
 
 
 def main():
-    # Debugging logs
-    print("Logs from your program will appear here!")
-
     if len(sys.argv) < 3:
         print("Usage: ./your_program.sh <command> <filename>")
         sys.exit(1)
