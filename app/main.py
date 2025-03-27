@@ -63,7 +63,7 @@ def run(source):
     scanner = Scanner(source)
     tokens = scanner.scan_tokens()
 
-    # Format and print tokens
+    # Format and print tokens1
     for token in tokens:
         token_type = (
             token.type.name
