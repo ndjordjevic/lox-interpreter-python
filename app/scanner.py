@@ -74,15 +74,11 @@ class Scanner:
         elif c == "!":
             self.add_token(TokenType.BANG_EQUAL if self.match("=") else TokenType.BANG)
         elif c == "=":
-            self.add_token(
-                TokenType.EQUAL_EQUAL if self.match("=") else TokenType.EQUAL
-            )
+            self.add_token(TokenType.EQUAL_EQUAL if self.match("=") else TokenType.EQUAL)
         elif c == "<":
             self.add_token(TokenType.LESS_EQUAL if self.match("=") else TokenType.LESS)
         elif c == ">":
-            self.add_token(
-                TokenType.GREATER_EQUAL if self.match("=") else TokenType.GREATER
-            )
+            self.add_token(TokenType.GREATER_EQUAL if self.match("=") else TokenType.GREATER)
         elif c == "/":
             if self.match("/"):
                 # A comment goes until the end of the line.
@@ -102,7 +98,7 @@ class Scanner:
         elif self.is_alpha(c):
             self.identifier()
         else:
-            error(self.line, "Unexpected character.")
+            error(self.line, f"Unexpected character: {c}")
 
     def advance(self):
         self.current += 1
