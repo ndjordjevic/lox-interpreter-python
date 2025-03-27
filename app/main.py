@@ -6,6 +6,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from .scanner import Scanner
 from .parser import Parser  # Ensure you have a Parser class implemented in parser.py
+from .ast_printer import AstPrinter  # Import AstPrinter
 
 had_error = False
 
@@ -14,7 +15,12 @@ def parse(file_contents: str):
     scanner = Scanner(file_contents)
     tokens = scanner.scan_tokens()  # Tokenize the input
     parser = Parser(tokens)  # Pass tokens to the Parser
-    print(parser.parse())
+    expression = parser.parse()
+    if expression:
+        printer = AstPrinter()
+        print(
+            printer.print(expression)
+        )  # Use AstPrinter to print the parsed expression
 
 
 def main():
