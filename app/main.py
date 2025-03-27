@@ -11,7 +11,9 @@ had_error = False
 
 
 def parse(file_contents: str):
-    parser = Parser(file_contents)
+    scanner = Scanner(file_contents)
+    tokens = scanner.scan_tokens()  # Tokenize the input
+    parser = Parser(tokens)  # Pass tokens to the Parser
     print(parser.parse())
 
 
