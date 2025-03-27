@@ -138,7 +138,7 @@ class Scanner:
             ]  # Extract the valid portion
             self.add_token(TokenType.STRING, value)  # Add the valid portion as a token
             error(self.line, "Unterminated string.")  # Report the error
-            return  # Exit the method
+            return  # Stop further tokenization
 
         # The closing quote
         self.advance()
