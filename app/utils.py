@@ -8,6 +8,3 @@ def error(line, message):
     error_state["had_error"] = True  # Set the error flag
     print(f"[line {line}] Error: {message}", file=sys.stderr)  # Print to stderr
 
-
-def report(line, where, message):
-    print(f"[line {line}] Error{where}: {message}", file=sys.stderr)

@@ -26,6 +26,10 @@ class AstPrinter(Visitor):
         return self.parenthesize("group", grouping.expression)
 
     def visit_literal(self, literal):
+        if isinstance(literal.value, bool):
+            return (
+                "true" if literal.value else "false"
+            )  # Ensure boolean literals are lowercase
         if literal.value is None:
             return "nil"
         return str(literal.value)
