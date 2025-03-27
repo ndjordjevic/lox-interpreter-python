@@ -1,5 +1,6 @@
 import os
 import sys
+from sys import exit  # Import exit to handle error codes
 
 # Add the parent directory of 'app' to the Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -132,7 +133,7 @@ class Scanner:
 
         if self.is_at_end():
             error(self.line, "Unterminated string.")
-            return
+            exit(65)  # Exit with code 65 for compile error
 
         # The closing ".
         self.advance()

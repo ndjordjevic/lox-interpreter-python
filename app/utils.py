@@ -4,8 +4,7 @@ error_state = {"had_error": False}
 
 
 def error(line, message):
-    error_state["had_error"] = True
-    report(line, "", message)
+    print(f"[line {line}] Error: {message}")
 
 
 def report(line, where, message):
