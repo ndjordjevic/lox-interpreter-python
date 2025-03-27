@@ -7,6 +7,13 @@ class Parser:
         self.tokens = tokens
         self.current = 0
 
+    def parse(self):
+        try:
+            return self.expression()
+        except Exception as e:
+            print(f"Parse error: {e}")
+            return None
+
     def expression(self):
         return self.equality()
 
