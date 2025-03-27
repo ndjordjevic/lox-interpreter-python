@@ -71,26 +71,14 @@ class Scanner:
             self.add_token(TokenType.SEMICOLON)
         elif c == "*":
             self.add_token(TokenType.STAR)
-        elif c == "=":
-            if self.match("="):
-                self.add_token(TokenType.EQUAL_EQUAL)
-            else:
-                self.add_token(TokenType.EQUAL)
         elif c == "!":
-            if self.match("="):
-                self.add_token(TokenType.BANG_EQUAL)
-            else:
-                self.add_token(TokenType.BANG)
+            self.add_token(TokenType.BANG_EQUAL if self.match("=") else TokenType.BANG)
+        elif c == "=":
+            self.add_token(TokenType.EQUAL_EQUAL if self.match("=") else TokenType.EQUAL)
         elif c == "<":
-            if self.match("="):
-                self.add_token(TokenType.LESS_EQUAL)
-            else:
-                self.add_token(TokenType.LESS)
+            self.add_token(TokenType.LESS_EQUAL if self.match("=") else TokenType.LESS)
         elif c == ">":
-            if self.match("="):
-                self.add_token(TokenType.GREATER_EQUAL)
-            else:
-                self.add_token(TokenType.GREATER)
+            self.add_token(TokenType.GREATER_EQUAL if self.match("=") else TokenType.GREATER)
         elif c == "/":
             if self.match("/"):
                 # A comment goes until the end of the line.
@@ -98,16 +86,17 @@ class Scanner:
                     self.advance()
             else:
                 self.add_token(TokenType.SLASH)
-        elif c == '"':
-            self.string()
-        elif c.isdigit():
-            self.number()
-        elif c.isalpha() or c == "_":
-            self.identifier()
-        elif c in [" ", "\r", "\t"]:
+        elif c in {" ", "\r", "\t"}:
+            # Ignore whitespace.
             pass
         elif c == "\n":
             self.line += 1
+        elif c == '"':
+            self.string()
+        elif self.is_digit(c):
+            self.number()
+        elif self.is_alpha(c):
+            self.identifier()
         else:
             error(self.line, f"Unexpected character: {c}")
 
@@ -137,22 +126,35 @@ class Scanner:
             if self.peek() == "\n":
                 self.line += 1
             self.advance()
+    
+        # If we reach the end without finding a closing quote
         if self.is_at_end():
-            error(self.line, "Unterminated string.")
-            return
+            error(self.line, "Unterminated string.")  # Report the error
+            return  # Stop further tokenization
+    
+        # The closing quote
         self.advance()
+    
+        # Trim the surrounding quotes
         value = self.source[self.start + 1 : self.current - 1]
         self.add_token(TokenType.STRING, value)
+
+    def is_digit(self, c):
+        return "0" <= c <= "9"
 
     def number(self):
         while self.is_digit(self.peek()):
             self.advance()
+
+        # Look for a fractional part.
         if self.peek() == "." and self.is_digit(self.peek_next()):
+            # Consume the "."
             self.advance()
+
             while self.is_digit(self.peek()):
                 self.advance()
-        value = float(self.source[self.start : self.current])
-        self.add_token(TokenType.NUMBER, value)
+
+        self.add_token(TokenType.NUMBER, float(self.source[self.start : self.current]))
 
     def peek_next(self):
         if self.current + 1 >= len(self.source):
@@ -162,9 +164,12 @@ class Scanner:
     def identifier(self):
         while self.is_alphanumeric(self.peek()):
             self.advance()
+
         text = self.source[self.start : self.current]
-        token_type = self.keywords.get(text, TokenType.IDENTIFIER)
-        self.add_token(token_type)
+        type = self.keywords.get(text)
+        if type is None:
+            type = TokenType.IDENTIFIER
+        self.add_token(type)
 
     def is_alpha(self, c):
         return ("a" <= c <= "z") or ("A" <= c <= "Z") or c == "_"
