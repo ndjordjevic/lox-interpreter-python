@@ -72,6 +72,10 @@ def run(source):
         literal = "null" if token.literal is None else token.literal
         print(f"{token_type} {token.lexeme} {literal}")
 
+    # Check for errors and exit with code 65 if any occurred
+    if had_error:
+        sys.exit(65)
+
 
 if __name__ == "__main__":
     main()
