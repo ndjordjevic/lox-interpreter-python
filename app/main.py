@@ -7,8 +7,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from .scanner import Scanner
 from .parser import Parser  # Ensure you have a Parser class implemented in parser.py
 from .ast_printer import AstPrinter  # Import AstPrinter
-
-had_error = False
+from .utils import error_state  # Import error_state
 
 
 def parse(file_contents: str):
@@ -73,7 +72,7 @@ def run(source):
         print(f"{token_type} {token.lexeme} {literal}")
 
     # Check for errors and exit with code 65 if any occurred
-    if had_error:
+    if error_state["had_error"]:
         sys.exit(65)
 
 
