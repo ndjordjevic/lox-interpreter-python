@@ -166,11 +166,13 @@ class Scanner:
             while self.is_digit(self.peek()):
                 self.advance()
 
-        # Check for invalid characters after a number
+        # Check if the next character is alphabetic, which would make it an identifier, not a number.
         if self.is_alpha(self.peek()):
-            error(self.line, "Invalid number.")
+            # Roll back and let the identifier logic handle it.
+            self.identifier()
             return
 
+        # Add the number token.
         self.add_token(TokenType.NUMBER, float(self.source[self.start : self.current]))
 
     def peek_next(self):
