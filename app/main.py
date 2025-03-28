@@ -1,8 +1,4 @@
 import sys
-import os
-
-# Add the parent directory of 'app' to the Python path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from .scanner import Scanner
 from .parser import Parser  # Ensure you have a Parser class implemented in parser.py

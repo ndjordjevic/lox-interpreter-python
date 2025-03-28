@@ -1,9 +1,4 @@
-import os
-import sys
 from sys import exit  # Import exit to handle error codes
-
-# Add the parent directory of 'app' to the Python path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from .token import Token
 from .token_type import TokenType
@@ -74,16 +69,33 @@ class Scanner:
         elif c == "!":
             self.add_token(TokenType.BANG_EQUAL if self.match("=") else TokenType.BANG)
         elif c == "=":
-            self.add_token(TokenType.EQUAL_EQUAL if self.match("=") else TokenType.EQUAL)
+            self.add_token(
+                TokenType.EQUAL_EQUAL if self.match("=") else TokenType.EQUAL
+            )
         elif c == "<":
             self.add_token(TokenType.LESS_EQUAL if self.match("=") else TokenType.LESS)
         elif c == ">":
-            self.add_token(TokenType.GREATER_EQUAL if self.match("=") else TokenType.GREATER)
+            self.add_token(
+                TokenType.GREATER_EQUAL if self.match("=") else TokenType.GREATER
+            )
         elif c == "/":
             if self.match("/"):
-                # A comment goes until the end of the line.
+                # A single-line comment goes until the end of the line.
                 while self.peek() != "\n" and not self.is_at_end():
                     self.advance()
+            elif self.match("*"):
+                # A multiline comment goes until "*/".
+                while (
+                    not (self.peek() == "*" and self.peek_next() == "/")
+                    and not self.is_at_end()
+                ):
+                    if self.peek() == "\n":
+                        self.line += 1
+                    self.advance()
+                # Consume the closing "*/".
+                if not self.is_at_end():
+                    self.advance()  # Consume '*'
+                    self.advance()  # Consume '/'
             else:
                 self.add_token(TokenType.SLASH)
         elif c in {" ", "\r", "\t"}:
@@ -126,15 +138,15 @@ class Scanner:
             if self.peek() == "\n":
                 self.line += 1
             self.advance()
-    
+
         # If we reach the end without finding a closing quote
         if self.is_at_end():
             error(self.line, "Unterminated string.")  # Report the error
             return  # Stop further tokenization
-    
+
         # The closing quote
         self.advance()
-    
+
         # Trim the surrounding quotes
         value = self.source[self.start + 1 : self.current - 1]
         self.add_token(TokenType.STRING, value)
@@ -153,6 +165,11 @@ class Scanner:
 
             while self.is_digit(self.peek()):
                 self.advance()
+
+        # Check for invalid characters after a number
+        if self.is_alpha(self.peek()):
+            error(self.line, "Invalid number.")
+            return
 
         self.add_token(TokenType.NUMBER, float(self.source[self.start : self.current]))
 
