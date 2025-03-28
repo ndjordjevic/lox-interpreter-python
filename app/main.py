@@ -33,14 +33,13 @@ def main():
     with open(filename, "r", encoding="utf-8") as file:
         file_contents = file.read()
 
-    match command:
-        case "tokenize":
-            run(file_contents)
-        case "parse":
-            parse(file_contents)
-        case _:
-            print(f"Unknown command: {command}")
-            sys.exit(1)
+    if command == "tokenize":
+        run(file_contents)
+    elif command == "parse":
+        parse(file_contents)
+    else:
+        print(f"Unknown command: {command}")
+        sys.exit(1)
 
 
 def run_file(file_path):
