@@ -1,5 +1,3 @@
-from sys import exit  # Import exit to handle error codes
-
 from .token import Token
 from .token_type import TokenType
 from .utils import error  # Import the error function from utils
