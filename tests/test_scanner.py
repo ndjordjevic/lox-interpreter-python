@@ -134,16 +134,27 @@ class TestScanner(unittest.TestCase):
         self.assertEqual(token_types, expected_types)
 
     def test_reserved_words(self):
-        source = "and or class if else"
+        source = "and class else false for fun if nil or print return super this true var while"
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
         token_types = [token.type for token in tokens]
         expected_types = [
             TokenType.AND,
-            TokenType.OR,
             TokenType.CLASS,
-            TokenType.IF,
             TokenType.ELSE,
+            TokenType.FALSE,
+            TokenType.FOR,
+            TokenType.FUN,
+            TokenType.IF,
+            TokenType.NIL,
+            TokenType.OR,
+            TokenType.PRINT,
+            TokenType.RETURN,
+            TokenType.SUPER,
+            TokenType.THIS,
+            TokenType.TRUE,
+            TokenType.VAR,
+            TokenType.WHILE,
             TokenType.EOF,
         ]
         self.assertEqual(token_types, expected_types)
