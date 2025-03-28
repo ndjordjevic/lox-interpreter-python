@@ -364,6 +364,82 @@ class TestScanner(unittest.TestCase):
         ]
         self.assertEqual(token_types, expected_types)
 
+    def test_case_sensitivity(self):
+        source = "IF OR while NIL FOR else fun WHILE nil print for false VAR AND super RETURN class and TRUE or SUPER CLASS var if THIS FUN this FALSE return PRINT true ELSE"
+        scanner = Scanner(source)
+        tokens = scanner.scan_tokens()
+        token_types = [token.type for token in tokens]
+        expected_types = [
+            TokenType.IDENTIFIER,  # IF
+            TokenType.IDENTIFIER,  # OR
+            TokenType.WHILE,  # while
+            TokenType.IDENTIFIER,  # NIL
+            TokenType.IDENTIFIER,  # FOR
+            TokenType.ELSE,  # else
+            TokenType.FUN,  # fun
+            TokenType.IDENTIFIER,  # WHILE
+            TokenType.NIL,  # nil
+            TokenType.PRINT,  # print
+            TokenType.FOR,  # for
+            TokenType.FALSE,  # false
+            TokenType.IDENTIFIER,  # VAR
+            TokenType.IDENTIFIER,  # AND
+            TokenType.SUPER,  # super
+            TokenType.IDENTIFIER,  # RETURN
+            TokenType.CLASS,  # class
+            TokenType.AND,  # and
+            TokenType.IDENTIFIER,  # TRUE
+            TokenType.OR,  # or
+            TokenType.IDENTIFIER,  # SUPER
+            TokenType.IDENTIFIER,  # CLASS
+            TokenType.VAR,  # var
+            TokenType.IF,  # if
+            TokenType.IDENTIFIER,  # THIS
+            TokenType.IDENTIFIER,  # FUN
+            TokenType.THIS,  # this
+            TokenType.IDENTIFIER,  # FALSE
+            TokenType.RETURN,  # return
+            TokenType.IDENTIFIER,  # PRINT
+            TokenType.TRUE,  # true
+            TokenType.IDENTIFIER,  # ELSE
+            TokenType.EOF,
+        ]
+        self.assertEqual(token_types, expected_types)
+
+    def test_complex_input(self):
+        source = """var greeting = "Hello"
+                        if (greeting == "Hello") {
+                            return true
+                        } else {
+                            return false
+                        }"""
+        scanner = Scanner(source)
+        tokens = scanner.scan_tokens()
+        token_types = [token.type for token in tokens]
+        expected_types = [
+            TokenType.VAR,  # var
+            TokenType.IDENTIFIER,  # greeting
+            TokenType.EQUAL,  # =
+            TokenType.STRING,  # "Hello"
+            TokenType.IF,  # if
+            TokenType.LEFT_PAREN,  # (
+            TokenType.IDENTIFIER,  # greeting
+            TokenType.EQUAL_EQUAL,  # ==
+            TokenType.STRING,  # "Hello"
+            TokenType.RIGHT_PAREN,  # )
+            TokenType.LEFT_BRACE,  # {
+            TokenType.RETURN,  # return
+            TokenType.TRUE,  # true
+            TokenType.RIGHT_BRACE,  # }
+            TokenType.ELSE,  # else
+            TokenType.LEFT_BRACE,  # {
+            TokenType.RETURN,  # return
+            TokenType.FALSE,  # false
+            TokenType.RIGHT_BRACE,  # }
+            TokenType.EOF,  # EOF
+        ]
+        self.assertEqual(token_types, expected_types)
+
 
 if __name__ == "__main__":
     unittest.main()
