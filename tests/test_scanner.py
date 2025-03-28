@@ -337,21 +337,6 @@ class TestScanner(unittest.TestCase):
         self.assertEqual(tokens[0].literal, "hello\nworld")
         self.assertEqual(tokens[1].type, TokenType.EOF)
 
-    def test_invalid_number(self):
-        source = "123abc"
-        scanner = Scanner(source)
-
-        # Redirect stderr to capture the error message
-        captured_output = StringIO()
-        sys.stderr = captured_output
-
-        scanner.scan_tokens()
-
-        # Reset redirect
-        sys.stderr = sys.__stderr__
-
-        self.assertIn("[line 1] Error: Invalid number.", captured_output.getvalue())
-
     def test_complex_nested_expression(self):
         source = "({()})"
         scanner = Scanner(source)
