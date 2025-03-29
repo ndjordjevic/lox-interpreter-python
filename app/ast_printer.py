@@ -1,9 +1,3 @@
-import sys
-import os
-
-# Add the parent directory of 'app' to the Python path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from app.expr import Visitor, Binary, Grouping, Literal, Unary
 
 
@@ -35,8 +29,8 @@ class AstPrinter(Visitor):
         return str(literal.value)
 
     def visit_unary(self, unary):
-        # Ensure the operator is correctly formatted
-        return self.parenthesize(unary.operator, unary.right)
+        # Ensure the operator is passed as a string
+        return self.parenthesize(str(unary.operator), unary.right)
 
     def parenthesize(self, name, *exprs):
         builder = []
