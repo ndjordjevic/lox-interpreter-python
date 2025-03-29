@@ -1,9 +1,9 @@
 import sys
 
 from .scanner import Scanner
-from .parser import Parser  # Ensure you have a Parser class implemented in parser.py
-from .ast_printer import AstPrinter  # Import AstPrinter
-from .utils import error_state  # Import error_state
+from .parser import Parser
+from .ast_printer import AstPrinter
+from .utils import error_state
 
 
 def parse(file_contents: str):
@@ -58,11 +58,9 @@ def run(source):
     scanner = Scanner(source)
     tokens = scanner.scan_tokens()
 
-    # Format and print tokens1
+    # Format and print tokens
     for token in tokens:
-        token_type = (
-            token.type.name
-        )  # Get the uppercase string representation of the token type
+        token_type = token.type.name  # Get the uppercase string representation of the token type
         literal = "null" if token.literal is None else token.literal
         print(f"{token_type} {token.lexeme} {literal}")
 

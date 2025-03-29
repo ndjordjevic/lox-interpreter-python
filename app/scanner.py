@@ -1,6 +1,6 @@
 from .token import Token
 from .token_type import TokenType
-from .utils import error  # Import the error function from utils
+from .utils import error
 
 
 class Scanner:
@@ -83,17 +83,24 @@ class Scanner:
                     self.advance()
             elif self.match("*"):
                 # A multiline comment goes until "*/".
-                while (
-                    not (self.peek() == "*" and self.peek_next() == "/")
-                    and not self.is_at_end()
-                ):
-                    if self.peek() == "\n":
+                while True:
+                    if self.is_at_end():
+                        error(
+                            self.line, "Unterminated multiline comment."
+                        )  # Report the error
+                        return  # Stop further tokenization
+                    peek = self.peek()
+                    peek_next = self.peek_next()
+                    if peek == "*" and peek_next == "/":
+                        # Track line numbers for error reporting even within multiline comments.
+                        self.line += 1
+                        break
+                    if peek == "\n":
                         self.line += 1
                     self.advance()
                 # Consume the closing "*/".
-                if not self.is_at_end():
-                    self.advance()  # Consume '*'
-                    self.advance()  # Consume '/'
+                self.advance()  # Consume '*'
+                self.advance()  # Consume '/'
             else:
                 self.add_token(TokenType.SLASH)
         elif c in {" ", "\r", "\t"}:
@@ -114,9 +121,11 @@ class Scanner:
         self.current += 1
         return self.source[self.current - 1]
 
+    def get_current_lexeme(self):
+        return self.source[self.start : self.current]
+
     def add_token(self, type, literal=None):
-        text = self.source[self.start : self.current]
-        self.tokens.append(Token(type, text, literal, self.line))
+        self.tokens.append(Token(type, self.get_current_lexeme(), literal, self.line))
 
     def match(self, expected):
         if self.is_at_end():
@@ -146,7 +155,7 @@ class Scanner:
         self.advance()
 
         # Trim the surrounding quotes
-        value = self.source[self.start + 1 : self.current - 1]
+        value = self.get_current_lexeme()[1:-1]
         self.add_token(TokenType.STRING, value)
 
     def is_digit(self, c):
@@ -165,7 +174,10 @@ class Scanner:
                 self.advance()
 
         # Add the number token.
-        self.add_token(TokenType.NUMBER, float(self.source[self.start : self.current]))
+        try:
+            self.add_token(TokenType.NUMBER, float(self.get_current_lexeme()))
+        except ValueError:
+            error(self.line, f"Invalid number: {self.get_current_lexeme()}")
 
     def peek_next(self):
         if self.current + 1 >= len(self.source):
@@ -176,10 +188,9 @@ class Scanner:
         while self.is_alphanumeric(self.peek()):
             self.advance()
 
-        text = self.source[self.start : self.current]
-        type = self.keywords.get(text)
-        if type is None:
-            type = TokenType.IDENTIFIER
+        # Check if the identifier matches a reserved keyword.
+        lexeme = self.get_current_lexeme()
+        type = self.keywords.get(lexeme, TokenType.IDENTIFIER)
         self.add_token(type)
 
     def is_alpha(self, c):
