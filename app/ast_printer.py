@@ -1,4 +1,4 @@
-from app.expr import Visitor, Binary, Grouping, Literal, Unary
+from .expr import Visitor, Binary, Grouping, Literal, Unary
 
 
 class AstPrinter(Visitor):

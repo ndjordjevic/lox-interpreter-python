@@ -1,5 +1,5 @@
-from app.expr import Binary, Literal, Grouping, Unary
-from app.token_type import TokenType
+from .expr import Binary, Literal, Grouping, Unary
+from .token_type import TokenType
 
 
 class Parser:
