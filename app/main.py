@@ -1,21 +1,27 @@
 import sys
 
+from .expr import Unary
 from .scanner import Scanner
-from .parser import Parser
 from .ast_printer import AstPrinter
 from .utils import error_state
 
 
 def parse(file_contents: str):
     scanner = Scanner(file_contents)
-    tokens = scanner.scan_tokens()  # Tokenize the input
-    parser = Parser(tokens)  # Pass tokens to the Parser
-    expression = parser.parse()
+    tokens = scanner.scan_tokens()
+    expression = parse_tokens(tokens)
     if expression:
         printer = AstPrinter()
-        print(
-            printer.print(expression)
-        )  # Use AstPrinter to print the parsed expression
+        print(printer.print(expression))
+
+
+def parse_tokens(tokens):
+    # Example parsing logic for unary expressions
+    if tokens[0].type == "BANG":  # Assuming "BANG" represents the "!" operator
+        operator = "!"
+        right = parse_tokens(tokens[1:])  # Parse the right-hand side expression
+        return Unary(operator, right)
+    # Add logic for other expressions as needed
 
 
 def main():
@@ -60,7 +66,9 @@ def run(source):
 
     # Format and print tokens
     for token in tokens:
-        token_type = token.type.name  # Get the uppercase string representation of the token type
+        token_type = (
+            token.type.name
+        )  # Get the uppercase string representation of the token type
         literal = "null" if token.literal is None else token.literal
         print(f"{token_type} {token.lexeme} {literal}")
 
