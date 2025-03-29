@@ -64,7 +64,9 @@ class Parser:
 
     def unary(self):
         if self.match(TokenType.BANG, TokenType.MINUS):
-            operator = self.previous()
+            operator = (
+                self.previous().lexeme
+            )  # Use the lexeme (e.g., "!" or "-") as the operator
             right = self.unary()
             return Unary(operator, right)
 

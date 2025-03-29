@@ -4,24 +4,17 @@ from .expr import Unary
 from .scanner import Scanner
 from .ast_printer import AstPrinter
 from .utils import error_state
+from .parser import Parser
 
 
 def parse(file_contents: str):
     scanner = Scanner(file_contents)
     tokens = scanner.scan_tokens()
-    expression = parse_tokens(tokens)
+    parser = Parser(tokens)  # Use the Parser class
+    expression = parser.parse()  # Parse the tokens
     if expression:
         printer = AstPrinter()
         print(printer.print(expression))
-
-
-def parse_tokens(tokens):
-    # Example parsing logic for unary expressions
-    if tokens[0].type == "BANG":  # Assuming "BANG" represents the "!" operator
-        operator = "!"
-        right = parse_tokens(tokens[1:])  # Parse the right-hand side expression
-        return Unary(operator, right)
-    # Add logic for other expressions as needed
 
 
 def main():
