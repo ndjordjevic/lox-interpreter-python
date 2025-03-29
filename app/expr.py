@@ -71,6 +71,8 @@ class Evaluator(Visitor):
         right = unary.right.accept(self)
         if unary.operator == "-":
             return -right
+        elif unary.operator == "!":  # Add support for '!'
+            return not right
         # Add more unary operators as needed
 
 

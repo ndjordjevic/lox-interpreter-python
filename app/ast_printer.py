@@ -35,6 +35,7 @@ class AstPrinter(Visitor):
         return str(literal.value)
 
     def visit_unary(self, unary):
+        # Ensure the operator is correctly formatted
         return self.parenthesize(unary.operator, unary.right)
 
     def parenthesize(self, name, *exprs):

@@ -1,11 +1,6 @@
 import unittest
-import sys
-import os
 
-# Add the parent directory of 'tests' to the Python path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from app.expr import Binary, Grouping, Literal, Unary, Evaluator
+from app import Binary, Grouping, Literal, Unary, Evaluator
 
 
 class TestEvaluator(unittest.TestCase):

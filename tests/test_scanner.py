@@ -207,7 +207,7 @@ class TestScanner(unittest.TestCase):
         source = "/* This is a\nmultiline comment */"
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
-        self.assertEqual(len(tokens), 1)  # Only EOF token should remain
+        self.assertEqual(len(tokens), 1)
         self.assertEqual(tokens[0].type, TokenType.EOF)
 
     def test_unterminated_string(self):
@@ -240,7 +240,7 @@ class TestScanner(unittest.TestCase):
             TokenType.BANG_EQUAL,
             TokenType.LESS,
             TokenType.GREATER_EQUAL,
-            TokenType.EQUAL,  # This is correct for `==`
+            TokenType.EQUAL,
             TokenType.EOF,
         ]
         self.assertEqual(token_types, expected_types)
