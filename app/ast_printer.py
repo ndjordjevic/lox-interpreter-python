@@ -14,7 +14,8 @@ class AstPrinter(Visitor):
         return expr.accept(self)
 
     def visit_binary(self, binary):
-        return self.parenthesize(binary.operator, binary.left, binary.right)
+        # Use the lexeme of the operator token instead of the token object
+        return self.parenthesize(binary.operator.lexeme, binary.left, binary.right)
 
     def visit_grouping(self, grouping):
         return self.parenthesize("group", grouping.expression)
