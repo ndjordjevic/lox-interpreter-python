@@ -73,13 +73,19 @@ class Evaluator(Visitor):
             return -right
         elif unary.operator == "!":  # Add support for '!'
             return not right
-        # Add more unary operators as needed
 
 
 # Temporary main function to see how it works
 if __name__ == "__main__":
-    expression = Binary(Unary("-", Literal(123)), "*", Grouping(Literal(45.67)))
+    # Create a unary expression: -123
+    unary_expression = Unary("-", Literal(123))
+
+    # Create a grouping expression: (45.67)
+    grouping_expression = Grouping(Literal(45.67))
+
+    # Combine the unary and grouping expressions into a binary expression: (-123) * (45.67)
+    expression = Binary(unary_expression, "*", grouping_expression)
 
     evaluator = Evaluator()
     result = expression.accept(evaluator)
-    print(result)  # Output will depend on the expression
+    print(result)  # Expected output: -123 * 45.67 = -5615.41
