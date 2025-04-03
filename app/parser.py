@@ -10,7 +10,6 @@ class Parser:
         self.current = 0
 
     def parse(self):
-        # Stop parsing if a syntax error has already occurred
         if error_state["had_error"]:
             return None
 
