@@ -5,6 +5,7 @@ from .ast_printer import AstPrinter
 from .utils import error_state
 from .parser import Parser
 
+
 def parse(file_contents: str):
     scanner = Scanner(file_contents)
     tokens = scanner.scan_tokens()
@@ -33,6 +34,10 @@ def main():
     else:
         print(f"Unknown command: {command}")
         sys.exit(1)
+
+    # Exit with code 65 if there was a syntax error.
+    if error_state["had_error"]:
+        sys.exit(65)
 
 
 def run_file(file_path):
