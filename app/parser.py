@@ -88,10 +88,6 @@ class Parser:
             self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
             return Grouping(expr)
 
-        # Avoid redundant error reporting for tokens already flagged as errors.
-        if self.is_at_end() or self.peek().type == TokenType.ERROR:
-            return None
-
         # If no valid token is found, throw an error.
         raise self.error(self.peek(), "Expect expression.")
 
