@@ -17,6 +17,18 @@ def parse(file_contents: str):
         print(printer.print(expression))
 
 
+def error(token, message):
+    if token.type.name == "EOF":
+        report(token.line, " at end", message)
+    else:
+        report(token.line, f" at '{token.lexeme}'", message)
+
+
+def report(line, where, message):
+    print(f"[line {line}] Error{where}: {message}")
+    error_state["had_error"] = True
+
+
 def main():
     if len(sys.argv) < 3:
         print("Usage: ./your_program.sh <command> <filename>")
@@ -57,17 +69,17 @@ def run(source):
     scanner = Scanner(source)
     tokens = scanner.scan_tokens()
 
-    # Format and print tokens
-    for token in tokens:
-        token_type = (
-            token.type.name
-        )  # Get the uppercase string representation of the token type
-        literal = "null" if token.literal is None else token.literal
-        print(f"{token_type} {token.lexeme} {literal}")
+    # Parse the tokens into an expression.
+    parser = Parser(tokens)
+    expression = parser.parse()
 
-    # Check for errors and exit with code 65 if any occurred
+    # Stop if there was a syntax error.
     if error_state["had_error"]:
-        sys.exit(65)
+        return
+
+    # Print the syntax tree using AstPrinter.
+    printer = AstPrinter()
+    print(printer.print(expression))
 
 
 if __name__ == "__main__":
