@@ -12,6 +12,7 @@ class Parser:
         try:
             return self.expression()
         except ParseError:
+            self.synchronize()  # Recover from the error
             return None
 
     def expression(self):
