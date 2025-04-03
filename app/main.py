@@ -1,11 +1,9 @@
 import sys
 
-from .expr import Unary
 from .scanner import Scanner
 from .ast_printer import AstPrinter
 from .utils import error_state
 from .parser import Parser
-
 
 def parse(file_contents: str):
     scanner = Scanner(file_contents)
@@ -15,18 +13,6 @@ def parse(file_contents: str):
     if expression:
         printer = AstPrinter()
         print(printer.print(expression))
-
-
-def error(token, message):
-    if token.type.name == "EOF":
-        report(token.line, " at end", message)
-    else:
-        report(token.line, f" at '{token.lexeme}'", message)
-
-
-def report(line, where, message):
-    print(f"[line {line}] Error{where}: {message}")
-    error_state["had_error"] = True
 
 
 def main():
