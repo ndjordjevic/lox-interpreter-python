@@ -129,6 +129,9 @@ class Parser:
         return self.tokens[self.current - 1]
 
     def error(self, token, message):
+        # Suppress errors if already in recovery mode
+        if error_state["had_error"]:
+            return ParseError()
         error(token, message)
         return ParseError()
 
