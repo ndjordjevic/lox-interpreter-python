@@ -16,6 +16,15 @@ def parse(file_contents: str):
         print(printer.print(expression))
 
 
+def tokenize(file_contents: str):
+    scanner = Scanner(file_contents)
+    tokens = scanner.scan_tokens()
+    for token in tokens:
+        # Print each token in the expected format
+        literal = "null" if token.literal is None else token.literal
+        print(f"{token.type.name} {token.lexeme} {literal}")
+
+
 def main():
     if len(sys.argv) < 3:
         print("Usage: ./your_program.sh <command> <filename>")
@@ -28,7 +37,7 @@ def main():
         file_contents = file.read()
 
     if command == "tokenize":
-        run(file_contents)
+        tokenize(file_contents)
     elif command == "parse":
         parse(file_contents)
     else:
