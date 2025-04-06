@@ -16,7 +16,9 @@ class Parser:
         try:
             return self.expression()
         except ParseError:
-            self.synchronize()  # Recover from the error
+            # Suppress error messages if already in error state
+            if not error_state["had_error"]:
+                self.synchronize()  # Recover from the error
             return None
 
     def expression(self):
