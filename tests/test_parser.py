@@ -141,6 +141,18 @@ class TestParser(unittest.TestCase):
         expected = "nil"
         self.assertEqual(result, expected)
 
+    def test_unmatched_parenthesis(self):
+        # Test case: (foo
+        tokens = [
+            Token(TokenType.LEFT_PAREN, "(", None, 1),  # Left parenthesis
+            Token(TokenType.IDENTIFIER, "foo", "foo", 1),  # Identifier
+            Token(TokenType.EOF, "", None, 1),  # End of file
+        ]
+        parser = Parser(tokens)
+
+        with self.assertRaises(ParseError):  # Expect a ParseError
+            parser.parse()
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -138,7 +138,9 @@ class Parser:
         # Suppress errors if already in recovery mode
         if error_state["had_error"]:
             return ParseError()
-        error(token, message)
+        error_state["had_error"] = True  # Mark that an error occurred
+        # Comment out or remove the following line to suppress error messages:
+        # error(token, message)
         return ParseError()
 
     def synchronize(self):
