@@ -95,9 +95,9 @@ class Parser:
 
         if self.match(TokenType.LEFT_PAREN):
             expr = self.expression()
-            if not self.match(TokenType.RIGHT_PAREN):  # Allow missing closing parenthesis
-                # Optionally, log a warning or handle the missing parenthesis gracefully
-                pass
+            # Enforce the presence of a closing parenthesis
+            if not self.match(TokenType.RIGHT_PAREN):
+                raise self.error(self.peek(), "Expect ')' after expression.")
             return Grouping(expr)
 
         # If no valid token is found, throw an error.
