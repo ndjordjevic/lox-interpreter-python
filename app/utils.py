@@ -1,5 +1,5 @@
 import sys
-from token_type import TokenType
+from .token_type import TokenType
 
 error_state = {"had_error": False}
 
