@@ -1,8 +1,9 @@
 import unittest
-from app.parser import Parser
+from app.parser import Parser, ParseError
 from app.ast_printer import AstPrinter
 from app.token_type import TokenType
 from app.token import Token
+from app.utils import error_state
 
 
 class TestParser(unittest.TestCase):
@@ -141,6 +142,7 @@ class TestParser(unittest.TestCase):
         expected = "nil"
         self.assertEqual(result, expected)
 
+
     def test_unmatched_parenthesis(self):
         # Test case: (foo
         tokens = [
@@ -150,8 +152,12 @@ class TestParser(unittest.TestCase):
         ]
         parser = Parser(tokens)
 
-        with self.assertRaises(ParseError):  # Expect a ParseError
-            parser.parse()
+        # Reset error state before test
+        error_state["had_error"] = False
+
+        result = parser.parse()
+        self.assertIsNone(result, "Parser should return None on error")
+        self.assertTrue(error_state["had_error"], "Error state should be set")
 
 
 if __name__ == "__main__":
