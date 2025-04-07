@@ -4,7 +4,7 @@ error_state = {"had_error": False}
 
 
 def error(token, message):
-    if token.type == "EOF"
+    if token.type == "EOF":
         report(token.line, " at end", message)
     else:
         report(token.line, f" at '{token.lexeme}'", message)
