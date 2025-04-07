@@ -64,9 +64,7 @@ class Parser:
 
     def unary(self):
         if self.match(TokenType.BANG, TokenType.MINUS):
-            operator = (
-                self.previous().lexeme
-            )  # Use the lexeme (e.g., "!" or "-") as the operator
+            operator = self.previous()
             right = self.unary()
             return Unary(operator, right)
 
@@ -83,23 +81,19 @@ class Parser:
         if self.match(TokenType.NUMBER, TokenType.STRING):
             return Literal(self.previous().literal)
 
-        if self.match(TokenType.IDENTIFIER):  # Handle identifiers as valid expressions
-            return Literal(self.previous().lexeme)
+        # if self.match(TokenType.IDENTIFIER):
+        #     return Literal(self.previous().lexeme)
 
         if self.match(TokenType.LEFT_PAREN):
             expr = self.expression()
             # Enforce the presence of a closing parenthesis
-            if not self.match(TokenType.RIGHT_PAREN):
-                raise self.error(self.peek(), "Expect ')' after expression.")
+            # if not self.match(TokenType.RIGHT_PAREN):
+            #     raise self.error(self.peek(), "Expect ')' after expression.")
+            # return Grouping(expr)
+            self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
             return Grouping(expr)
 
-        # If no valid token is found, throw an error.
         raise self.error(self.peek(), "Expect expression.")
-
-    def consume(self, token_type, message):
-        if self.check(token_type):
-            return self.advance()
-        raise self.error(self.peek(), message)
 
     def match(self, *types):
         for token_type in types:
@@ -107,6 +101,11 @@ class Parser:
                 self.advance()
                 return True
         return False
+    
+    def consume(self, token_type, message):
+        if self.check(token_type):
+            return self.advance()
+        raise self.error(self.peek(), message)
 
     def check(self, token_type):
         if self.is_at_end():
@@ -129,9 +128,9 @@ class Parser:
 
     def error(self, token, message):
         # # Suppress errors if already in recovery mode
-        if error_state["had_error"]:
-            return ParseError()
-        error_state["had_error"] = True  # Mark that an error occurred
+        # if error_state["had_error"]:
+        #     return ParseError()
+        # error_state["had_error"] = True  # Mark that an error occurred
         # # Comment out or remove the following line to suppress error messages:
         error(token, message)
         return ParseError()
