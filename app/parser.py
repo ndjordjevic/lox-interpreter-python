@@ -1,6 +1,5 @@
 from .expr import Binary, Literal, Grouping, Unary
 from .token_type import TokenType
-from .error_handler import error
 from .utils import error_state  # Import error_state to check for errors
 
 
