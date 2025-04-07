@@ -9,8 +9,8 @@ class Parser:
         self.current = 0
 
     def parse(self):
-        if error_state["had_error"]:
-            return None
+        # if error_state["had_error"]:
+        #     return None
 
         try:
             return self.expression()
