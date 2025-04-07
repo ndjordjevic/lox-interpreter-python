@@ -1,6 +1,6 @@
 from .expr import Binary, Literal, Grouping, Unary
 from .token_type import TokenType
-from .utils import error_state  # Import error_state to check for errors
+from .utils import error
 
 
 class Parser:
@@ -12,9 +12,6 @@ class Parser:
         try:
             return self.expression()
         except ParseError:
-            # # Suppress error messages if already in error state
-            # if not error_state["had_error"]:
-            #     self.synchronize()  # Recover from the error
             return None
 
     def expression(self):
@@ -131,12 +128,12 @@ class Parser:
         return self.tokens[self.current - 1]
 
     def error(self, token, message):
-        # Suppress errors if already in recovery mode
-        if error_state["had_error"]:
-            return ParseError()
-        error_state["had_error"] = True  # Mark that an error occurred
-        # Comment out or remove the following line to suppress error messages:
-        # error(token, message)
+        # # Suppress errors if already in recovery mode
+        # if error_state["had_error"]:
+        #     return ParseError()
+        # error_state["had_error"] = True  # Mark that an error occurred
+        # # Comment out or remove the following line to suppress error messages:
+        error(token, message)
         return ParseError()
 
     def synchronize(self):
