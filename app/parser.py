@@ -9,15 +9,12 @@ class Parser:
         self.current = 0
 
     def parse(self):
-        # if error_state["had_error"]:
-        #     return None
-
         try:
             return self.expression()
         except ParseError:
-            # Suppress error messages if already in error state
-            if not error_state["had_error"]:
-                self.synchronize()  # Recover from the error
+            # # Suppress error messages if already in error state
+            # if not error_state["had_error"]:
+            #     self.synchronize()  # Recover from the error
             return None
 
     def expression(self):
