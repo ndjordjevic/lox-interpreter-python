@@ -1,6 +1,6 @@
 from .expr import Binary, Literal, Grouping, Unary
 from .token_type import TokenType
-from .utils import error
+from .utils import error, error_state
 
 
 class Parser:
@@ -129,9 +129,9 @@ class Parser:
 
     def error(self, token, message):
         # # Suppress errors if already in recovery mode
-        # if error_state["had_error"]:
-        #     return ParseError()
-        # error_state["had_error"] = True  # Mark that an error occurred
+        if error_state["had_error"]:
+            return ParseError()
+        error_state["had_error"] = True  # Mark that an error occurred
         # # Comment out or remove the following line to suppress error messages:
         error(token, message)
         return ParseError()
