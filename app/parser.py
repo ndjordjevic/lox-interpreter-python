@@ -81,15 +81,8 @@ class Parser:
         if self.match(TokenType.NUMBER, TokenType.STRING):
             return Literal(self.previous().literal)
 
-        # if self.match(TokenType.IDENTIFIER):
-        #     return Literal(self.previous().lexeme)
-
         if self.match(TokenType.LEFT_PAREN):
             expr = self.expression()
-            # Enforce the presence of a closing parenthesis
-            # if not self.match(TokenType.RIGHT_PAREN):
-            #     raise self.error(self.peek(), "Expect ')' after expression.")
-            # return Grouping(expr)
             self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
             return Grouping(expr)
 
@@ -101,7 +94,7 @@ class Parser:
                 self.advance()
                 return True
         return False
-    
+
     def consume(self, token_type, message):
         if self.check(token_type):
             return self.advance()
@@ -127,11 +120,6 @@ class Parser:
         return self.tokens[self.current - 1]
 
     def error(self, token, message):
-        # # Suppress errors if already in recovery mode
-        # if error_state["had_error"]:
-        #     return ParseError()
-        # error_state["had_error"] = True  # Mark that an error occurred
-        # # Comment out or remove the following line to suppress error messages:
         error(token, message)
         return ParseError()
 
