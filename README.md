@@ -49,7 +49,19 @@ Note: This section is for stages 2 and beyond.
 3. Commit your changes and run `git push origin master` to submit your solution
    to CodeCrafters. Test output will be streamed to your terminal.
 
-# To run the unit-tests from the command line use:
-`python3 -m unittest tests/test_scanner.py`,
-or just a single test case:
-`python3 -m unittest tests.test_scanner.TestScanner.test_multiline_string`
+# To run the unit-tests from the command line:
+
+- Run all tests in a specific file:
+  ```sh
+  python3 -m unittest tests/test_scanner.py
+  ```
+
+- Run a single test case:
+  ```sh
+  python3 -m unittest tests.test_scanner.TestScanner.test_multiline_string
+  ```
+
+- Discover and run all unit-test files:
+  ```sh
+  python3 -m unittest discover -s tests -p "*.py"
+  ```
