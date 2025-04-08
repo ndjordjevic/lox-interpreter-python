@@ -52,6 +52,8 @@ def main():
 def run_file(file_path):
     with open(file_path, "r", encoding="utf-8") as file:
         run(file.read())
+        if error_state["had_error"]:
+            sys.exit(65)
 
 
 def run_prompt():
@@ -61,6 +63,7 @@ def run_prompt():
             if line is None or line.strip() == "":
                 break
             run(line)
+            error_state["had_error"] = False
     except EOFError:
         pass
 

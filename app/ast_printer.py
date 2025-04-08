@@ -1,37 +1,24 @@
 from .expr import Visitor, Binary, Grouping, Literal, Unary
-
+from .token import Token
+from .token_type import TokenType
 
 class AstPrinter(Visitor):
     def print(self, expr):
-        if isinstance(expr, Literal):
-            if expr.value is True:
-                return "true"
-            if expr.value is False:
-                return "false"
-            if expr.value is None:
-                return "nil"
-            return str(expr.value)
-        return expr.accept(self)
+        return expr.accept(self)  # Delegate to the visitor methods
 
     def visit_binary(self, binary):
-        # Use the lexeme of the operator token instead of the token object
         return self.parenthesize(binary.operator.lexeme, binary.left, binary.right)
 
     def visit_grouping(self, grouping):
         return self.parenthesize("group", grouping.expression)
 
     def visit_literal(self, literal):
-        if isinstance(literal.value, bool):
-            return (
-                "true" if literal.value else "false"
-            )  # Ensure boolean literals are lowercase
         if literal.value is None:
             return "nil"
         return str(literal.value)
 
     def visit_unary(self, unary):
-        # Ensure the operator is passed as a string
-        return self.parenthesize(str(unary.operator), unary.right)
+        return self.parenthesize(unary.operator.lexeme, unary.right)
 
     def parenthesize(self, name, *exprs):
         builder = []
@@ -45,6 +32,11 @@ class AstPrinter(Visitor):
 
 # Temporary main function to see how it works
 if __name__ == "__main__":
-    expression = Binary(Unary("-", Literal(123)), "*", Grouping(Literal(45.67)))
+    # Create Token objects for the operators
+    minus_token = Token(TokenType.MINUS, "-", None, 1)
+    star_token = Token(TokenType.STAR, "*", None, 1)
+
+    # Construct the expression using Token objects
+    expression = Binary(Unary(minus_token, Literal(123)), star_token, Grouping(Literal(45.67)))
 
     print(AstPrinter().print(expression))

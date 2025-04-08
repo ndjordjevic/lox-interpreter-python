@@ -1,6 +1,6 @@
 from .expr import Binary, Literal, Grouping, Unary
 from .token_type import TokenType
-from .utils import error, error_state
+from .utils import error
 
 
 class Parser:
@@ -80,6 +80,10 @@ class Parser:
 
         if self.match(TokenType.NUMBER, TokenType.STRING):
             return Literal(self.previous().literal)
+
+        if self.match(TokenType.IDENTIFIER):
+            # Handle identifiers (e.g., variable names)
+            return Literal(self.previous().lexeme)
 
         if self.match(TokenType.LEFT_PAREN):
             expr = self.expression()

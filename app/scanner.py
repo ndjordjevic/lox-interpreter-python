@@ -78,29 +78,9 @@ class Scanner:
             )
         elif c == "/":
             if self.match("/"):
-                # A single-line comment goes until the end of the line.
+                # A comment goes until the end of the line.
                 while self.peek() != "\n" and not self.is_at_end():
                     self.advance()
-            elif self.match("*"):
-                # A multiline comment goes until "*/".
-                while True:
-                    if self.is_at_end():
-                        error(
-                            self.line, "Unterminated multiline comment."
-                        )  # Report the error
-                        return  # Stop further tokenization
-                    peek = self.peek()
-                    peek_next = self.peek_next()
-                    if peek == "*" and peek_next == "/":
-                        # Track line numbers for error reporting even within multiline comments.
-                        self.line += 1
-                        break
-                    if peek == "\n":
-                        self.line += 1
-                    self.advance()
-                # Consume the closing "*/".
-                self.advance()  # Consume '*'
-                self.advance()  # Consume '/'
             else:
                 self.add_token(TokenType.SLASH)
         elif c in {" ", "\r", "\t"}:
@@ -125,7 +105,8 @@ class Scanner:
         return self.source[self.start : self.current]
 
     def add_token(self, type, literal=None):
-        self.tokens.append(Token(type, self.get_current_lexeme(), literal, self.line))
+        text = self.get_current_lexeme()
+        self.tokens.append(Token(type, text, literal, self.line))
 
     def match(self, expected):
         if self.is_at_end():
@@ -146,7 +127,6 @@ class Scanner:
                 self.line += 1
             self.advance()
 
-        # If we reach the end without finding a closing quote
         if self.is_at_end():
             error(self.line, "Unterminated string.")  # Report the error
             return  # Stop further tokenization
@@ -174,10 +154,7 @@ class Scanner:
                 self.advance()
 
         # Add the number token.
-        try:
-            self.add_token(TokenType.NUMBER, float(self.get_current_lexeme()))
-        except ValueError:
-            error(self.line, f"Invalid number: {self.get_current_lexeme()}")
+        self.add_token(TokenType.NUMBER, float(self.get_current_lexeme()))
 
     def peek_next(self):
         if self.current + 1 >= len(self.source):
@@ -189,8 +166,8 @@ class Scanner:
             self.advance()
 
         # Check if the identifier matches a reserved keyword.
-        lexeme = self.get_current_lexeme()
-        type = self.keywords.get(lexeme, TokenType.IDENTIFIER)
+        text = self.get_current_lexeme()
+        type = self.keywords.get(text, TokenType.IDENTIFIER)
         self.add_token(type)
 
     def is_alpha(self, c):
