@@ -78,8 +78,18 @@ class Scanner:
             )
         elif c == "/":
             if self.match("/"):
-                # A comment goes until the end of the line.
+                # A single-line comment goes until the end of the line.
                 while self.peek() != "\n" and not self.is_at_end():
+                    self.advance()
+            elif self.match("*"):
+                # A multiline comment goes until "*/".
+                while not self.is_at_end():
+                    if self.peek() == "*" and self.peek_next() == "/":
+                        self.advance()  # Consume '*'
+                        self.advance()  # Consume '/'
+                        break
+                    if self.peek() == "\n":
+                        self.line += 1
                     self.advance()
             else:
                 self.add_token(TokenType.SLASH)
