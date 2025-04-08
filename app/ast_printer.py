@@ -2,6 +2,7 @@ from .expr import Visitor, Binary, Grouping, Literal, Unary
 from .token import Token
 from .token_type import TokenType
 
+
 class AstPrinter(Visitor):
     def print(self, expr):
         return expr.accept(self)  # Delegate to the visitor methods
@@ -13,9 +14,11 @@ class AstPrinter(Visitor):
         return self.parenthesize("group", grouping.expression)
 
     def visit_literal(self, literal):
-        if literal.value is None:
+        if isinstance(literal.value, bool):  # Handle boolean values
+            return "true" if literal.value else "false"
+        if literal.value is None:  # Handle nil values
             return "nil"
-        return str(literal.value)
+        return str(literal.value)  # Handle numbers and strings
 
     def visit_unary(self, unary):
         return self.parenthesize(unary.operator.lexeme, unary.right)
@@ -37,6 +40,8 @@ if __name__ == "__main__":
     star_token = Token(TokenType.STAR, "*", None, 1)
 
     # Construct the expression using Token objects
-    expression = Binary(Unary(minus_token, Literal(123)), star_token, Grouping(Literal(45.67)))
+    expression = Binary(
+        Unary(minus_token, Literal(123)), star_token, Grouping(Literal(45.67))
+    )
 
     print(AstPrinter().print(expression))
