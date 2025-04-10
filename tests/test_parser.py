@@ -1,5 +1,5 @@
 import unittest
-from app.parser import Parser, ParseError
+from app.parser import Parser
 from app.ast_printer import AstPrinter
 from app.token_type import TokenType
 from app.token import Token
