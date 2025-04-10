@@ -43,9 +43,6 @@ def evaluate(file_contents: str):
     # Interpret the parsed expression.
     lox_interpreter.interpret(expression)
 
-    if error_state["had_runtime_error"]:
-        sys.exit(70)
-
 
 def main():
     if len(sys.argv) < 3:
@@ -71,6 +68,9 @@ def main():
     # Exit with code 65 if there was a syntax error.
     if error_state["had_error"]:
         sys.exit(65)
+
+    if error_state["had_runtime_error"]:
+        sys.exit(70)
 
 
 def run_file(file_path):
