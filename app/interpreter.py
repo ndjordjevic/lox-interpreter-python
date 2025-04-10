@@ -1,6 +1,6 @@
-from app.expr import Visitor
-from app.token_type import TokenType
-from error_handler import runtime_error
+from .expr import Visitor
+from .token_type import TokenType
+from .error_handler import runtime_error
 
 class RuntimeError(Exception):
     def __init__(self, token, message):
