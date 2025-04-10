@@ -12,7 +12,7 @@ lox_interpreter = Interpreter()  # Static instance of the interpreter
 def parse(file_contents: str):
     scanner = Scanner(file_contents)
     tokens = scanner.scan_tokens()
-    parser = Parser(tokens)  # Use the Parser class
+    parser = Parser(tokens)  # Use the Parser class1
     expression = parser.parse()  # Parse the tokens
     if expression:
         printer = AstPrinter()
