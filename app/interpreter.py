@@ -16,6 +16,8 @@ class Interpreter(Visitor):
         return self.evaluate(expr.expression)
 
     def evaluate(self, expr):
+        if expr is None:
+            return None
         return expr.accept(self)
 
     def visit_unary(self, expr):
@@ -23,7 +25,7 @@ class Interpreter(Visitor):
 
         if expr.operator.type == "MINUS":
             self.check_number_operand(expr.operator, right)
-            return -float(right)  # Ensure the result is negated and returned
+            return -float(right)  # Ensure numeric negation is applied
         elif expr.operator.type == "BANG":
             return not self.is_truthy(right)
 
