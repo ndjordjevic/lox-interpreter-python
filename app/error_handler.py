@@ -1,4 +1,4 @@
-from token_type import TokenType
+from .token_type import TokenType
 import sys
 
 error_state = {"had_error": False, "had_runtime_error": False}
