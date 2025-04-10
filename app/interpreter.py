@@ -1,5 +1,5 @@
 from app.expr import Visitor
-
+from app.token_type import TokenType
 
 class RuntimeError(Exception):
     def __init__(self, token, message):
@@ -16,17 +16,15 @@ class Interpreter(Visitor):
         return self.evaluate(expr.expression)
 
     def evaluate(self, expr):
-        if expr is None:
-            return None
         return expr.accept(self)
 
     def visit_unary(self, expr):
         right = self.evaluate(expr.right)
 
-        if expr.operator.type == "MINUS":
+        if expr.operator.type == TokenType.MINUS:  # Use TokenType for comparison
             self.check_number_operand(expr.operator, right)
-            return -float(right)  # Ensure numeric negation is applied
-        elif expr.operator.type == "BANG":
+            return -float(right)
+        elif expr.operator.type == TokenType.BANG:  # Use TokenType for comparison
             return not self.is_truthy(right)
 
         # Unreachable
@@ -36,16 +34,16 @@ class Interpreter(Visitor):
         left = self.evaluate(expr.left)
         right = self.evaluate(expr.right)
 
-        if expr.operator.type == "MINUS":
+        if expr.operator.type == TokenType.MINUS:
             self.check_number_operands(expr.operator, left, right)
             return float(left) - float(right)
-        elif expr.operator.type == "SLASH":
+        elif expr.operator.type == TokenType.SLASH:
             self.check_number_operands(expr.operator, left, right)
             return float(left) / float(right)
-        elif expr.operator.type == "STAR":
+        elif expr.operator.type == TokenType.STAR:
             self.check_number_operands(expr.operator, left, right)
             return float(left) * float(right)
-        elif expr.operator.type == "PLUS":
+        elif expr.operator.type == TokenType.PLUS:
             if isinstance(left, float) and isinstance(right, float):
                 return float(left) + float(right)
             if isinstance(left, str) and isinstance(right, str):
@@ -53,21 +51,21 @@ class Interpreter(Visitor):
             raise RuntimeError(
                 expr.operator, "Operands must be two numbers or two strings."
             )
-        elif expr.operator.type == "GREATER":
+        elif expr.operator.type == TokenType.GREATER:
             self.check_number_operands(expr.operator, left, right)
             return float(left) > float(right)
-        elif expr.operator.type == "GREATER_EQUAL":
+        elif expr.operator.type == TokenType.GREATER_EQUAL:
             self.check_number_operands(expr.operator, left, right)
             return float(left) >= float(right)
-        elif expr.operator.type == "LESS":
+        elif expr.operator.type == TokenType.LESS:
             self.check_number_operands(expr.operator, left, right)
             return float(left) < float(right)
-        elif expr.operator.type == "LESS_EQUAL":
+        elif expr.operator.type == TokenType.LESS_EQUAL:
             self.check_number_operands(expr.operator, left, right)
             return float(left) <= float(right)
-        elif expr.operator.type == "BANG_EQUAL":
+        elif expr.operator.type == TokenType.BANG_EQUAL:
             return not self.is_equal(left, right)
-        elif expr.operator.type == "EQUAL_EQUAL":
+        elif expr.operator.type == TokenType.EQUAL_EQUAL:
             return self.is_equal(left, right)
 
         # Unreachable
