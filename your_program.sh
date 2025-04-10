@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Use this script to run your program LOCALLY.
+# Use this script to run your program LOCALLY.1
 #
 # Note: Changing this script WILL NOT affect how CodeCrafters runs your program.
 #
