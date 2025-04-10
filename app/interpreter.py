@@ -23,7 +23,7 @@ class Interpreter(Visitor):
 
         if expr.operator.type == "MINUS":
             self.check_number_operand(expr.operator, right)
-            return -float(right)
+            return -float(right)  # Ensure the result is negated and returned
         elif expr.operator.type == "BANG":
             return not self.is_truthy(right)
 
