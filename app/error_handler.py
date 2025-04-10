@@ -25,5 +25,6 @@ def report(line, where, message):
 
 
 def runtime_error(error):
-    print(f"{error}\n[line {error.token.line}]")
+    global error_state
     error_state["had_runtime_error"] = True
+    print(f"{error}", file=sys.stderr)  # Only print the error message
