@@ -1,7 +1,10 @@
 import sys
 from app.token_type import TokenType
 
-error_state = {"had_error": False}
+error_state = {
+    "had_error": False,
+    "had_runtime_error": False
+}
 
 
 def error(arg, message):

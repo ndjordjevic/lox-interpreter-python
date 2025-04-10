@@ -4,6 +4,9 @@ from .scanner import Scanner
 from .ast_printer import AstPrinter
 from .utils import error_state
 from .parser import Parser
+from .interpreter import Interpreter
+
+lox_interpreter = Interpreter()  # Static instance of the interpreter
 
 
 def parse(file_contents: str):
@@ -25,6 +28,22 @@ def tokenize(file_contents: str):
         print(f"{token.type.name} {token.lexeme} {literal}")
 
 
+def evaluate(file_contents: str):
+    scanner = Scanner(file_contents)
+    tokens = scanner.scan_tokens()
+
+    # Parse the tokens into an expression.
+    parser = Parser(tokens)
+    expression = parser.parse()
+
+    # Stop if there was a syntax error.
+    if error_state["had_error"]:
+        return
+
+    # Interpret the parsed expression.
+    lox_interpreter.interpret(expression)
+
+
 def main():
     if len(sys.argv) < 3:
         print("Usage: ./your_program.sh <command> <filename>")
@@ -40,6 +59,8 @@ def main():
         tokenize(file_contents)
     elif command == "parse":
         parse(file_contents)
+    elif command == "evaluate":
+        evaluate(file_contents)
     else:
         print(f"Unknown command: {command}")
         sys.exit(1)
@@ -54,6 +75,8 @@ def run_file(file_path):
         run(file.read())
         if error_state["had_error"]:
             sys.exit(65)
+        if error_state["had_runtime_error"]:
+            sys.exit(70)
 
 
 def run_prompt():
@@ -80,9 +103,8 @@ def run(source):
     if error_state["had_error"]:
         return
 
-    # Print the syntax tree using AstPrinter.
-    printer = AstPrinter()
-    print(printer.print(expression))
+    # Interpret the parsed expression.
+    lox_interpreter.interpret(expression)
 
 
 if __name__ == "__main__":
