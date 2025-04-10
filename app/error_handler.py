@@ -1,16 +1,27 @@
-from .utils import error_state
+from token_type import TokenType
+import sys
+
+error_state = {"had_error": False, "had_runtime_error": False}
 
 
-def error(token, message):
-    if token.type.name == "EOF":
-        report(token.line, " at end", message)
+def error(arg, message):
+    if isinstance(arg, int):  # If the first argument is a line number
+        report(arg, "", message)
+    elif hasattr(arg, "type") and hasattr(
+        arg, "line"
+    ):  # If the first argument is a Token
+        if arg.type == TokenType.EOF:
+            report(arg.line, " at end", message)
+        else:
+            report(arg.line, f" at '{arg.lexeme}'", message)
     else:
-        report(token.line, f" at '{token.lexeme}'", message)
+        raise TypeError("Invalid argument type for error function")
 
 
 def report(line, where, message):
-    print(f"[line {line}] Error{where}: {message}")
+    global error_state
     error_state["had_error"] = True
+    print(f"[line {line}] Error{where}: {message}", file=sys.stderr)  # Print to stderr
 
 
 def runtime_error(error):

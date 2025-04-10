@@ -1,5 +1,6 @@
 from app.expr import Visitor
 from app.token_type import TokenType
+from error_handler import runtime_error
 
 class RuntimeError(Exception):
     def __init__(self, token, message):
@@ -100,7 +101,7 @@ class Interpreter(Visitor):
             value = self.evaluate(expression)
             print(self.stringify(value))
         except RuntimeError as error:
-            self.runtime_error(error)
+            runtime_error(error)
 
     def stringify(self, obj):
         if obj is None:
@@ -117,6 +118,3 @@ class Interpreter(Visitor):
 
         return str(obj)
 
-    def runtime_error(self, error):
-        # Placeholder for handling runtime errors
-        print(f"[Runtime Error] {error}")

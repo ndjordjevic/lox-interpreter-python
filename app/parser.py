@@ -1,6 +1,6 @@
 from .expr import Binary, Literal, Grouping, Unary
 from .token_type import TokenType
-from .utils import error
+from .error_handler import error
 
 
 class Parser:

@@ -2,7 +2,7 @@ import sys
 
 from .scanner import Scanner
 from .ast_printer import AstPrinter
-from .utils import error_state
+from .error_handler import error_state
 from .parser import Parser
 from .interpreter import Interpreter
 

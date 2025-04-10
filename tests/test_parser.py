@@ -3,7 +3,7 @@ from app.parser import Parser, ParseError
 from app.ast_printer import AstPrinter
 from app.token_type import TokenType
 from app.token import Token
-from app.utils import error_state
+from app.error_handler import error_state
 
 
 class TestParser(unittest.TestCase):
