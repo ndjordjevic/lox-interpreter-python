@@ -130,9 +130,8 @@ class Interpreter(ExprVisitor, StmtVisitor):
         raise RuntimeError(operator, "Operand must be a number.")
 
     def check_number_operands(self, operator, left, right):
-        if isinstance(left, float) and isinstance(right, float):
-            return
-        raise RuntimeError(operator, "Operands must be numbers.")
+        if not (isinstance(left, float) and isinstance(right, float)):
+            raise RuntimeError(operator, "Operands must be numbers.")
 
     def is_equal(self, a, b):
         if a is None and b is None:

@@ -41,7 +41,11 @@ def evaluate(file_contents: str):
         return
 
     # Interpret the parsed expression.
-    lox_interpreter.interpret(expression)
+    try:
+        lox_interpreter.interpret(expression)
+    except Exception as e:
+        # Ensure runtime errors are properly caught and flagged
+        error_state["had_runtime_error"] = True
 
 
 def main():
