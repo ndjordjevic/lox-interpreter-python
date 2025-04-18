@@ -10,7 +10,8 @@ class Interpreter(ExprVisitor, StmtVisitor):
         self.environment = Environment()  # Add an instance of Environment
         self.repl_mode = False  # Add a flag for REPL/evaluate mode
 
-    def interpret(self, statements):
+    def interpret(self, statements, repl_mode=False):  # Restore the repl_mode parameter
+        self.repl_mode = repl_mode  # Set the mode
         try:
             for statement in statements:
                 self.execute(statement)
@@ -39,7 +40,9 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
     def visit_expression_stmt(self, stmt):
         value = self.evaluate(stmt.expression)
-        # Remove print statement - expression statements shouldn't print by default
+        # Print the result only if in REPL/evaluate mode
+        if self.repl_mode:
+            print(self.stringify(value))
         return None
 
     def visit_print_stmt(self, stmt):

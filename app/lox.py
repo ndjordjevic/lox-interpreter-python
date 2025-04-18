@@ -40,7 +40,7 @@ def evaluate(file_contents: str):
         return
 
     # Interpret all parsed statements at once.
-    lox_interpreter.interpret(statements)
+    lox_interpreter.interpret(statements, repl_mode=True)  # Set repl_mode to True
 
 
 def main():
