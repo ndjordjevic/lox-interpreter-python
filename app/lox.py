@@ -52,15 +52,20 @@ def main():
     command = sys.argv[1]
     filename = sys.argv[2]
 
-    with open(filename, "r", encoding="utf-8") as file:
-        file_contents = file.read()
-
     if command == "tokenize":
+        with open(filename, "r", encoding="utf-8") as file:
+            file_contents = file.read()
         tokenize(file_contents)
     elif command == "parse":
+        with open(filename, "r", encoding="utf-8") as file:
+            file_contents = file.read()
         parse(file_contents)
     elif command == "evaluate":
+        with open(filename, "r", encoding="utf-8") as file:
+            file_contents = file.read()
         evaluate(file_contents)
+    elif command == "run":
+        run_file(filename)  # Use the existing run_file function
     else:
         print(f"Unknown command: {command}")
         sys.exit(1)
