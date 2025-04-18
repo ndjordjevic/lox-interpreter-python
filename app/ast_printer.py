@@ -42,7 +42,8 @@ class AstPrinter(ExprVisitor, StmtVisitor):
 
     # Statement visitors
     def visit_expression_stmt(self, stmt):
-        return self.parenthesize("expr", stmt.expression)
+        # Return just the expression without wrapping it in "expr"
+        return stmt.expression.accept(self)
         
     def visit_print_stmt(self, stmt):
         return self.parenthesize("print", stmt.expression)
