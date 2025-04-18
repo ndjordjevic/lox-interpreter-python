@@ -205,6 +205,9 @@ class Parser:
 
     def expression_statement(self):
         expr = self.expression()
+        # Allow semicolon to be optional if at the end of the file
+        if self.is_at_end() or self.peek().type == TokenType.EOF:
+            return StmtExpression(expr)
         self.consume(TokenType.SEMICOLON, "Expect ';' after expression.")
         return StmtExpression(expr)
 
