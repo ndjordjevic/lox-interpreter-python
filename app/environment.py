@@ -1,4 +1,4 @@
-from .interpreter import RuntimeError  # Import our custom RuntimeError class
+from .interpreter import RuntimeError
 
 class Environment:
     def __init__(self, enclosing=None):
