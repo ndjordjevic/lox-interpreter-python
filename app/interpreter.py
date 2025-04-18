@@ -1,14 +1,8 @@
 from .stmt import Visitor as StmtVisitor
 from .expr import Visitor as ExprVisitor
 from .token_type import TokenType
-from .error_handler import runtime_error
+from .error_handler import runtime_error, RuntimeError
 from .environment import Environment
-
-
-class RuntimeError(Exception):
-    def __init__(self, token, message):
-        super().__init__(message)
-        self.token = token
 
 
 class Interpreter(ExprVisitor, StmtVisitor):

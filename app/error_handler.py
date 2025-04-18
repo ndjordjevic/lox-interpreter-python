@@ -4,12 +4,16 @@ import sys
 error_state = {"had_error": False, "had_runtime_error": False}
 
 
+class RuntimeError(Exception):
+    def __init__(self, token, message):
+        super().__init__(message)
+        self.token = token
+
+
 def error(arg, message):
     if isinstance(arg, int):  # If the first argument is a line number
         report(arg, "", message)
-    elif hasattr(arg, "type") and hasattr(
-        arg, "line"
-    ):
+    elif hasattr(arg, "type") and hasattr(arg, "line"):
         if arg.type == TokenType.EOF:
             report(arg.line, " at end", message)
         else:

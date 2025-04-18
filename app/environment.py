@@ -1,4 +1,5 @@
-from .interpreter import RuntimeError
+from .error_handler import RuntimeError
+
 
 class Environment:
     def __init__(self, enclosing=None):
@@ -11,21 +12,19 @@ class Environment:
     def get(self, name):
         if name.lexeme in self.values:
             return self.values[name.lexeme]
-        
+
         if self.enclosing is not None:
             return self.enclosing.get(name)
-            
-        # Use our custom RuntimeError class with the token
+
         raise RuntimeError(name, f"Undefined variable '{name.lexeme}'.")
 
     def assign(self, name, value):
         if name.lexeme in self.values:
             self.values[name.lexeme] = value
             return
-        
+
         if self.enclosing is not None:
             self.enclosing.assign(name, value)
             return
 
-        # Use our custom RuntimeError class with the token
         raise RuntimeError(name, f"Undefined variable '{name.lexeme}'.")
