@@ -43,7 +43,8 @@ class Interpreter(ExprVisitor, StmtVisitor):
             self.environment = previous
 
     def visit_expression_stmt(self, stmt):
-        self.evaluate(stmt.expression)
+        value = self.evaluate(stmt.expression)
+        print(self.stringify(value))  # Print the result of the expression
         return None
 
     def visit_print_stmt(self, stmt):
