@@ -6,11 +6,10 @@ from .token_type import TokenType
 
 class AstPrinter(ExprVisitor, StmtVisitor):
     def print(self, obj):
-        # Handle lists (for statements returned from parser)
         if isinstance(obj, list):
             result = []
             for item in obj:
-                if item is not None:  # Skip None values that might occur from synchronization
+                if item is not None:
                     result.append(item.accept(self))
             return "\n".join(result)
         
