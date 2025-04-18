@@ -5,6 +5,7 @@ from .ast_printer import AstPrinter
 from .error_handler import error_state
 from .parser import Parser
 from .interpreter import Interpreter
+from .stmt import Expression as StmtExpression
 
 lox_interpreter = Interpreter()  # Static instance of the interpreter
 
@@ -34,14 +35,20 @@ def evaluate(file_contents: str):
 
     # Parse the tokens into an expression.
     parser = Parser(tokens)
-    expression = parser.parse()
+    statements = parser.parse()
 
     # Stop if there was a syntax error.
     if error_state["had_error"]:
         print("Error during parsing.")
         return
 
-    lox_interpreter.interpret(expression)
+    # Interpret the parsed statements.
+    for statement in statements:
+        if isinstance(statement, StmtExpression):  # Handle expression statements
+            value = lox_interpreter.evaluate(statement.expression)
+            print(lox_interpreter.stringify(value))  # Print the result
+        else:
+            lox_interpreter.execute(statement)
 
 
 def main():
