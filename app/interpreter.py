@@ -1,6 +1,9 @@
-from .expr import Visitor
+from .stmt import Visitor as StmtVisitor
+from .expr import Visitor as ExprVisitor
 from .token_type import TokenType
 from .error_handler import runtime_error
+from .environment import Environment
+
 
 class RuntimeError(Exception):
     def __init__(self, token, message):
@@ -8,30 +11,77 @@ class RuntimeError(Exception):
         self.token = token
 
 
-class Interpreter(Visitor):
+class Interpreter(ExprVisitor, StmtVisitor):
+    def __init__(self):
+        self.environment = Environment()  # Add an instance of Environment
 
-    def visit_literal(self, expr):
-        return expr.value
-
-    def visit_grouping(self, expr):
-        return self.evaluate(expr.expression)
+    def interpret(self, statements):
+        try:
+            for statement in statements:
+                self.execute(statement)
+        except RuntimeError as error:
+            runtime_error(error)
 
     def evaluate(self, expr):
         return expr.accept(self)
 
-    def visit_unary(self, expr):
-        right = self.evaluate(expr.right)
+    def execute(self, stmt):
+        stmt.accept(self)
 
-        if expr.operator.type == TokenType.MINUS:  # Use TokenType for comparison
-            self.check_number_operand(expr.operator, right)
-            return -float(right)
-        elif expr.operator.type == TokenType.BANG:  # Use TokenType for comparison
-            return not self.is_truthy(right)
-
-        # Unreachable
+    def visit_block_stmt(self, stmt):
+        self.execute_block(stmt.statements, Environment(self.environment))
         return None
 
-    def visit_binary(self, expr):
+    def execute_block(self, statements, environment):
+        previous = self.environment
+        try:
+            self.environment = environment
+
+            for statement in statements:
+                self.execute(statement)
+        finally:
+            self.environment = previous
+
+    def visit_expression_stmt(self, stmt):
+        self.evaluate(stmt.expression)
+        return None
+
+    def visit_print_stmt(self, stmt):
+        value = self.evaluate(stmt.expression)
+        print(self.stringify(value))
+        return None
+
+    def visit_var_stmt(self, stmt):
+        value = None
+        if stmt.initializer is not None:
+            value = self.evaluate(stmt.initializer)
+
+        self.environment.define(stmt.name.lexeme, value)
+        return None
+
+    def visit_assign_expr(self, expr):
+        value = self.evaluate(expr.value)
+        self.environment.assign(expr.name, value)
+        return value
+
+    def visit_literal_expr(self, expr):
+        return expr.value
+
+    def visit_grouping_expr(self, expr):
+        return self.evaluate(expr.expression)
+
+    def visit_unary_expr(self, expr):
+        right = self.evaluate(expr.right)
+
+        if expr.operator.type == TokenType.MINUS:
+            self.check_number_operand(expr.operator, right)
+            return -float(right)
+        elif expr.operator.type == TokenType.BANG:
+            return not self.is_truthy(right)
+
+        return None
+
+    def visit_binary_expr(self, expr):
         left = self.evaluate(expr.left)
         right = self.evaluate(expr.right)
 
@@ -69,8 +119,10 @@ class Interpreter(Visitor):
         elif expr.operator.type == TokenType.EQUAL_EQUAL:
             return self.is_equal(left, right)
 
-        # Unreachable
         return None
+
+    def visit_variable_expr(self, expr):
+        return self.environment.get(expr.name)
 
     def check_number_operand(self, operator, operand):
         if isinstance(operand, float):
@@ -96,13 +148,6 @@ class Interpreter(Visitor):
             return value
         return True
 
-    def interpret(self, expression):
-        try:
-            value = self.evaluate(expression)
-            print(self.stringify(value))
-        except RuntimeError as error:
-            runtime_error(error)
-
     def stringify(self, obj):
         if obj is None:
             return "nil"
@@ -117,4 +162,3 @@ class Interpreter(Visitor):
             return text
 
         return str(obj)
-

@@ -1,6 +1,7 @@
-from .expr import Binary, Literal, Grouping, Unary
+from .expr import Binary, Literal, Grouping, Unary, Variable, Assign
 from .token_type import TokenType
 from .error_handler import error
+from .stmt import Expression as StmtExpression, Print as StmtPrint, Var as StmtVar, Block as StmtBlock
 
 
 class Parser:
@@ -9,13 +10,37 @@ class Parser:
         self.current = 0
 
     def parse(self):
-        try:
-            return self.expression()
-        except ParseError:
-            return None
+        statements = []
+        while not self.is_at_end():
+            statements.append(self.declaration())  # Updated to call declaration()
+        return statements
 
     def expression(self):
-        return self.equality()
+        return self.assignment()  # Updated to call assignment()
+
+    def assignment(self):  # New method for assignment expressions
+        expr = self.equality()
+
+        if self.match(TokenType.EQUAL):
+            equals = self.previous()
+            value = self.assignment()
+
+            if isinstance(expr, Variable):
+                name = expr.name
+                return Assign(name, value)
+
+            self.error(equals, "Invalid assignment target.")
+
+        return expr
+
+    def declaration(self):  # New method for declarations
+        try:
+            if self.match(TokenType.VAR):
+                return self.var_declaration()
+            return self.statement()
+        except ParseError:
+            self.synchronize()
+            return None
 
     def equality(self):
         expr = self.comparison()
@@ -81,9 +106,8 @@ class Parser:
         if self.match(TokenType.NUMBER, TokenType.STRING):
             return Literal(self.previous().literal)
 
-        if self.match(TokenType.IDENTIFIER):
-            # Handle identifiers (e.g., variable names)
-            return Literal(self.previous().lexeme)
+        if self.match(TokenType.IDENTIFIER):  # Handle variable expressions
+            return Variable(self.previous())
 
         if self.match(TokenType.LEFT_PAREN):
             expr = self.expression()
@@ -147,6 +171,42 @@ class Parser:
                 return
 
             self.advance()
+
+    def statement(self):
+        if self.match(TokenType.PRINT):
+            return self.print_statement()
+        if self.match(TokenType.LEFT_BRACE):
+            return StmtBlock(self.block())
+        return self.expression_statement()
+
+    def block(self):
+        statements = []
+
+        while not self.check(TokenType.RIGHT_BRACE) and not self.is_at_end():
+            statements.append(self.declaration())
+
+        self.consume(TokenType.RIGHT_BRACE, "Expect '}' after block.")
+        return statements
+
+    def print_statement(self):
+        value = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after value.")
+        return StmtPrint(value)
+
+    def var_declaration(self):  # New method for variable declarations
+        name = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
+
+        initializer = None
+        if self.match(TokenType.EQUAL):
+            initializer = self.expression()
+
+        self.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
+        return StmtVar(name, initializer)
+
+    def expression_statement(self):
+        expr = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after expression.")
+        return StmtExpression(expr)
 
 
 class ParseError(Exception):

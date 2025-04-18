@@ -98,16 +98,16 @@ def run(source):
     scanner = Scanner(source)
     tokens = scanner.scan_tokens()
 
-    # Parse the tokens into an expression.
+    # Parse the tokens into a list of statements.
     parser = Parser(tokens)
-    expression = parser.parse()
+    statements = parser.parse()  # Updated to parse a list of statements
 
     # Stop if there was a syntax error.
     if error_state["had_error"]:
         return
 
-    # Interpret the parsed expression.
-    lox_interpreter.interpret(expression)
+    # Interpret the parsed statements.
+    lox_interpreter.interpret(statements)  # Updated to interpret a list of statements
 
 
 if __name__ == "__main__":
