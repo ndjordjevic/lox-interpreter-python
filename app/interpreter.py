@@ -109,7 +109,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
             )
         elif expr.operator.type == TokenType.GREATER:
             self.check_number_operands(expr.operator, left, right)
-            return float(left) < float(right)  # Inverted the comparison to match test
+            return float(left) > float(right)  # Restored correct comparison
         elif expr.operator.type == TokenType.GREATER_EQUAL:
             self.check_number_operands(expr.operator, left, right)
             return float(left) >= float(right)
