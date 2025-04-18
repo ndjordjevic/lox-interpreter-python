@@ -11,7 +11,7 @@ class RuntimeError(Exception):
 
 
 def error(arg, message):
-    if isinstance(arg, int):  # If the first argument is a line number
+    if isinstance(arg, int):
         report(arg, "", message)
     elif hasattr(arg, "type") and hasattr(arg, "line"):
         if arg.type == TokenType.EOF:

@@ -5,16 +5,15 @@ from .ast_printer import AstPrinter
 from .error_handler import error_state
 from .parser import Parser
 from .interpreter import Interpreter
-from .stmt import Expression as StmtExpression
 
-lox_interpreter = Interpreter()  # Static instance of the interpreter
+lox_interpreter = Interpreter()
 
 
 def parse(file_contents: str):
     scanner = Scanner(file_contents)
     tokens = scanner.scan_tokens()
-    parser = Parser(tokens)  # Use the Parser class1
-    expression = parser.parse()  # Parse the tokens
+    parser = Parser(tokens)
+    expression = parser.parse()
     if expression:
         printer = AstPrinter()
         print(printer.print(expression))
@@ -24,7 +23,6 @@ def tokenize(file_contents: str):
     scanner = Scanner(file_contents)
     tokens = scanner.scan_tokens()
     for token in tokens:
-        # Print each token in the expected format
         literal = "null" if token.literal is None else token.literal
         print(f"{token.type.name} {token.lexeme} {literal}")
 
@@ -39,11 +37,10 @@ def evaluate(file_contents: str):
 
     # Stop if there was a syntax error.
     if error_state["had_error"]:
-        print("Error during parsing.")
         return
 
     # Interpret all parsed statements at once.
-    lox_interpreter.interpret(statements, repl_mode=True)
+    lox_interpreter.interpret(statements)
 
 
 def main():
