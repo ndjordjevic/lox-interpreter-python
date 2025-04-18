@@ -39,7 +39,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
     def visit_expression_stmt(self, stmt):
         value = self.evaluate(stmt.expression)
-        print(self.stringify(value))
+        # Remove print statement - expression statements shouldn't print by default
         return None
 
     def visit_print_stmt(self, stmt):
