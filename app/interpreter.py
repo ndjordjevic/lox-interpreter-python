@@ -44,7 +44,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
     def visit_expression_stmt(self, stmt):
         value = self.evaluate(stmt.expression)
-        print(self.stringify(value))  # Print the result of the expression
+        # Remove the print statement - expressions should be evaluated but not printed
         return None
 
     def visit_print_stmt(self, stmt):
