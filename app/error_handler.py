@@ -9,7 +9,7 @@ def error(arg, message):
         report(arg, "", message)
     elif hasattr(arg, "type") and hasattr(
         arg, "line"
-    ):  # If the first argument is a Token
+    ):
         if arg.type == TokenType.EOF:
             report(arg.line, " at end", message)
         else:

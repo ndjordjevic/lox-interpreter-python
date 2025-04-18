@@ -38,10 +38,9 @@ def evaluate(file_contents: str):
 
     # Stop if there was a syntax error.
     if error_state["had_error"]:
+        print("Error during parsing.")
         return
 
-    # Interpret the parsed expression.
-    # The interpret method already handles runtime errors and sets the flag
     lox_interpreter.interpret(expression)
 
 
@@ -71,7 +70,6 @@ def main():
         print(f"Unknown command: {command}")
         sys.exit(1)
 
-    # Exit with code 65 if there was a syntax error.
     if error_state["had_error"]:
         sys.exit(65)
 
