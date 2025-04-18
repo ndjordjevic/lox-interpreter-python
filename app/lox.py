@@ -42,13 +42,8 @@ def evaluate(file_contents: str):
         print("Error during parsing.")
         return
 
-    # Interpret the parsed statements.
-    for statement in statements:
-        if isinstance(statement, StmtExpression):  # Handle expression statements
-            value = lox_interpreter.evaluate(statement.expression)
-            print(lox_interpreter.stringify(value))  # Print the result
-        else:
-            lox_interpreter.execute(statement)
+    # Interpret all parsed statements at once.
+    lox_interpreter.interpret(statements)
 
 
 def main():
