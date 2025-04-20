@@ -1,7 +1,5 @@
-from .expr import Visitor as ExprVisitor, Binary, Grouping, Literal, Unary, Variable
+from .expr import Visitor as ExprVisitor, Variable
 from .stmt import Visitor as StmtVisitor
-from .token import Token
-from .token_type import TokenType
 
 
 class AstPrinter(ExprVisitor, StmtVisitor):
@@ -12,7 +10,7 @@ class AstPrinter(ExprVisitor, StmtVisitor):
                 if item is not None:
                     result.append(item.accept(self))
             return "\n".join(result)
-        
+
         # Handle individual expressions
         return obj.accept(self) if obj is not None else ""
 
@@ -32,10 +30,10 @@ class AstPrinter(ExprVisitor, StmtVisitor):
 
     def visit_unary_expr(self, expr):
         return self.parenthesize(expr.operator.lexeme, expr.right)
-        
+
     def visit_variable_expr(self, expr):
         return expr.name.lexeme
-        
+
     def visit_assign_expr(self, expr):
         return self.parenthesize("=", Variable(expr.name), expr.value)
 
@@ -43,15 +41,15 @@ class AstPrinter(ExprVisitor, StmtVisitor):
     def visit_expression_stmt(self, stmt):
         # Return just the expression without wrapping it in "expr"
         return stmt.expression.accept(self)
-        
+
     def visit_print_stmt(self, stmt):
         return self.parenthesize("print", stmt.expression)
-        
+
     def visit_var_stmt(self, stmt):
         if stmt.initializer is not None:
             return self.parenthesize("var", Variable(stmt.name), stmt.initializer)
         return self.parenthesize("var", Variable(stmt.name))
-        
+
     def visit_block_stmt(self, stmt):
         result = ["(block"]
         for statement in stmt.statements:
@@ -68,17 +66,3 @@ class AstPrinter(ExprVisitor, StmtVisitor):
             builder.append(expr.accept(self))
         builder.append(")")
         return "".join(builder)
-
-
-# Temporary main function to see how it works
-if __name__ == "__main__":
-    # Create Token objects for the operators
-    minus_token = Token(TokenType.MINUS, "-", None, 1)
-    star_token = Token(TokenType.STAR, "*", None, 1)
-
-    # Construct the expression using Token objects
-    expression = Binary(
-        Unary(minus_token, Literal(123)), star_token, Grouping(Literal(45.67))
-    )
-
-    print(AstPrinter().print(expression))

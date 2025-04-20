@@ -18,7 +18,12 @@ class Visitor:
         pass
 
 
-class Binary:
+class Expr:
+    def accept(self, visitor):
+        pass
+
+
+class Binary(Expr):
     def __init__(self, left, operator, right):
         self.left = left
         self.operator = operator
@@ -28,7 +33,7 @@ class Binary:
         return visitor.visit_binary_expr(self)  # Updated to match renamed method
 
 
-class Grouping:
+class Grouping(Expr):
     def __init__(self, expression):
         self.expression = expression
 
@@ -36,7 +41,7 @@ class Grouping:
         return visitor.visit_grouping_expr(self)  # Updated to match renamed method
 
 
-class Literal:
+class Literal(Expr):
     def __init__(self, value):
         self.value = value
 
@@ -44,7 +49,7 @@ class Literal:
         return visitor.visit_literal_expr(self)  # Updated to match renamed method
 
 
-class Unary:
+class Unary(Expr):
     def __init__(self, operator, right):
         self.operator = operator
         self.right = right
@@ -53,7 +58,7 @@ class Unary:
         return visitor.visit_unary_expr(self)
 
 
-class Variable:
+class Variable(Expr):
     def __init__(self, name):
         self.name = name
 
@@ -61,7 +66,7 @@ class Variable:
         return visitor.visit_variable_expr(self)
 
 
-class Assign:
+class Assign(Expr):
     def __init__(self, name, value):
         self.name = name
         self.value = value

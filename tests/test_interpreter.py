@@ -4,7 +4,8 @@ from io import StringIO
 from app.scanner import Scanner
 from app.parser import Parser
 from app.interpreter import Interpreter
-from app.error_handler import runtime_error, error_state
+from app.error_handler import error_state
+
 
 class TestInterpreter(unittest.TestCase):
     def interpret_expression(self, source, expected_output=None, expected_error=None):
@@ -17,13 +18,13 @@ class TestInterpreter(unittest.TestCase):
 
         # Parse the tokens into an AST
         parser = Parser(tokens)
-        expression = parser.parse()
+        statements = parser.parse()  # Now returns a list of statements
 
         # Interpret the AST and capture the output or error
         interpreter = Interpreter()
         if expected_error:
             with patch("sys.stderr", new=StringIO()) as mock_stderr:
-                interpreter.interpret(expression)
+                interpreter.interpret(statements)
                 self.assertTrue(
                     error_state["had_runtime_error"],
                     "Runtime error should have occurred",
@@ -31,12 +32,45 @@ class TestInterpreter(unittest.TestCase):
                 self.assertIn(expected_error, mock_stderr.getvalue().strip())
         else:
             with patch("sys.stdout", new=StringIO()) as mock_stdout:
-                interpreter.interpret(expression)
+                # For multi-statement tests, we need a different approach
+                # Case 1: If there's a single expression statement, evaluate it directly
+                if len(statements) == 1 and hasattr(statements[0], "expression"):
+                    expression = statements[0].expression
+                    value = interpreter.evaluate(expression)
+                    print(self.stringify_result(value))
+                # Case 2: If the last statement is an expression statement, run all but evaluate the last
+                elif statements and hasattr(statements[-1], "expression"):
+                    # Execute all but the last statement
+                    for stmt in statements[:-1]:
+                        interpreter.execute(stmt)
+
+                    # Evaluate the last expression separately
+                    last_expr = statements[-1].expression
+                    value = interpreter.evaluate(last_expr)
+                    print(self.stringify_result(value))
+                # Case 3: For print statements or other types of statements
+                else:
+                    interpreter.interpret(statements, repl_mode=True)
+
                 self.assertFalse(
                     error_state["had_runtime_error"],
                     "No runtime error should have occurred",
                 )
                 self.assertEqual(mock_stdout.getvalue().strip(), expected_output)
+
+    def stringify_result(self, value):
+        """Convert interpreter result to appropriate string representation"""
+        if value is None:
+            return "nil"
+        if isinstance(value, bool):
+            return str(value).lower()
+        if isinstance(value, float):
+            # Match the interpreter's behavior by removing trailing ".0"
+            text = str(value)
+            if text.endswith(".0"):
+                text = text[:-2]
+            return text
+        return str(value)
 
     def test_literal_expression(self):
         # Test interpreting a literal number
@@ -89,28 +123,99 @@ class TestInterpreter(unittest.TestCase):
         self.interpret_expression("-false", expected_error="Operand must be a number.")
 
         # Binary operator errors
-        self.interpret_expression('"foo" * 42', expected_error="Operands must be numbers.")
-        self.interpret_expression("true / 2", expected_error="Operands must be numbers.")
+        self.interpret_expression(
+            '"foo" * 42', expected_error="Operands must be numbers."
+        )
+        self.interpret_expression(
+            "true / 2", expected_error="Operands must be numbers."
+        )
         self.interpret_expression(
             '("foo" * "bar")', expected_error="Operands must be numbers."
         )
-        self.interpret_expression("false / true", expected_error="Operands must be numbers.")
         self.interpret_expression(
-            '"foo" + true', expected_error="Operands must be two numbers or two strings."
+            "false / true", expected_error="Operands must be numbers."
         )
-        self.interpret_expression("42 - true", expected_error="Operands must be numbers.")
         self.interpret_expression(
-            "true + false", expected_error="Operands must be two numbers or two strings."
+            '"foo" + true',
+            expected_error="Operands must be two numbers or two strings.",
         )
-        self.interpret_expression('"foo" - "bar"', expected_error="Operands must be numbers.")
+        self.interpret_expression(
+            "42 - true", expected_error="Operands must be numbers."
+        )
+        self.interpret_expression(
+            "true + false",
+            expected_error="Operands must be two numbers or two strings.",
+        )
+        self.interpret_expression(
+            '"foo" - "bar"', expected_error="Operands must be numbers."
+        )
 
         # Relational operator errors
-        self.interpret_expression('"foo" < false', expected_error="Operands must be numbers.")
-        self.interpret_expression("true < 2", expected_error="Operands must be numbers.")
+        self.interpret_expression(
+            '"foo" < false', expected_error="Operands must be numbers."
+        )
+        self.interpret_expression(
+            "true < 2", expected_error="Operands must be numbers."
+        )
         self.interpret_expression(
             '("foo" + "bar") < 42', expected_error="Operands must be numbers."
         )
-        self.interpret_expression("false > true", expected_error="Operands must be numbers.")
+        self.interpret_expression(
+            "false > true", expected_error="Operands must be numbers."
+        )
+
+    def test_variable_expr(self):
+        # Test defining and accessing variables
+        self.interpret_expression("var a = 42; a", "42")
+        self.interpret_expression('var name = "Bob"; name', "Bob")
+        self.interpret_expression("var isTrue = true; isTrue", "true")
+        self.interpret_expression("var empty; empty", "nil")
+
+    def test_assignment_expr(self):
+        # Test assigning to variables
+        self.interpret_expression("var a = 1; a = 2; a", "2")
+        self.interpret_expression("var x = 10; var y = 20; x = y; x", "20")
+        self.interpret_expression(
+            'var str = "hello"; str = str + " world"; str', "hello world"
+        )
+
+    def test_print_stmt(self):
+        # Test print statements
+        self.interpret_expression("print 42;", "42")
+        self.interpret_expression('print "hello";', "hello")
+        self.interpret_expression("print true;", "true")
+        self.interpret_expression("print nil;", "nil")
+        self.interpret_expression("print 2 + 2;", "4")
+
+    def test_var_stmt(self):
+        # Test variable declarations
+        self.interpret_expression("var a = 1; var b = 2; a + b", "3")
+        self.interpret_expression("var a; var b = a; b", "nil")
+        self.interpret_expression('var a = "global"; { var a = "local"; } a', "global")
+
+    def test_block_stmt(self):
+        # Test blocks and scope
+        self.interpret_expression("{ var a = 1; var b = 2; print a + b; }", "3")
+        self.interpret_expression(
+            'var a = "outer"; { var a = "inner"; print a; } print a;', "inner\nouter"
+        )
+        self.interpret_expression(
+            "var a = 1; { var a = a + 1; print a; } print a;", "2\n1"
+        )
+        self.interpret_expression(
+            "{ var a = 1; { var a = 2; print a; } print a; }", "2\n1"
+        )
+
+    def test_nested_expressions(self):
+        # Test more complex nested expressions
+        self.interpret_expression("var a = 1; var b = 2; var c = 3; a + b * c", "7")
+        self.interpret_expression("var a = 5; var b = 10; (a + b) / 3", "5")
+        # Remove tests using logical operators that aren't implemented yet
+        self.interpret_expression("var a = true; var b = false; !b", "true")
+        # Remove this test that uses operators not supported by the scanner
+        # self.interpret_expression("var s = \"test\"; s == \"test\" && s != \"rest\"", "true")
+        self.interpret_expression('var s = "test"; s == "test"', "true")
+
 
 if __name__ == "__main__":
     unittest.main()

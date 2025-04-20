@@ -44,30 +44,38 @@ def evaluate(file_contents: str):
 
 
 def main():
-    if len(sys.argv) < 3:
-        print("Usage: ./your_program.sh <command> <filename>")
+    if len(sys.argv) < 2:
+        print("Usage: ./your_program.sh <command> [filename]")
         sys.exit(1)
 
     command = sys.argv[1]
-    filename = sys.argv[2]
-
-    if command == "tokenize":
-        with open(filename, "r", encoding="utf-8") as file:
-            file_contents = file.read()
-        tokenize(file_contents)
-    elif command == "parse":
-        with open(filename, "r", encoding="utf-8") as file:
-            file_contents = file.read()
-        parse(file_contents)
-    elif command == "evaluate":
-        with open(filename, "r", encoding="utf-8") as file:
-            file_contents = file.read()
-        evaluate(file_contents)
-    elif command == "run":
-        run_file(filename)  # Use the existing run_file function
-    else:
-        print(f"Unknown command: {command}")
+    
+    if command == "prompt":
+        run_prompt()
+    elif len(sys.argv) < 3:
+        print("Usage: ./your_program.sh <command> <filename>")
+        print("Filename is required for this command.")
         sys.exit(1)
+    else:
+        filename = sys.argv[2]
+        
+        if command == "tokenize":
+            with open(filename, "r", encoding="utf-8") as file:
+                file_contents = file.read()
+            tokenize(file_contents)
+        elif command == "parse":
+            with open(filename, "r", encoding="utf-8") as file:
+                file_contents = file.read()
+            parse(file_contents)
+        elif command == "evaluate":
+            with open(filename, "r", encoding="utf-8") as file:
+                file_contents = file.read()
+            evaluate(file_contents)
+        elif command == "run":
+            run_file(filename)  # Use the existing run_file function
+        else:
+            print(f"Unknown command: {command}")
+            sys.exit(1)
 
     if error_state["had_error"]:
         sys.exit(65)
