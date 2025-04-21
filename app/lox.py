@@ -31,7 +31,7 @@ def evaluate(file_contents: str):
     scanner = Scanner(file_contents)
     tokens = scanner.scan_tokens()
 
-    # Parse the tokens into an expression.
+    # Parse the tokens into statements.
     parser = Parser(tokens)
     statements = parser.parse()
 
@@ -40,7 +40,7 @@ def evaluate(file_contents: str):
         return
 
     # Interpret all parsed statements at once.
-    lox_interpreter.interpret(statements, repl_mode=True)  # Set repl_mode to True
+    lox_interpreter.interpret(statements, repl_mode=True)
 
 
 def main():
@@ -72,7 +72,7 @@ def main():
                 file_contents = file.read()
             evaluate(file_contents)
         elif command == "run":
-            run_file(filename)  # Use the existing run_file function
+            run_file(filename)
         else:
             print(f"Unknown command: {command}")
             sys.exit(1)
@@ -111,14 +111,14 @@ def run(source):
 
     # Parse the tokens into a list of statements.
     parser = Parser(tokens)
-    statements = parser.parse()  # Updated to parse a list of statements
+    statements = parser.parse()
 
     # Stop if there was a syntax error.
     if error_state["had_error"]:
         return
 
     # Interpret the parsed statements.
-    lox_interpreter.interpret(statements)  # Updated to interpret a list of statements
+    lox_interpreter.interpret(statements)
 
 
 if __name__ == "__main__":

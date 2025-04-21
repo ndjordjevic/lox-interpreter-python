@@ -1,7 +1,7 @@
 from .stmt import Visitor as StmtVisitor
 from .expr import Visitor as ExprVisitor
 from .token_type import TokenType
-from .error_handler import runtime_error, RuntimeError
+from .error_handler import report_runtime_error, RuntimeError
 from .environment import Environment
 
 
@@ -16,7 +16,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
             for statement in statements:
                 self.execute(statement)
         except RuntimeError as error:
-            runtime_error(error)
+            report_runtime_error(error)
 
     def evaluate(self, expr):
         return expr.accept(self)

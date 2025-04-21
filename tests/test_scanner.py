@@ -27,34 +27,34 @@ class TestScanner(unittest.TestCase):
             TokenType.STAR,
             TokenType.EOF,
         ]
-        self.assertEqual(token_types, expected_types)
+        self.assertEqual(token_types, expected_types, "Single character tokens not correctly scanned")
 
     def test_string_token(self):
         source = '"hello world"'
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
-        self.assertEqual(tokens[0].type, TokenType.STRING)
-        self.assertEqual(tokens[0].literal, "hello world")
-        self.assertEqual(tokens[1].type, TokenType.EOF)
+        self.assertEqual(tokens[0].type, TokenType.STRING, "Failed to identify string token")
+        self.assertEqual(tokens[0].literal, "hello world", "String literal value is incorrect")
+        self.assertEqual(tokens[1].type, TokenType.EOF, "Missing EOF token after string")
 
     def test_number_token(self):
         source = "123 45.67"
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
-        self.assertEqual(tokens[0].type, TokenType.NUMBER)
-        self.assertEqual(tokens[0].literal, 123)
-        self.assertEqual(tokens[1].type, TokenType.NUMBER)
-        self.assertEqual(tokens[1].literal, 45.67)
-        self.assertEqual(tokens[2].type, TokenType.EOF)
+        self.assertEqual(tokens[0].type, TokenType.NUMBER, "Failed to identify first number token")
+        self.assertEqual(tokens[0].literal, 123, "Integer literal value is incorrect")
+        self.assertEqual(tokens[1].type, TokenType.NUMBER, "Failed to identify second number token")
+        self.assertEqual(tokens[1].literal, 45.67, "Float literal value is incorrect")
+        self.assertEqual(tokens[2].type, TokenType.EOF, "Missing EOF token after numbers")
 
     def test_identifier_token(self):
         source = "var if else"
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
-        self.assertEqual(tokens[0].type, TokenType.VAR)
-        self.assertEqual(tokens[1].type, TokenType.IF)
-        self.assertEqual(tokens[2].type, TokenType.ELSE)
-        self.assertEqual(tokens[3].type, TokenType.EOF)
+        self.assertEqual(tokens[0].type, TokenType.VAR, "Failed to identify VAR keyword")
+        self.assertEqual(tokens[1].type, TokenType.IF, "Failed to identify IF keyword")
+        self.assertEqual(tokens[2].type, TokenType.ELSE, "Failed to identify ELSE keyword")
+        self.assertEqual(tokens[3].type, TokenType.EOF, "Missing EOF token after keywords")
 
     def test_unexpected_character(self):
         error_state["had_error"] = False  # Reset the flag before the test
@@ -87,7 +87,7 @@ class TestScanner(unittest.TestCase):
             TokenType.RIGHT_PAREN,
             TokenType.EOF,
         ]
-        self.assertEqual(token_types, expected_types)
+        self.assertEqual(token_types, expected_types, "Parentheses tokens not correctly scanned")
 
     def test_nested_parentheses(self):
         source = "((nil))"
@@ -102,23 +102,23 @@ class TestScanner(unittest.TestCase):
             TokenType.RIGHT_PAREN,
             TokenType.EOF,
         ]
-        self.assertEqual(token_types, expected_types)
+        self.assertEqual(token_types, expected_types, "Nested parentheses tokens not correctly scanned")
 
     def test_string_literals(self):
         source = '"baz foo"'
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
-        self.assertEqual(tokens[0].type, TokenType.STRING)
-        self.assertEqual(tokens[0].literal, "baz foo")
-        self.assertEqual(tokens[1].type, TokenType.EOF)
+        self.assertEqual(tokens[0].type, TokenType.STRING, "Failed to identify string token")
+        self.assertEqual(tokens[0].literal, "baz foo", "String literal value is incorrect")
+        self.assertEqual(tokens[1].type, TokenType.EOF, "Missing EOF token after string")
 
     def test_number_literals(self):
         source = "77.50"
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
-        self.assertEqual(tokens[0].type, TokenType.NUMBER)
-        self.assertEqual(tokens[0].literal, 77.5)
-        self.assertEqual(tokens[1].type, TokenType.EOF)
+        self.assertEqual(tokens[0].type, TokenType.NUMBER, "Failed to identify number token")
+        self.assertEqual(tokens[0].literal, 77.5, "Number literal value is incorrect")
+        self.assertEqual(tokens[1].type, TokenType.EOF, "Missing EOF token after number")
 
     def test_booleans_and_nil(self):
         source = "true false nil"
@@ -131,7 +131,7 @@ class TestScanner(unittest.TestCase):
             TokenType.NIL,
             TokenType.EOF,
         ]
-        self.assertEqual(token_types, expected_types)
+        self.assertEqual(token_types, expected_types, "Boolean and nil tokens not correctly scanned")
 
     def test_reserved_words(self):
         source = "and class else false for fun if nil or print return super this true var while"
@@ -157,7 +157,7 @@ class TestScanner(unittest.TestCase):
             TokenType.WHILE,
             TokenType.EOF,
         ]
-        self.assertEqual(token_types, expected_types)
+        self.assertEqual(token_types, expected_types, "Reserved words not correctly scanned")
 
     def test_unexpected_characters(self):
         source = "@#$"
@@ -186,29 +186,29 @@ class TestScanner(unittest.TestCase):
         source = ""
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
-        self.assertEqual(len(tokens), 1)
-        self.assertEqual(tokens[0].type, TokenType.EOF)
+        self.assertEqual(len(tokens), 1, "Empty file should only contain EOF token")
+        self.assertEqual(tokens[0].type, TokenType.EOF, "Empty file should only contain EOF token")
 
     def test_whitespace(self):
         source = "   \t\n"
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
-        self.assertEqual(len(tokens), 1)
-        self.assertEqual(tokens[0].type, TokenType.EOF)
+        self.assertEqual(len(tokens), 1, "Whitespace should be ignored and only contain EOF token")
+        self.assertEqual(tokens[0].type, TokenType.EOF, "Whitespace should be ignored and only contain EOF token")
 
     def test_single_line_comment(self):
         source = "// This is a comment"
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
-        self.assertEqual(len(tokens), 1)
-        self.assertEqual(tokens[0].type, TokenType.EOF)
+        self.assertEqual(len(tokens), 1, "Single line comment should be ignored and only contain EOF token")
+        self.assertEqual(tokens[0].type, TokenType.EOF, "Single line comment should be ignored and only contain EOF token")
 
     def test_multiline_comment(self):
         source = "/* This is a\nmultiline comment */"
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
-        self.assertEqual(len(tokens), 1)
-        self.assertEqual(tokens[0].type, TokenType.EOF)
+        self.assertEqual(len(tokens), 1, "Multiline comment should be ignored and only contain EOF token")
+        self.assertEqual(tokens[0].type, TokenType.EOF, "Multiline comment should be ignored and only contain EOF token")
 
     def test_unterminated_string(self):
         source = '"unterminated'
@@ -243,7 +243,7 @@ class TestScanner(unittest.TestCase):
             TokenType.EQUAL,
             TokenType.EOF,
         ]
-        self.assertEqual(token_types, expected_types)
+        self.assertEqual(token_types, expected_types, "Operators not correctly scanned")
 
     def test_grouping_symbols(self):
         source = "(){}"
@@ -257,7 +257,7 @@ class TestScanner(unittest.TestCase):
             TokenType.RIGHT_BRACE,
             TokenType.EOF,
         ]
-        self.assertEqual(token_types, expected_types)
+        self.assertEqual(token_types, expected_types, "Grouping symbols not correctly scanned")
 
     def test_complex_expression(self):
         source = "var result = (a + b) > 7 or x >= 5"
@@ -281,7 +281,7 @@ class TestScanner(unittest.TestCase):
             TokenType.NUMBER,
             TokenType.EOF,
         ]
-        self.assertEqual(token_types, expected_types)
+        self.assertEqual(token_types, expected_types, "Complex expression not correctly scanned")
 
     def test_reserved_words_and_identifiers(self):
         source = "and class else false for fun if nil or print return super this true var while"
@@ -307,7 +307,7 @@ class TestScanner(unittest.TestCase):
             TokenType.WHILE,
             TokenType.EOF,
         ]
-        self.assertEqual(token_types, expected_types)
+        self.assertEqual(token_types, expected_types, "Reserved words and identifiers not correctly scanned")
 
     def test_identifier_with_numbers(self):
         source = "foo123 _bar456"
@@ -319,24 +319,24 @@ class TestScanner(unittest.TestCase):
             TokenType.IDENTIFIER,
             TokenType.EOF,
         ]
-        self.assertEqual(token_types, expected_types)
+        self.assertEqual(token_types, expected_types, "Identifiers with numbers not correctly scanned")
 
     def test_number_with_trailing_dot(self):
         source = "123."
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
-        self.assertEqual(tokens[0].type, TokenType.NUMBER)
-        self.assertEqual(tokens[0].literal, 123)
-        self.assertEqual(tokens[1].type, TokenType.DOT)
-        self.assertEqual(tokens[2].type, TokenType.EOF)
+        self.assertEqual(tokens[0].type, TokenType.NUMBER, "Failed to identify number token with trailing dot")
+        self.assertEqual(tokens[0].literal, 123, "Number literal value is incorrect")
+        self.assertEqual(tokens[1].type, TokenType.DOT, "Failed to identify trailing dot")
+        self.assertEqual(tokens[2].type, TokenType.EOF, "Missing EOF token after number with trailing dot")
 
     def test_string_with_escape_characters(self):
         source = '"hello\\nworld"'
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
-        self.assertEqual(tokens[0].type, TokenType.STRING)
-        self.assertEqual(tokens[0].literal, "hello\\nworld")
-        self.assertEqual(tokens[1].type, TokenType.EOF)
+        self.assertEqual(tokens[0].type, TokenType.STRING, "Failed to identify string token with escape characters")
+        self.assertEqual(tokens[0].literal, "hello\\nworld", "String literal value with escape characters is incorrect")
+        self.assertEqual(tokens[1].type, TokenType.EOF, "Missing EOF token after string with escape characters")
 
     def test_multiline_string(self):
         source = '"hello\nworld"'
@@ -344,9 +344,9 @@ class TestScanner(unittest.TestCase):
         tokens = scanner.scan_tokens()
 
         # Verify the token type and literal value
-        self.assertEqual(tokens[0].type, TokenType.STRING)
-        self.assertEqual(tokens[0].literal, "hello\nworld")
-        self.assertEqual(tokens[1].type, TokenType.EOF)
+        self.assertEqual(tokens[0].type, TokenType.STRING, "Failed to identify multiline string token")
+        self.assertEqual(tokens[0].literal, "hello\nworld", "Multiline string literal value is incorrect")
+        self.assertEqual(tokens[1].type, TokenType.EOF, "Missing EOF token after multiline string")
 
     def test_complex_nested_expression(self):
         source = "({()})"
@@ -362,7 +362,7 @@ class TestScanner(unittest.TestCase):
             TokenType.RIGHT_PAREN,
             TokenType.EOF,
         ]
-        self.assertEqual(token_types, expected_types)
+        self.assertEqual(token_types, expected_types, "Complex nested expression not correctly scanned")
 
     def test_case_sensitivity(self):
         source = "IF OR while NIL FOR else fun WHILE nil print for false VAR AND super RETURN class and TRUE or SUPER CLASS var if THIS FUN this FALSE return PRINT true ELSE"
@@ -404,7 +404,7 @@ class TestScanner(unittest.TestCase):
             TokenType.IDENTIFIER,  # ELSE
             TokenType.EOF,
         ]
-        self.assertEqual(token_types, expected_types)
+        self.assertEqual(token_types, expected_types, "Case sensitivity not correctly handled")
 
     def test_complex_input(self):
         source = """var greeting = "Hello"
@@ -438,7 +438,7 @@ class TestScanner(unittest.TestCase):
             TokenType.RIGHT_BRACE,  # }
             TokenType.EOF,  # EOF
         ]
-        self.assertEqual(token_types, expected_types)
+        self.assertEqual(token_types, expected_types, "Complex input not correctly scanned")
 
 
 if __name__ == "__main__":
