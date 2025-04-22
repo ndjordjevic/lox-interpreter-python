@@ -11,92 +11,93 @@ class TestAstPrinter(unittest.TestCase):
         self.printer = AstPrinter()
 
     def test_literal(self):
+        # Tests printing of different literal values (numbers, booleans, nil)
         self.assertEqual(self.printer.print(Literal(123)), "123")
         self.assertEqual(self.printer.print(Literal(True)), "true")
         self.assertEqual(self.printer.print(Literal(False)), "false")
         self.assertEqual(self.printer.print(Literal(None)), "nil")
 
     def test_unary(self):
-        # Use a Token object for the operator
+        # Tests printing of unary negation expression (-123)
         minus_token = Token(TokenType.MINUS, "-", None, 1)
         expr = Unary(minus_token, Literal(123))
         self.assertEqual(self.printer.print(expr), "(- 123)")
 
     def test_binary(self):
-        # Use a Token object for the operator
+        # Tests printing of binary addition expression (1 + 2)
         plus_token = Token(TokenType.PLUS, "+", None, 1)
         expr = Binary(Literal(1), plus_token, Literal(2))
         self.assertEqual(self.printer.print(expr), "(+ 1 2)")
 
     def test_grouping(self):
+        # Tests printing of parenthesized grouping expression ((45.67))
         expr = Grouping(Literal(45.67))
         self.assertEqual(self.printer.print(expr), "(group 45.67)")
 
     def test_complex_expression(self):
-        # Use Token objects for the operators
+        # Tests printing of complex nested expression (-123 * (45.67))
         minus_token = Token(TokenType.MINUS, "-", None, 1)
         star_token = Token(TokenType.STAR, "*", None, 1)
         expr = Binary(Unary(minus_token, Literal(123)), star_token, Grouping(Literal(45.67)))
         self.assertEqual(self.printer.print(expr), "(* (- 123) (group 45.67))")
         
     def test_variable(self):
-        # Test variable reference
+        # Tests printing of variable reference expression (myVar)
         var_token = Token(TokenType.IDENTIFIER, "myVar", None, 1)
         expr = Variable(var_token)
         self.assertEqual(self.printer.print(expr), "myVar")
     
     def test_assign(self):
-        # Test assignment expression
+        # Tests printing of assignment expression (myVar = 42)
         var_token = Token(TokenType.IDENTIFIER, "myVar", None, 1)
         expr = Assign(var_token, Literal(42))
         self.assertEqual(self.printer.print(expr), "(= myVar 42)")
         
-        # Test complex assignment
+        # Tests printing of complex assignment (myVar = myVar + 1)
         plus_token = Token(TokenType.PLUS, "+", None, 1)
         expr = Assign(var_token, Binary(Variable(var_token), plus_token, Literal(1)))
         self.assertEqual(self.printer.print(expr), "(= myVar (+ myVar 1))")
 
-    # Add tests for statements
     def test_expression_stmt(self):
-        # Expression statement just prints the expression
+        # Tests printing of simple expression statement (42;)
         expr = Literal(42)
         stmt = Expression(expr)
         self.assertEqual(self.printer.print(stmt), "42")
         
-        # More complex expression statement
+        # Tests printing of complex expression statement (1 + 2;)
         plus_token = Token(TokenType.PLUS, "+", None, 1)
         expr = Binary(Literal(1), plus_token, Literal(2))
         stmt = Expression(expr)
         self.assertEqual(self.printer.print(stmt), "(+ 1 2)")
     
     def test_print_stmt(self):
-        # Print statement with a literal
+        # Tests printing of print statement with string literal (print "hello";)
         expr = Literal("hello")
         stmt = Print(expr)
         self.assertEqual(self.printer.print(stmt), "(print hello)")
         
-        # Print statement with a complex expression
+        # Tests printing of print statement with complex expression (print -123;)
         minus_token = Token(TokenType.MINUS, "-", None, 1)
         expr = Unary(minus_token, Literal(123))
         stmt = Print(expr)
         self.assertEqual(self.printer.print(stmt), "(print (- 123))")
     
     def test_var_stmt(self):
-        # Variable declaration without initializer
+        # Tests printing of variable declaration without initializer (var myVar;)
         var_token = Token(TokenType.IDENTIFIER, "myVar", None, 1)
         stmt = Var(var_token, None)
         self.assertEqual(self.printer.print(stmt), "(var myVar)")
         
-        # Variable declaration with initializer
+        # Tests printing of variable declaration with initializer (var myVar = 42;)
         stmt = Var(var_token, Literal(42))
         self.assertEqual(self.printer.print(stmt), "(var myVar 42)")
     
     def test_block_stmt(self):
-        # Empty block
+        # Tests printing of empty block statement ({})
         stmt = Block([])
         self.assertEqual(self.printer.print(stmt), "(block)")
         
-        # Block with statements
+        # Tests printing of block with multiple statements ({var x = 10; print x;})
         var_token = Token(TokenType.IDENTIFIER, "x", None, 1)
         var_stmt = Var(var_token, Literal(10))
         
@@ -106,7 +107,7 @@ class TestAstPrinter(unittest.TestCase):
         self.assertEqual(self.printer.print(stmt), "(block (var x 10) (print x))")
         
     def test_multiple_statements(self):
-        # Test printing a list of statements
+        # Tests printing of multiple statements in sequence (var x = 42; print x;)
         var_token = Token(TokenType.IDENTIFIER, "x", None, 1)
         stmt1 = Var(var_token, Literal(42))
         

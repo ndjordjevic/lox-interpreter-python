@@ -1,20 +1,20 @@
 class Visitor:
-    def visit_binary_expr(self, binary):  # Renamed from visit_binary
+    def visit_binary_expr(self, binary):
         pass
 
-    def visit_grouping_expr(self, grouping):  # Renamed from visit_grouping
+    def visit_grouping_expr(self, grouping):
         pass
 
-    def visit_literal_expr(self, literal):  # Renamed from visit_literal
+    def visit_literal_expr(self, literal):
         pass
 
-    def visit_unary_expr(self, unary):  # Renamed from visit_unary
+    def visit_unary_expr(self, unary):
         pass
 
-    def visit_variable_expr(self, variable):  # New method for Variable
+    def visit_variable_expr(self, variable):
         pass
 
-    def visit_assign_expr(self, assign):  # New method for Assign
+    def visit_assign_expr(self, assign):
         pass
 
 
@@ -30,7 +30,7 @@ class Binary(Expr):
         self.right = right
 
     def accept(self, visitor):
-        return visitor.visit_binary_expr(self)  # Updated to match renamed method
+        return visitor.visit_binary_expr(self)
 
 
 class Grouping(Expr):
@@ -38,7 +38,7 @@ class Grouping(Expr):
         self.expression = expression
 
     def accept(self, visitor):
-        return visitor.visit_grouping_expr(self)  # Updated to match renamed method
+        return visitor.visit_grouping_expr(self)
 
 
 class Literal(Expr):
@@ -46,7 +46,7 @@ class Literal(Expr):
         self.value = value
 
     def accept(self, visitor):
-        return visitor.visit_literal_expr(self)  # Updated to match renamed method
+        return visitor.visit_literal_expr(self)
 
 
 class Unary(Expr):
