@@ -174,10 +174,11 @@ class TestParser(unittest.TestCase):
         statements = parser.parse()
         
         self.assertEqual(1, len(statements))
-        stmt = statements[0]
-        self.assertIsInstance(stmt, Expression)
-        self.assertIsInstance(stmt.expression, Binary)
-        self.assertEqual(TokenType.EQUAL_EQUAL, stmt.expression.operator.type)
+        
+        ast_printer = AstPrinter()
+        result = ast_printer.print(statements)
+        expected = "(== 5.0 5.0)"
+        self.assertEqual(expected, result)
         
         # Test inequality (!=) expression
         tokens = [
@@ -191,10 +192,10 @@ class TestParser(unittest.TestCase):
         statements = parser.parse()
         
         self.assertEqual(1, len(statements))
-        stmt = statements[0]
-        self.assertIsInstance(stmt, Expression)
-        self.assertIsInstance(stmt.expression, Binary)
-        self.assertEqual(TokenType.BANG_EQUAL, stmt.expression.operator.type)
+        
+        result = ast_printer.print(statements)
+        expected = "(!= 5.0 3.0)"
+        self.assertEqual(expected, result)
     
     def test_comparison_expressions(self):
         comparison_operators = [
@@ -216,10 +217,11 @@ class TestParser(unittest.TestCase):
             statements = parser.parse()
             
             self.assertEqual(1, len(statements))
-            stmt = statements[0]
-            self.assertIsInstance(stmt, Expression)
-            self.assertIsInstance(stmt.expression, Binary)
-            self.assertEqual(op_type, stmt.expression.operator.type)
+            
+            ast_printer = AstPrinter()
+            result = ast_printer.print(statements)
+            expected = f"({op_lexeme} 5.0 3.0)"
+            self.assertEqual(expected, result)
     
     def test_variable_expressions(self):
         # Test accessing a variable
@@ -232,10 +234,11 @@ class TestParser(unittest.TestCase):
         statements = parser.parse()
         
         self.assertEqual(1, len(statements))
-        stmt = statements[0]
-        self.assertIsInstance(stmt, Expression)
-        self.assertIsInstance(stmt.expression, Variable)
-        self.assertEqual("someVar", stmt.expression.name.lexeme)
+        
+        ast_printer = AstPrinter()
+        result = ast_printer.print(statements)
+        expected = "someVar"
+        self.assertEqual(expected, result)
     
     def test_assignment_expressions(self):
         # Test assignment expression
@@ -250,11 +253,11 @@ class TestParser(unittest.TestCase):
         statements = parser.parse()
         
         self.assertEqual(1, len(statements))
-        stmt = statements[0]
-        self.assertIsInstance(stmt, Expression)
-        self.assertIsInstance(stmt.expression, Assign)
-        self.assertEqual("x", stmt.expression.name.lexeme)
-        self.assertIsInstance(stmt.expression.value, Literal)
+        
+        ast_printer = AstPrinter()
+        result = ast_printer.print(statements)
+        expected = "(= x 10.0)"
+        self.assertEqual(expected, result)
         
         # Test chained assignment: a = b = 5
         tokens = [
@@ -270,12 +273,10 @@ class TestParser(unittest.TestCase):
         statements = parser.parse()
         
         self.assertEqual(1, len(statements))
-        stmt = statements[0]
-        self.assertIsInstance(stmt, Expression)
-        self.assertIsInstance(stmt.expression, Assign)
-        self.assertEqual("a", stmt.expression.name.lexeme)
-        self.assertIsInstance(stmt.expression.value, Assign)
-        self.assertEqual("b", stmt.expression.value.name.lexeme)
+        
+        result = ast_printer.print(statements)
+        expected = "(= a (= b 5.0))"
+        self.assertEqual(expected, result)
     
     def test_print_statements(self):
         # Test print statement
@@ -289,10 +290,11 @@ class TestParser(unittest.TestCase):
         statements = parser.parse()
         
         self.assertEqual(1, len(statements))
-        stmt = statements[0]
-        self.assertIsInstance(stmt, Print)
-        self.assertIsInstance(stmt.expression, Literal)
-        self.assertEqual("hello", stmt.expression.value)
+        
+        ast_printer = AstPrinter()
+        result = ast_printer.print(statements)
+        expected = "(print hello)"
+        self.assertEqual(expected, result)
     
     def test_var_declarations(self):
         # Test variable declaration with initializer
@@ -308,10 +310,11 @@ class TestParser(unittest.TestCase):
         statements = parser.parse()
         
         self.assertEqual(1, len(statements))
-        stmt = statements[0]
-        self.assertIsInstance(stmt, Var)
-        self.assertEqual("x", stmt.name.lexeme)
-        self.assertIsInstance(stmt.initializer, Literal)
+        
+        ast_printer = AstPrinter()
+        result = ast_printer.print(statements)
+        expected = "(var x 10.0)"
+        self.assertEqual(expected, result)
         
         # Test variable declaration without initializer
         tokens = [
@@ -324,10 +327,10 @@ class TestParser(unittest.TestCase):
         statements = parser.parse()
         
         self.assertEqual(1, len(statements))
-        stmt = statements[0]
-        self.assertIsInstance(stmt, Var)
-        self.assertEqual("y", stmt.name.lexeme)
-        self.assertIsNone(stmt.initializer)
+        
+        result = ast_printer.print(statements)
+        expected = "(var y)"
+        self.assertEqual(expected, result)
     
     def test_block_statements(self):
         # Test simple block
@@ -343,10 +346,11 @@ class TestParser(unittest.TestCase):
         statements = parser.parse()
         
         self.assertEqual(1, len(statements))
-        stmt = statements[0]
-        self.assertIsInstance(stmt, Block)
-        self.assertEqual(1, len(stmt.statements))
-        self.assertIsInstance(stmt.statements[0], Print)
+        
+        ast_printer = AstPrinter()
+        result = ast_printer.print(statements)
+        expected = "(block (print block))"
+        self.assertEqual(expected, result)
         
         # Test nested blocks
         tokens = [
@@ -363,11 +367,10 @@ class TestParser(unittest.TestCase):
         statements = parser.parse()
         
         self.assertEqual(1, len(statements))
-        outer_block = statements[0]
-        self.assertIsInstance(outer_block, Block)
-        self.assertEqual(1, len(outer_block.statements))
-        inner_block = outer_block.statements[0]
-        self.assertIsInstance(inner_block, Block)
+        
+        result = ast_printer.print(statements)
+        expected = "(block (block (print nested)))"
+        self.assertEqual(expected, result)
     
     def test_multiple_statements(self):
         # Test sequence of statements
@@ -386,6 +389,8 @@ class TestParser(unittest.TestCase):
         statements = parser.parse()
         
         self.assertEqual(2, len(statements))
-        self.assertIsInstance(statements[0], Var)
-        self.assertIsInstance(statements[1], Print)
-        self.assertIsInstance(statements[1].expression, Variable)
+        
+        ast_printer = AstPrinter()
+        result = ast_printer.print(statements)
+        expected = "(var x 1.0)\n(print x)"
+        self.assertEqual(expected, result)

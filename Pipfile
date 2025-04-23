@@ -14,6 +14,7 @@ name = "pypi"
 [packages]
 
 [dev-packages]
+coverage = "*"
 
 [requires]
 python_version = "3"
