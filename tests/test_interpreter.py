@@ -9,16 +9,13 @@ from app.error_handler import error_state
 
 class TestInterpreter(unittest.TestCase):
     def interpret_expression(self, source, expected_output=None, expected_error=None):
-        # Reset error state before test
         error_state["had_runtime_error"] = False
 
-        # Scan the source code
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
 
-        # Parse the tokens into an AST
         parser = Parser(tokens)
-        statements = parser.parse()  # Now returns a list of statements
+        statements = parser.parse()
 
         # Interpret the AST and capture the output or error
         interpreter = Interpreter()
@@ -210,10 +207,7 @@ class TestInterpreter(unittest.TestCase):
         # Test more complex nested expressions
         self.interpret_expression("var a = 1; var b = 2; var c = 3; a + b * c", "7")
         self.interpret_expression("var a = 5; var b = 10; (a + b) / 3", "5")
-        # Remove tests using logical operators that aren't implemented yet
         self.interpret_expression("var a = true; var b = false; !b", "true")
-        # Remove this test that uses operators not supported by the scanner
-        # self.interpret_expression("var s = \"test\"; s == \"test\" && s != \"rest\"", "true")
         self.interpret_expression('var s = "test"; s == "test"', "true")
 
 

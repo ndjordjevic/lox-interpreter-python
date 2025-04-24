@@ -7,11 +7,11 @@ from .environment import Environment
 
 class Interpreter(ExprVisitor, StmtVisitor):
     def __init__(self):
-        self.environment = Environment()  # Add an instance of Environment
-        self.repl_mode = False  # Add a flag for REPL/evaluate mode
-
-    def interpret(self, statements, repl_mode=False):  # Restore the repl_mode parameter
-        self.repl_mode = repl_mode  # Set the mode
+        self.environment = Environment()
+        self.repl_mode = False
+        
+    def interpret(self, statements, repl_mode=False):
+        self.repl_mode = repl_mode
         try:
             for statement in statements:
                 self.execute(statement)

@@ -7,11 +7,9 @@ class Environment:
         self.enclosing = enclosing
 
     def define(self, name, value):
-        # Use consistent key (name) for storage
         self.values[name] = value
 
     def get(self, name):
-        # Use the same key format (name.lexeme) for lookup
         if name.lexeme in self.values:
             return self.values[name.lexeme]
 
@@ -21,7 +19,6 @@ class Environment:
         raise RuntimeError(name, f"Undefined variable '{name.lexeme}'.")
 
     def assign(self, name, value):
-        # Use the same key format (name.lexeme) for lookup
         if name.lexeme in self.values:
             self.values[name.lexeme] = value
             return
