@@ -1,7 +1,7 @@
 import unittest
 from app.ast_printer import AstPrinter
 from app.expr import Binary, Unary, Literal, Grouping, Variable, Assign
-from app.stmt import Expression, Print, Var, Block
+from app.stmt import Expression, Print, Var, Block, If
 from app.token import Token
 from app.token_type import TokenType
 
@@ -105,6 +105,34 @@ class TestAstPrinter(unittest.TestCase):
         
         stmt = Block([var_stmt, print_stmt])
         self.assertEqual(self.printer.print(stmt), "(block (var x 10) (print x))")
+    
+    def test_if_stmt(self):
+        # Test if statement without else (if (true) print "then";)
+        condition = Literal(True)
+        then_branch = Print(Literal("then"))
+        stmt = If(condition, then_branch, None)
+        self.assertEqual(self.printer.print(stmt), "(if true (print then))")
+        
+        # Test if-else statement (if (false) print "then"; else print "else";)
+        condition = Literal(False)
+        then_branch = Print(Literal("then"))
+        else_branch = Print(Literal("else"))
+        stmt = If(condition, then_branch, else_branch)
+        self.assertEqual(self.printer.print(stmt), "(if false (print then) (print else))")
+        
+        # Test if with complex condition (if (x > 5) print "greater";)
+        var_token = Token(TokenType.IDENTIFIER, "x", None, 1)
+        greater_token = Token(TokenType.GREATER, ">", None, 1)
+        condition = Binary(Variable(var_token), greater_token, Literal(5))
+        then_branch = Print(Literal("greater"))
+        stmt = If(condition, then_branch, None)
+        self.assertEqual(self.printer.print(stmt), "(if (> x 5) (print greater))")
+        
+        # Test if with block body (if (true) { print "block"; })
+        condition = Literal(True)
+        then_branch = Block([Print(Literal("block"))])
+        stmt = If(condition, then_branch, None)
+        self.assertEqual(self.printer.print(stmt), "(if true (block (print block)))")
         
     def test_multiple_statements(self):
         # Tests printing of multiple statements in sequence (var x = 42; print x;)

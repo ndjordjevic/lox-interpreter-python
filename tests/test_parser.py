@@ -372,6 +372,98 @@ class TestParser(unittest.TestCase):
         expected = "(block (block (print nested)))"
         self.assertEqual(expected, result)
 
+    def test_if_statements(self):
+        # Test basic if statement without else
+        tokens = [
+            Token(TokenType.IF, "if", None, 1),
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.TRUE, "true", True, 1),
+            Token(TokenType.RIGHT_PAREN, ")", None, 1),
+            Token(TokenType.PRINT, "print", None, 1),
+            Token(TokenType.STRING, '"then branch"', "then branch", 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.EOF, "", None, 1),
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+
+        self.assertEqual(1, len(statements))
+
+        ast_printer = AstPrinter()
+        result = ast_printer.print(statements)
+        expected = "(if true (print then branch))"
+        self.assertEqual(expected, result)
+
+        # Test if-else statement
+        tokens = [
+            Token(TokenType.IF, "if", None, 1),
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.FALSE, "false", False, 1),
+            Token(TokenType.RIGHT_PAREN, ")", None, 1),
+            Token(TokenType.PRINT, "print", None, 1),
+            Token(TokenType.STRING, '"then branch"', "then branch", 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.ELSE, "else", None, 1),
+            Token(TokenType.PRINT, "print", None, 1),
+            Token(TokenType.STRING, '"else branch"', "else branch", 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.EOF, "", None, 1),
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+
+        self.assertEqual(1, len(statements))
+
+        result = ast_printer.print(statements)
+        expected = "(if false (print then branch) (print else branch))"
+        self.assertEqual(expected, result)
+
+        # Test if with block statement
+        tokens = [
+            Token(TokenType.IF, "if", None, 1),
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.TRUE, "true", True, 1),
+            Token(TokenType.RIGHT_PAREN, ")", None, 1),
+            Token(TokenType.LEFT_BRACE, "{", None, 1),
+            Token(TokenType.PRINT, "print", None, 1),
+            Token(TokenType.STRING, '"block"', "block", 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.RIGHT_BRACE, "}", None, 1),
+            Token(TokenType.EOF, "", None, 1),
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+
+        self.assertEqual(1, len(statements))
+
+        result = ast_printer.print(statements)
+        expected = "(if true (block (print block)))"
+        self.assertEqual(expected, result)
+
+        # Test nested if statements
+        tokens = [
+            Token(TokenType.IF, "if", None, 1),
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.TRUE, "true", True, 1),
+            Token(TokenType.RIGHT_PAREN, ")", None, 1),
+            Token(TokenType.IF, "if", None, 1),
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.FALSE, "false", False, 1),
+            Token(TokenType.RIGHT_PAREN, ")", None, 1),
+            Token(TokenType.PRINT, "print", None, 1),
+            Token(TokenType.STRING, '"inner"', "inner", 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.EOF, "", None, 1),
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+
+        self.assertEqual(1, len(statements))
+
+        result = ast_printer.print(statements)
+        expected = "(if true (if false (print inner)))"
+        self.assertEqual(expected, result)
+
     def test_multiple_statements(self):
         # Test sequence of statements
         tokens = [
@@ -385,11 +477,12 @@ class TestParser(unittest.TestCase):
             Token(TokenType.SEMICOLON, ";", None, 1),
             Token(TokenType.EOF, "", None, 1),
         ]
+        
         parser = Parser(tokens)
         statements = parser.parse()
-
+        
         self.assertEqual(2, len(statements))
-
+        
         ast_printer = AstPrinter()
         result = ast_printer.print(statements)
         expected = "(var x 1.0)\n(print x)"

@@ -9,7 +9,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
     def __init__(self):
         self.environment = Environment()
         self.repl_mode = False
-        
+
     def interpret(self, statements, repl_mode=False):
         self.repl_mode = repl_mode
         try:
@@ -43,6 +43,13 @@ class Interpreter(ExprVisitor, StmtVisitor):
         # Print the result only if in REPL/evaluate mode
         if self.repl_mode:
             print(self.stringify(value))
+        return None
+
+    def visit_if_stmt(self, stmt):
+        if self.is_truthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.then_branch)
+        elif stmt.else_branch is not None:
+            self.execute(stmt.else_branch)
         return None
 
     def visit_print_stmt(self, stmt):

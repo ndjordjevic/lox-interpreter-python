@@ -57,6 +57,15 @@ class AstPrinter(ExprVisitor, StmtVisitor):
         result.append(")")
         return "".join(result)
 
+    def visit_if_stmt(self, stmt):
+        # Handle if without else
+        if stmt.else_branch is None:
+            return self.parenthesize("if", stmt.condition, stmt.then_branch)
+        # Handle if with else
+        return self.parenthesize(
+            "if", stmt.condition, stmt.then_branch, stmt.else_branch
+        )
+
     def parenthesize(self, name, *exprs):
         builder = []
         builder.append(f"({name}")

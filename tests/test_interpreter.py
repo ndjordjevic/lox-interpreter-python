@@ -210,6 +210,96 @@ class TestInterpreter(unittest.TestCase):
         self.interpret_expression("var a = true; var b = false; !b", "true")
         self.interpret_expression('var s = "test"; s == "test"', "true")
 
+    def test_if_stmt(self):
+        # Test true condition
+        self.interpret_expression('if (true) print "then branch";', "then branch")
+
+        # Test false condition
+        self.interpret_expression('if (false) print "then branch";', "")
+
+        # Test if-else with true condition
+        self.interpret_expression(
+            'if (true) print "then branch"; else print "else branch";', "then branch"
+        )
+
+        # Test if-else with false condition
+        self.interpret_expression(
+            'if (false) print "then branch"; else print "else branch";', "else branch"
+        )
+
+        # Test if with block
+        self.interpret_expression(
+            'if (true) { print "block1"; print "block2"; }', "block1\nblock2"
+        )
+
+        # Test if-else with blocks
+        self.interpret_expression(
+            'if (false) { print "then1"; print "then2"; } else { print "else1"; print "else2"; }',
+            "else1\nelse2",
+        )
+
+    def test_if_with_expressions(self):
+        # Test if with comparison expressions
+        self.interpret_expression('if (5 > 3) print "greater";', "greater")
+        self.interpret_expression(
+            'if (2 < 1) print "less"; else print "not less";', "not less"
+        )
+
+        # Test if with logical expressions
+        self.interpret_expression('if (!false) print "not false";', "not false")
+        self.interpret_expression('if (!(5 < 3)) print "not less";', "not less")
+
+    def test_if_with_variables(self):
+        # Test if with variables
+        self.interpret_expression(
+            'var condition = true; if (condition) print "condition true";',
+            "condition true",
+        )
+
+        # Test if-else with variable assignment
+        self.interpret_expression(
+            'var x = 10; var result; if (x > 5) result = "greater"; else result = "less"; print result;',
+            "greater",
+        )
+
+        # Test if with variable modification
+        self.interpret_expression("var x = 1; if (true) x = 2; print x;", "2")
+        self.interpret_expression("var x = 1; if (false) x = 2; print x;", "1")
+
+    def test_nested_if_statements(self):
+        # Test nested if statements
+        self.interpret_expression('if (true) if (true) print "nested";', "nested")
+
+        # Test nested if-else
+        self.interpret_expression(
+            'if (true) if (false) print "inner then"; else print "inner else";',
+            "inner else",
+        )
+
+        # Test else association (else associates with closest if)
+        self.interpret_expression(
+            'if (true) if (false) print "a"; else print "b";', "b"
+        )
+        self.interpret_expression('if (false) if (true) print "a"; else print "b";', "")
+
+        # Test complex nested if structure with blocks
+        self.interpret_expression(
+            """
+            var x = 10;
+            var y = 5;
+            if (x > y) {
+                if (x > 8) {
+                    print "x > 8";
+                } else {
+                    print "x <= 8";
+                }
+            } else {
+                print "x <= y";
+            }
+            """,
+            "x > 8",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
