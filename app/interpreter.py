@@ -110,11 +110,6 @@ class Interpreter(ExprVisitor, StmtVisitor):
                 return float(left) + float(right)
             if isinstance(left, str) and isinstance(right, str):
                 return left + right
-            # Allow string concatenation with numbers
-            if isinstance(left, str) and isinstance(right, float):
-                return left + self.stringify(right)
-            if isinstance(left, float) and isinstance(right, str):
-                return self.stringify(left) + right
             raise RuntimeError(
                 expr.operator, "Operands must be two numbers or two strings."
             )
