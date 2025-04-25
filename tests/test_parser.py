@@ -464,6 +464,82 @@ class TestParser(unittest.TestCase):
         expected = "(if true (if false (print inner)))"
         self.assertEqual(expected, result)
 
+    def test_logical_expressions(self):
+        # Test 'and' logical operator
+        tokens = [
+            Token(TokenType.TRUE, "true", True, 1),
+            Token(TokenType.AND, "and", None, 1),
+            Token(TokenType.FALSE, "false", False, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.EOF, "", None, 1),
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+
+        self.assertEqual(1, len(statements))
+
+        ast_printer = AstPrinter()
+        result = ast_printer.print(statements)
+        expected = "(and true false)"
+        self.assertEqual(expected, result)
+
+        # Test 'or' logical operator
+        tokens = [
+            Token(TokenType.FALSE, "false", False, 1),
+            Token(TokenType.OR, "or", None, 1),
+            Token(TokenType.TRUE, "true", True, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.EOF, "", None, 1),
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+
+        self.assertEqual(1, len(statements))
+
+        result = ast_printer.print(statements)
+        expected = "(or false true)"
+        self.assertEqual(expected, result)
+
+        # Test precedence - 'and' binds tighter than 'or'
+        tokens = [
+            Token(TokenType.FALSE, "false", False, 1),
+            Token(TokenType.OR, "or", None, 1),
+            Token(TokenType.TRUE, "true", True, 1),
+            Token(TokenType.AND, "and", None, 1),
+            Token(TokenType.FALSE, "false", False, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.EOF, "", None, 1),
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+
+        self.assertEqual(1, len(statements))
+
+        result = ast_printer.print(statements)
+        expected = "(or false (and true false))"
+        self.assertEqual(expected, result)
+
+        # Test complex logical expression with parentheses
+        tokens = [
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.TRUE, "true", True, 1),
+            Token(TokenType.AND, "and", None, 1),
+            Token(TokenType.FALSE, "false", False, 1),
+            Token(TokenType.RIGHT_PAREN, ")", None, 1),
+            Token(TokenType.OR, "or", None, 1),
+            Token(TokenType.TRUE, "true", True, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.EOF, "", None, 1),
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+
+        self.assertEqual(1, len(statements))
+
+        result = ast_printer.print(statements)
+        expected = "(or (group (and true false)) true)"
+        self.assertEqual(expected, result)
+
     def test_multiple_statements(self):
         # Test sequence of statements
         tokens = [
@@ -477,12 +553,12 @@ class TestParser(unittest.TestCase):
             Token(TokenType.SEMICOLON, ";", None, 1),
             Token(TokenType.EOF, "", None, 1),
         ]
-        
+
         parser = Parser(tokens)
         statements = parser.parse()
-        
+
         self.assertEqual(2, len(statements))
-        
+
         ast_printer = AstPrinter()
         result = ast_printer.print(statements)
         expected = "(var x 1.0)\n(print x)"

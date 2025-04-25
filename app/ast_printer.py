@@ -37,6 +37,9 @@ class AstPrinter(ExprVisitor, StmtVisitor):
     def visit_assign_expr(self, expr):
         return self.parenthesize("=", Variable(expr.name), expr.value)
 
+    def visit_logical_expr(self, expr):
+        return self.parenthesize(expr.operator.lexeme, expr.left, expr.right)
+
     # Statement visitors
     def visit_expression_stmt(self, stmt):
         return stmt.expression.accept(self)

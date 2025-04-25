@@ -300,6 +300,52 @@ class TestInterpreter(unittest.TestCase):
             "x > 8",
         )
 
+    def test_logical_expressions(self):
+        # Test 'and' operator with both operands true
+        self.interpret_expression("true and true", "true")
+
+        # Test 'and' operator short-circuiting when first operand is false
+        self.interpret_expression("false and true", "false")
+
+        # Test 'and' operator with first operand true, second operand false
+        self.interpret_expression("true and false", "false")
+
+        # Test 'or' operator with first operand true (short circuits)
+        self.interpret_expression("true or false", "true")
+
+        # Test 'or' operator with first operand false, second operand true
+        self.interpret_expression("false or true", "true")
+
+        # Test 'or' operator with both operands false
+        self.interpret_expression("false or false", "false")
+
+        # Test nested logical expressions
+        self.interpret_expression("(true and false) or true", "true")
+        self.interpret_expression("true and (false or true)", "true")
+        self.interpret_expression("(false or false) and true", "false")
+
+        # Test logical operators with variables
+        self.interpret_expression("var a = true; var b = false; a and b", "false")
+        self.interpret_expression("var a = false; var b = true; a or b", "true")
+
+        # Test logical operators with comparison expressions
+        self.interpret_expression("5 > 3 and 10 < 20", "true")
+        self.interpret_expression("5 < 3 or 10 > 5", "true")
+        self.interpret_expression("5 < 3 and 10 > 5", "false")
+
+        # Test logical operators in if conditions
+        self.interpret_expression('if (true and true) print "both true";', "both true")
+        self.interpret_expression(
+            'if (false or true) print "at least one true";', "at least one true"
+        )
+        self.interpret_expression('if (false and true) print "should not print";', "")
+
+        # Test logical operators with side effects to verify short-circuiting
+        self.interpret_expression("var a = 1; false and (a = 2); print a;", "1")
+        self.interpret_expression("var a = 1; true or (a = 2); print a;", "1")
+        self.interpret_expression("var a = 1; true and (a = 2); print a;", "2")
+        self.interpret_expression("var a = 1; false or (a = 2); print a;", "2")
+
 
 if __name__ == "__main__":
     unittest.main()

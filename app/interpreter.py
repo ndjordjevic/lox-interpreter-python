@@ -130,6 +130,21 @@ class Interpreter(ExprVisitor, StmtVisitor):
     def visit_variable_expr(self, expr):
         return self.environment.get(expr.name)
 
+    def visit_logical_expr(self, expr):
+        left = self.evaluate(expr.left)
+
+        # For 'or', if the left operand is truthy, we can short-circuit and return it
+        if expr.operator.type == TokenType.OR:
+            if self.is_truthy(left):
+                return left
+        # For 'and', if the left operand is falsey, we can short-circuit and return it
+        else:  # TokenType.AND
+            if not self.is_truthy(left):
+                return left
+
+        # If we couldn't short-circuit, evaluate and return the right operand
+        return self.evaluate(expr.right)
+
     def check_number_operand(self, operator, operand):
         if isinstance(operand, float):
             return
