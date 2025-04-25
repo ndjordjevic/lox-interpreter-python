@@ -42,6 +42,8 @@ class Parser:
         return StmtVar(name, initializer)
 
     def statement(self):
+        if self.match(TokenType.FOR):
+            return self.for_statement()
         if self.match(TokenType.IF):
             return self.if_statement()
         if self.match(TokenType.PRINT):
@@ -94,6 +96,49 @@ class Parser:
         body = self.statement()
 
         return StmtWhile(condition, body)
+
+    def for_statement(self):
+        self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.")
+
+        # Parse initializer
+        initializer = None
+        if self.match(TokenType.SEMICOLON):
+            initializer = None
+        elif self.match(TokenType.VAR):
+            initializer = self.var_declaration()
+        else:
+            initializer = self.expression_statement()
+
+        # Parse condition
+        condition = None
+        if not self.check(TokenType.SEMICOLON):
+            condition = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after loop condition.")
+
+        # Parse increment
+        increment = None
+        if not self.check(TokenType.RIGHT_PAREN):
+            increment = self.expression()
+        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.")
+
+        # Parse body
+        body = self.statement()
+
+        # Desugar for loop into while loop
+        # 1. If there's an increment, add it to the end of the body
+        if increment is not None:
+            body = StmtBlock([body, StmtExpression(increment)])
+
+        # 2. Add condition to create a while loop (use 'true' for infinite loop if no condition)
+        if condition is None:
+            condition = Literal(True)
+        body = StmtWhile(condition, body)
+
+        # 3. If there's an initializer, run it once before the loop
+        if initializer is not None:
+            body = StmtBlock([initializer, body])
+
+        return body
 
     def expression(self):
         return self.assignment()

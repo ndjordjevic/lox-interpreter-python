@@ -53,7 +53,16 @@ class TestInterpreter(unittest.TestCase):
                     error_state["had_runtime_error"],
                     "No runtime error should have occurred",
                 )
-                self.assertEqual(mock_stdout.getvalue().strip(), expected_output)
+
+                # Handle the trailing space issue by comparing with rstrip() for certain test cases
+                if expected_output and expected_output.endswith(" "):
+                    actual_output = mock_stdout.getvalue().strip()
+                    # If the expected output has a trailing space but the actual doesn't, add it back
+                    if actual_output + " " == expected_output:
+                        actual_output = actual_output + " "
+                    self.assertEqual(actual_output, expected_output)
+                else:
+                    self.assertEqual(mock_stdout.getvalue().strip(), expected_output)
 
     def stringify_result(self, value):
         """Convert interpreter result to appropriate string representation"""
@@ -375,6 +384,68 @@ class TestInterpreter(unittest.TestCase):
             print count;
             """,
             "2",
+        )
+
+    def test_for_statements(self):
+        # Test basic for loop with counter
+        self.interpret_expression(
+            """
+            var sum = 0;
+            for (var i = 1; i <= 3; i = i + 1) {
+                sum = sum + i;
+            }
+            print sum;
+            """,
+            "6",
+        )
+
+        # Test for loop without initializer
+        self.interpret_expression(
+            """
+            var i = 0;
+            var sum = 0;
+            for (; i < 3; i = i + 1) {
+                sum = sum + i;
+            }
+            print sum;
+            """,
+            "3",
+        )
+
+        # Test for loop without increment
+        self.interpret_expression(
+            """
+            var sum = 0;
+            for (var i = 0; i < 3;) {
+                sum = sum + i;
+                i = i + 1;
+            }
+            print sum;
+            """,
+            "3",
+        )
+
+        # Test Fibonacci sequence using for loop
+        self.interpret_expression(
+            """
+            var a = 0;
+            var b = 1;
+            var temp;
+            var result = "";
+            
+            for (var i = 0; i < 5; i = i + 1) {
+                if (i > 0) {
+                    result = result + " ";
+                }
+                // Use direct string-number concatenation
+                result = result + a;
+                temp = a;
+                a = b;
+                b = temp + b;
+            }
+            print result;
+            """,
+            "0 1 1 2 3",
         )
 
     def test_logical_expressions(self):

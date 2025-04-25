@@ -609,6 +609,144 @@ class TestParser(unittest.TestCase):
         expected = "(while (< x 10.0) (= x (+ x 1.0)))"
         self.assertEqual(expected, result)
 
+    def test_for_statements(self):
+        # Test basic for loop with all three clauses
+        # for (var i = 0; i < 5; i = i + 1) print i;
+        tokens = [
+            Token(TokenType.FOR, "for", None, 1),
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.VAR, "var", None, 1),
+            Token(TokenType.IDENTIFIER, "i", None, 1),
+            Token(TokenType.EQUAL, "=", None, 1),
+            Token(TokenType.NUMBER, "0", 0.0, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.IDENTIFIER, "i", None, 1),
+            Token(TokenType.LESS, "<", None, 1),
+            Token(TokenType.NUMBER, "5", 5.0, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.IDENTIFIER, "i", None, 1),
+            Token(TokenType.EQUAL, "=", None, 1),
+            Token(TokenType.IDENTIFIER, "i", None, 1),
+            Token(TokenType.PLUS, "+", None, 1),
+            Token(TokenType.NUMBER, "1", 1.0, 1),
+            Token(TokenType.RIGHT_PAREN, ")", None, 1),
+            Token(TokenType.PRINT, "print", None, 1),
+            Token(TokenType.IDENTIFIER, "i", None, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.EOF, "", None, 1),
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+
+        ast_printer = AstPrinter()
+        result = ast_printer.print(statements)
+
+        # The for loop should be desugared to a block with:
+        # 1. var declaration initializer
+        # 2. while loop with condition and a block containing:
+        #    a. the body (print i)
+        #    b. the increment (i = i + 1)
+        expected = (
+            "(block (var i 0.0) (while (< i 5.0) (block (print i) (= i (+ i 1.0)))))"
+        )
+        self.assertEqual(expected, result)
+
+        # Test for loop with missing parts
+        # for (;;) print "forever";
+        tokens = [
+            Token(TokenType.FOR, "for", None, 1),
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.RIGHT_PAREN, ")", None, 1),
+            Token(TokenType.PRINT, "print", None, 1),
+            Token(TokenType.STRING, '"forever"', "forever", 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.EOF, "", None, 1),
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+
+        result = ast_printer.print(statements)
+        # Should be just a while(true) with the print statement
+        expected = "(while true (print forever))"
+        self.assertEqual(expected, result)
+
+        # Test for loop with only condition
+        # for (; i < 10;) print i;
+        tokens = [
+            Token(TokenType.FOR, "for", None, 1),
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.IDENTIFIER, "i", None, 1),
+            Token(TokenType.LESS, "<", None, 1),
+            Token(TokenType.NUMBER, "10", 10.0, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.RIGHT_PAREN, ")", None, 1),
+            Token(TokenType.PRINT, "print", None, 1),
+            Token(TokenType.IDENTIFIER, "i", None, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.EOF, "", None, 1),
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+
+        result = ast_printer.print(statements)
+        # For loop with just condition - desugars to while loop
+        expected = "(while (< i 10.0) (print i))"
+        self.assertEqual(expected, result)
+
+        # Test for loop with only initializer
+        # for (var i = 0;;) print i;
+        tokens = [
+            Token(TokenType.FOR, "for", None, 1),
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.VAR, "var", None, 1),
+            Token(TokenType.IDENTIFIER, "i", None, 1),
+            Token(TokenType.EQUAL, "=", None, 1),
+            Token(TokenType.NUMBER, "0", 0.0, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.RIGHT_PAREN, ")", None, 1),
+            Token(TokenType.PRINT, "print", None, 1),
+            Token(TokenType.IDENTIFIER, "i", None, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.EOF, "", None, 1),
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+
+        result = ast_printer.print(statements)
+        # For loop with just initializer - desugars to block with var declaration followed by while(true)
+        expected = "(block (var i 0.0) (while true (print i)))"
+        self.assertEqual(expected, result)
+
+        # Test for loop with only increment
+        # for (;; i = i + 1) print i;
+        tokens = [
+            Token(TokenType.FOR, "for", None, 1),
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.IDENTIFIER, "i", None, 1),
+            Token(TokenType.EQUAL, "=", None, 1),
+            Token(TokenType.IDENTIFIER, "i", None, 1),
+            Token(TokenType.PLUS, "+", None, 1),
+            Token(TokenType.NUMBER, "1", 1.0, 1),
+            Token(TokenType.RIGHT_PAREN, ")", None, 1),
+            Token(TokenType.PRINT, "print", None, 1),
+            Token(TokenType.IDENTIFIER, "i", None, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.EOF, "", None, 1),
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+
+        result = ast_printer.print(statements)
+        # For loop with just increment - desugars to while(true) with a block for body and increment
+        expected = "(while true (block (print i) (= i (+ i 1.0))))"
+        self.assertEqual(expected, result)
+
     def test_multiple_statements(self):
         # Test sequence of statements
         tokens = [
