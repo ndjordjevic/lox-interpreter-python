@@ -7,6 +7,7 @@ from .stmt import (
     Var as StmtVar,
     Block as StmtBlock,
     If as StmtIf,
+    While as StmtWhile,
 )
 
 
@@ -45,6 +46,8 @@ class Parser:
             return self.if_statement()
         if self.match(TokenType.PRINT):
             return self.print_statement()
+        if self.match(TokenType.WHILE):
+            return self.while_statement()
         if self.match(TokenType.LEFT_BRACE):
             return StmtBlock(self.block())
         return self.expression_statement()
@@ -82,6 +85,15 @@ class Parser:
             else_branch = self.statement()
 
         return StmtIf(condition, then_branch, else_branch)
+
+    def while_statement(self):
+        self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.")
+        condition = self.expression()
+        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after while condition.")
+
+        body = self.statement()
+
+        return StmtWhile(condition, body)
 
     def expression(self):
         return self.assignment()

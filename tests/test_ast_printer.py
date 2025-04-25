@@ -1,7 +1,7 @@
 import unittest
 from app.ast_printer import AstPrinter
 from app.expr import Binary, Unary, Literal, Grouping, Variable, Assign, Logical
-from app.stmt import Expression, Print, Var, Block, If
+from app.stmt import Expression, Print, Var, Block, If, While
 from app.token import Token
 from app.token_type import TokenType
 
@@ -167,9 +167,44 @@ class TestAstPrinter(unittest.TestCase):
         expr = Logical(
             Binary(Variable(x_token), greater_token, Literal(5)),
             or_token,
-            Binary(Variable(y_token), less_token, Literal(10)),
+            Binary(Variable(y_token), less_token, Literal(10))
         )
         self.assertEqual(self.printer.print(expr), "(or (> x 5) (< y 10))")
+
+    def test_while_stmt(self):
+        # Test basic while loop (while (true) print "loop";)
+        condition = Literal(True)
+        body = Print(Literal("loop"))
+        stmt = While(condition, body)
+        self.assertEqual(self.printer.print(stmt), "(while true (print loop))")
+
+        # Test while with complex condition (while (x < 10) print x;)
+        var_token = Token(TokenType.IDENTIFIER, "x", None, 1)
+        less_token = Token(TokenType.LESS, "<", None, 1)
+        condition = Binary(Variable(var_token), less_token, Literal(10))
+        body = Print(Variable(var_token))
+        stmt = While(condition, body)
+        self.assertEqual(self.printer.print(stmt), "(while (< x 10) (print x))")
+
+        # Test while with block body (while (true) { print "block"; })
+        condition = Literal(True)
+        body = Block([Print(Literal("block"))])
+        stmt = While(condition, body)
+        self.assertEqual(self.printer.print(stmt), "(while true (block (print block)))")
+
+        # Test while with logical condition (while (x > 0 and x < 10) print x;)
+        var_token = Token(TokenType.IDENTIFIER, "x", None, 1)
+        greater_token = Token(TokenType.GREATER, ">", None, 1)
+        less_token = Token(TokenType.LESS, "<", None, 1)
+        and_token = Token(TokenType.AND, "and", None, 1)
+        condition = Logical(
+            Binary(Variable(var_token), greater_token, Literal(0)),
+            and_token,
+            Binary(Variable(var_token), less_token, Literal(10))
+        )
+        body = Print(Variable(var_token))
+        stmt = While(condition, body)
+        self.assertEqual(self.printer.print(stmt), "(while (and (> x 0) (< x 10)) (print x))")
 
     def test_multiple_statements(self):
         # Tests printing of multiple statements in sequence (var x = 42; print x;)

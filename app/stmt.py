@@ -7,11 +7,14 @@ class Visitor:
 
     def visit_var_stmt(self, var_stmt):
         pass
-        
+
     def visit_block_stmt(self, block_stmt):
         pass
 
     def visit_if_stmt(self, if_stmt):
+        pass
+
+    def visit_while_stmt(self, while_stmt):
         pass
 
 
@@ -43,14 +46,15 @@ class Var(Stmt):
 
     def accept(self, visitor):
         return visitor.visit_var_stmt(self)
-        
-        
+
+
 class Block(Stmt):
     def __init__(self, statements):
         self.statements = statements
-        
+
     def accept(self, visitor):
         return visitor.visit_block_stmt(self)
+
 
 class If(Stmt):
     def __init__(self, condition, then_branch, else_branch):
@@ -60,3 +64,12 @@ class If(Stmt):
 
     def accept(self, visitor):
         return visitor.visit_if_stmt(self)
+
+
+class While(Stmt):
+    def __init__(self, condition, body):
+        self.condition = condition
+        self.body = body
+
+    def accept(self, visitor):
+        return visitor.visit_while_stmt(self)

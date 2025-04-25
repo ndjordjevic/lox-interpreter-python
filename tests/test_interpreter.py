@@ -300,6 +300,83 @@ class TestInterpreter(unittest.TestCase):
             "x > 8",
         )
 
+    def test_while_statements(self):
+        # Test basic while loop that executes multiple times
+        self.interpret_expression(
+            """
+            var i = 1;
+            var sum = 0;
+            while (i <= 3) {
+                sum = sum + i;
+                i = i + 1;
+            }
+            print sum;
+            """,
+            "6",
+        )
+
+        # Test while loop that doesn't execute (false condition)
+        self.interpret_expression(
+            """
+            var x = 0;
+            while (false) {
+                x = x + 1;
+            }
+            print x;
+            """,
+            "0",
+        )
+
+        # Test while loop with complex condition
+        self.interpret_expression(
+            """
+            var a = 5;
+            var b = 0;
+            while (a > 0 and b < 5) {
+                a = a - 1;
+                b = b + 1;
+            }
+            print a;
+            print b;
+            """,
+            "0\n5",
+        )
+
+        # Test nested while loops
+        self.interpret_expression(
+            """
+            var i = 0;
+            var j = 0;
+            var result = 0;
+            while (i < 3) {
+                j = 0;
+                while (j < 2) {
+                    result = result + 1;
+                    j = j + 1;
+                }
+                i = i + 1;
+            }
+            print result;
+            """,
+            "6",
+        )
+
+        # Test while loop with logical operators in condition
+        self.interpret_expression(
+            """
+            var count = 0;
+            var flag = true;
+            while (count < 3 and flag) {
+                count = count + 1;
+                if (count == 2) {
+                    flag = false;
+                }
+            }
+            print count;
+            """,
+            "2",
+        )
+
     def test_logical_expressions(self):
         # Test 'and' operator with both operands true
         self.interpret_expression("true and true", "true")

@@ -69,6 +69,9 @@ class AstPrinter(ExprVisitor, StmtVisitor):
             "if", stmt.condition, stmt.then_branch, stmt.else_branch
         )
 
+    def visit_while_stmt(self, stmt):
+        return self.parenthesize("while", stmt.condition, stmt.body)
+
     def parenthesize(self, name, *exprs):
         builder = []
         builder.append(f"({name}")

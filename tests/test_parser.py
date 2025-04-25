@@ -540,6 +540,75 @@ class TestParser(unittest.TestCase):
         expected = "(or (group (and true false)) true)"
         self.assertEqual(expected, result)
 
+    def test_while_statements(self):
+        # Test basic while loop
+        tokens = [
+            Token(TokenType.WHILE, "while", None, 1),
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.TRUE, "true", True, 1),
+            Token(TokenType.RIGHT_PAREN, ")", None, 1),
+            Token(TokenType.PRINT, "print", None, 1),
+            Token(TokenType.STRING, '"loop body"', "loop body", 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.EOF, "", None, 1),
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+
+        self.assertEqual(1, len(statements))
+
+        ast_printer = AstPrinter()
+        result = ast_printer.print(statements)
+        expected = "(while true (print loop body))"
+        self.assertEqual(expected, result)
+
+        # Test while loop with block statement
+        tokens = [
+            Token(TokenType.WHILE, "while", None, 1),
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.FALSE, "false", False, 1),
+            Token(TokenType.RIGHT_PAREN, ")", None, 1),
+            Token(TokenType.LEFT_BRACE, "{", None, 1),
+            Token(TokenType.PRINT, "print", None, 1),
+            Token(TokenType.STRING, '"never executes"', "never executes", 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.RIGHT_BRACE, "}", None, 1),
+            Token(TokenType.EOF, "", None, 1),
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+
+        self.assertEqual(1, len(statements))
+
+        result = ast_printer.print(statements)
+        expected = "(while false (block (print never executes)))"
+        self.assertEqual(expected, result)
+
+        # Test while loop with logical condition
+        tokens = [
+            Token(TokenType.WHILE, "while", None, 1),
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.IDENTIFIER, "x", None, 1),
+            Token(TokenType.LESS, "<", None, 1),
+            Token(TokenType.NUMBER, "10", 10.0, 1),
+            Token(TokenType.RIGHT_PAREN, ")", None, 1),
+            Token(TokenType.IDENTIFIER, "x", None, 1),
+            Token(TokenType.EQUAL, "=", None, 1),
+            Token(TokenType.IDENTIFIER, "x", None, 1),
+            Token(TokenType.PLUS, "+", None, 1),
+            Token(TokenType.NUMBER, "1", 1.0, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.EOF, "", None, 1),
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+
+        self.assertEqual(1, len(statements))
+
+        result = ast_printer.print(statements)
+        expected = "(while (< x 10.0) (= x (+ x 1.0)))"
+        self.assertEqual(expected, result)
+
     def test_multiple_statements(self):
         # Test sequence of statements
         tokens = [

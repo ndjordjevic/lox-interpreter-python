@@ -52,6 +52,11 @@ class Interpreter(ExprVisitor, StmtVisitor):
             self.execute(stmt.else_branch)
         return None
 
+    def visit_while_stmt(self, stmt):
+        while self.is_truthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.body)
+        return None
+
     def visit_print_stmt(self, stmt):
         value = self.evaluate(stmt.expression)
         print(self.stringify(value))
