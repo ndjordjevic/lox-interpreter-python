@@ -1,0 +1,23 @@
+from .lox_callable import LoxCallable
+from .environment import Environment
+
+class LoxFunction(LoxCallable):
+    def __init__(self, declaration):
+        self.declaration = declaration  # This is a stmt.Function node
+
+    def call(self, interpreter, arguments):
+        # Create a new environment for the function call, enclosing the global environment
+        environment = Environment(interpreter.globals)
+        # Bind parameters to arguments
+        for i in range(len(self.declaration.params)):
+            param_name = self.declaration.params[i].lexeme
+            environment.define(param_name, arguments[i])
+        # Execute the function body in the new environment
+        interpreter.execute_block(self.declaration.body, environment)
+        return None  # Lox functions return nil by default
+
+    def arity(self):
+        return len(self.declaration.params)
+
+    def __str__(self):
+        return f"<fn {self.declaration.name.lexeme}>"

@@ -7,6 +7,8 @@ from .lox_callable import LoxCallable
 from .native_functions import NativeClock
 
 
+from .lox_function import LoxFunction
+
 class Interpreter(ExprVisitor, StmtVisitor):
     def __init__(self):
         self.globals = Environment()
@@ -61,6 +63,11 @@ class Interpreter(ExprVisitor, StmtVisitor):
     def visit_while_stmt(self, stmt):
         while self.is_truthy(self.evaluate(stmt.condition)):
             self.execute(stmt.body)
+        return None
+
+    def visit_function_stmt(self, stmt):
+        function = LoxFunction(stmt)
+        self.environment.define(stmt.name.lexeme, function)
         return None
 
     def visit_print_stmt(self, stmt):

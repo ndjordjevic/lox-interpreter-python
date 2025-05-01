@@ -199,6 +199,31 @@ class TestInterpreter(unittest.TestCase):
             "clock(1)", expected_error="Expected 0 arguments but got 1."
         )
 
+    def test_function_declaration_and_call(self):
+        # Test defining and calling a function that prints its argument
+        source = """
+        fun greet(name) {
+          print "Hello, " + name + "!";
+        }
+        greet("World");
+        """
+        with patch("sys.stdout", new=StringIO()) as mock_stdout:
+            scanner = Scanner(source)
+            tokens = scanner.scan_tokens()
+            parser = Parser(tokens)
+            statements = parser.parse()
+            interpreter = Interpreter()
+            interpreter.interpret(statements)
+            output = mock_stdout.getvalue().strip()
+            self.assertEqual(output, 'Hello, World!')
+
+        # Test function returns nil by default
+        source = """
+        fun foo() { }
+        print foo();
+        """
+        self.interpret_expression(source, "nil")
+
     def test_variable_expr(self):
         # Test defining and accessing variables
         self.interpret_expression("var a = 42; a", "42")
