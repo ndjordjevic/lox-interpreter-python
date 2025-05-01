@@ -40,6 +40,11 @@ class AstPrinter(ExprVisitor, StmtVisitor):
     def visit_logical_expr(self, expr):
         return self.parenthesize(expr.operator.lexeme, expr.left, expr.right)
 
+    def visit_call_expr(self, expr):
+        # Print as (call callee arg1 arg2 ...)
+        args = [expr.callee] + list(expr.arguments)
+        return self.parenthesize("call", *args)
+
     # Statement visitors
     def visit_expression_stmt(self, stmt):
         return stmt.expression.accept(self)

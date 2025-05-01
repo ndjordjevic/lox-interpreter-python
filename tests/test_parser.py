@@ -4,7 +4,7 @@ from app.ast_printer import AstPrinter
 from app.token_type import TokenType
 from app.token import Token
 from app.error_handler import error_state
-
+from app.expr import Literal, Call, Variable
 
 class TestParser(unittest.TestCase):
     def test_expression_to_string(self):
@@ -89,7 +89,7 @@ class TestParser(unittest.TestCase):
 
         result = ast_printer.print(expression)
         expected = "(group (group true))"
-        self.assertEqual(result, expected)
+        self.assertEqual(expected, result)
 
     def test_literals(self):
         # Test case: "quz hello"
@@ -770,3 +770,59 @@ class TestParser(unittest.TestCase):
         result = ast_printer.print(statements)
         expected = "(var x 1.0)\n(print x)"
         self.assertEqual(expected, result)
+
+    def test_call(self):
+        # Test parsing a simple function call with no arguments: foo()
+        tokens = [
+            Token(TokenType.IDENTIFIER, "foo", None, 1),
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.RIGHT_PAREN, ")", None, 1),
+            Token(TokenType.EOF, "", None, 1)
+        ]
+        parser = Parser(tokens)
+        expr = parser.expression()
+        self.assertIsInstance(expr, Call)
+        self.assertIsInstance(expr.callee, Variable)
+        self.assertEqual(expr.callee.name.lexeme, "foo")
+        self.assertEqual(len(expr.arguments), 0)
+        self.assertEqual(expr.paren.type, TokenType.RIGHT_PAREN)
+
+        # Test parsing a function call with arguments: add(1, 2)
+        tokens = [
+            Token(TokenType.IDENTIFIER, "add", None, 1),
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.NUMBER, "1", 1.0, 1),
+            Token(TokenType.COMMA, ",", None, 1),
+            Token(TokenType.NUMBER, "2", 2.0, 1),
+            Token(TokenType.RIGHT_PAREN, ")", None, 1),
+            Token(TokenType.EOF, "", None, 1)
+        ]
+        parser = Parser(tokens)
+        expr = parser.expression()
+        self.assertIsInstance(expr, Call)
+        self.assertIsInstance(expr.callee, Variable)
+        self.assertEqual(expr.callee.name.lexeme, "add")
+        self.assertEqual(len(expr.arguments), 2)
+        self.assertIsInstance(expr.arguments[0], Literal)
+        self.assertEqual(expr.arguments[0].value, 1.0)
+        self.assertIsInstance(expr.arguments[1], Literal)
+        self.assertEqual(expr.arguments[1].value, 2.0)
+
+        # Test parsing nested function calls: outer(inner())
+        tokens = [
+            Token(TokenType.IDENTIFIER, "outer", None, 1),
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.IDENTIFIER, "inner", None, 1),
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.RIGHT_PAREN, ")", None, 1),
+            Token(TokenType.RIGHT_PAREN, ")", None, 1),
+            Token(TokenType.EOF, "", None, 1)
+        ]
+        parser = Parser(tokens)
+        expr = parser.expression()
+        self.assertIsInstance(expr, Call)
+        self.assertEqual(expr.callee.name.lexeme, "outer")
+        self.assertEqual(len(expr.arguments), 1)
+        self.assertIsInstance(expr.arguments[0], Call)
+        self.assertEqual(expr.arguments[0].callee.name.lexeme, "inner")
+        self.assertEqual(len(expr.arguments[0].arguments), 0)

@@ -1,4 +1,4 @@
-from .expr import Binary, Literal, Grouping, Unary, Variable, Assign, Logical
+from .expr import Binary, Literal, Grouping, Unary, Variable, Assign, Logical, Call
 from .token_type import TokenType
 from .error_handler import error
 from .stmt import (
@@ -231,7 +231,28 @@ class Parser:
             right = self.unary()
             return Unary(operator, right)
 
-        return self.primary()
+        return self.call()
+
+    def call(self):
+        expr = self.primary()
+
+        while True:
+            if self.match(TokenType.LEFT_PAREN):
+                expr = self.finish_call(expr)
+            else:
+                break
+        return expr
+
+    def finish_call(self, callee):
+        arguments = []
+        if not self.check(TokenType.RIGHT_PAREN):
+            arguments.append(self.expression())
+            while self.match(TokenType.COMMA):
+                if len(arguments) >= 255:
+                    self.error(self.peek(), "Can't have more than 255 arguments.")
+                arguments.append(self.expression())
+        paren = self.consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments.")
+        return Call(callee, paren, arguments)
 
     def primary(self):
         if self.match(TokenType.FALSE):

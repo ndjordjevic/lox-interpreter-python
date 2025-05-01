@@ -1,6 +1,6 @@
 import unittest
 from app.ast_printer import AstPrinter
-from app.expr import Binary, Unary, Literal, Grouping, Variable, Assign, Logical
+from app.expr import Binary, Unary, Literal, Grouping, Variable, Assign, Logical, Call
 from app.stmt import Expression, Print, Var, Block, If, While
 from app.token import Token
 from app.token_type import TokenType
@@ -65,6 +65,29 @@ class TestAstPrinter(unittest.TestCase):
         expr = Literal(42)
         stmt = Expression(expr)
         self.assertEqual(self.printer.print(stmt), "42")
+
+    def test_call(self):
+        # Tests printing of function call without arguments (foo())
+        callee = Variable(Token(TokenType.IDENTIFIER, "foo", None, 1))
+        paren = Token(TokenType.RIGHT_PAREN, ")", None, 1)
+        expr = Call(callee, paren, [])
+        self.assertEqual(self.printer.print(expr), "(call foo)")
+
+        # Tests printing of function call with arguments (add(1, 2))
+        callee = Variable(Token(TokenType.IDENTIFIER, "add", None, 1))
+        paren = Token(TokenType.RIGHT_PAREN, ")", None, 1)
+        args = [Literal(1), Literal(2)]
+        expr = Call(callee, paren, args)
+        self.assertEqual(self.printer.print(expr), "(call add 1 2)")
+
+        # Tests printing of nested function calls (outer(inner()))
+        inner_callee = Variable(Token(TokenType.IDENTIFIER, "inner", None, 1))
+        inner_paren = Token(TokenType.RIGHT_PAREN, ")", None, 1)
+        inner_call = Call(inner_callee, inner_paren, [])
+        outer_callee = Variable(Token(TokenType.IDENTIFIER, "outer", None, 1))
+        outer_paren = Token(TokenType.RIGHT_PAREN, ")", None, 1)
+        expr = Call(outer_callee, outer_paren, [inner_call])
+        self.assertEqual(self.printer.print(expr), "(call outer (call inner))")
 
         # Tests printing of complex expression statement (1 + 2;)
         plus_token = Token(TokenType.PLUS, "+", None, 1)
@@ -167,7 +190,7 @@ class TestAstPrinter(unittest.TestCase):
         expr = Logical(
             Binary(Variable(x_token), greater_token, Literal(5)),
             or_token,
-            Binary(Variable(y_token), less_token, Literal(10))
+            Binary(Variable(y_token), less_token, Literal(10)),
         )
         self.assertEqual(self.printer.print(expr), "(or (> x 5) (< y 10))")
 
@@ -200,11 +223,13 @@ class TestAstPrinter(unittest.TestCase):
         condition = Logical(
             Binary(Variable(var_token), greater_token, Literal(0)),
             and_token,
-            Binary(Variable(var_token), less_token, Literal(10))
+            Binary(Variable(var_token), less_token, Literal(10)),
         )
         body = Print(Variable(var_token))
         stmt = While(condition, body)
-        self.assertEqual(self.printer.print(stmt), "(while (and (> x 0) (< x 10)) (print x))")
+        self.assertEqual(
+            self.printer.print(stmt), "(while (and (> x 0) (< x 10)) (print x))"
+        )
 
     def test_multiple_statements(self):
         # Tests printing of multiple statements in sequence (var x = 42; print x;)

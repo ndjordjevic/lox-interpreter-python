@@ -170,6 +170,35 @@ class TestInterpreter(unittest.TestCase):
             "false > true", expected_error="Operands must be numbers."
         )
 
+    def test_native_clock(self):
+        # Test that clock() returns a number
+        with patch("sys.stdout", new=StringIO()) as mock_stdout:
+            scanner = Scanner("print clock();")
+            tokens = scanner.scan_tokens()
+            parser = Parser(tokens)
+            statements = parser.parse()
+            interpreter = Interpreter()
+            interpreter.interpret(statements)
+            result = float(mock_stdout.getvalue().strip())
+            self.assertIsInstance(result, float)
+            self.assertGreater(result, 0)
+
+        # Test that clock() returns increasing values
+        with patch("sys.stdout", new=StringIO()) as mock_stdout:
+            scanner = Scanner("print clock(); print clock();")
+            tokens = scanner.scan_tokens()
+            parser = Parser(tokens)
+            statements = parser.parse()
+            interpreter = Interpreter()
+            interpreter.interpret(statements)
+            times = [float(x) for x in mock_stdout.getvalue().strip().split("\n")]
+            self.assertGreaterEqual(times[1], times[0])
+
+        # Test that clock() takes no arguments
+        self.interpret_expression(
+            "clock(1)", expected_error="Expected 0 arguments but got 1."
+        )
+
     def test_variable_expr(self):
         # Test defining and accessing variables
         self.interpret_expression("var a = 42; a", "42")

@@ -3,12 +3,18 @@ from .expr import Visitor as ExprVisitor
 from .token_type import TokenType
 from .error_handler import report_runtime_error, RuntimeError
 from .environment import Environment
+from .lox_callable import LoxCallable
+from .native_functions import NativeClock
 
 
 class Interpreter(ExprVisitor, StmtVisitor):
     def __init__(self):
-        self.environment = Environment()
+        self.globals = Environment()
+        self.environment = self.globals
         self.repl_mode = False
+
+        # Define native functions
+        self.globals.define("clock", NativeClock())
 
     def interpret(self, statements, repl_mode=False):
         self.repl_mode = repl_mode
@@ -91,6 +97,21 @@ class Interpreter(ExprVisitor, StmtVisitor):
             return not self.is_truthy(right)
 
         return None
+
+    def visit_call_expr(self, expr):
+        callee = self.evaluate(expr.callee)
+
+        arguments = []
+        for argument in expr.arguments:
+            arguments.append(self.evaluate(argument))
+
+        if not isinstance(callee, LoxCallable):
+            raise RuntimeError(expr.paren, "Can only call functions and classes.")
+
+        if len(arguments) != callee.arity():
+            raise RuntimeError(expr.paren, f"Expected {callee.arity()} arguments but got {len(arguments)}.")
+
+        return callee.call(self, arguments)
 
     def visit_binary_expr(self, expr):
         left = self.evaluate(expr.left)
