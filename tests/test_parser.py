@@ -4,6 +4,7 @@ from app.ast_printer import AstPrinter
 from app.token_type import TokenType
 from app.token import Token
 from app.error_handler import error_state
+from app.stmt import Function
 from app.expr import Literal, Call, Variable
 
 class TestParser(unittest.TestCase):
@@ -425,11 +426,11 @@ class TestParser(unittest.TestCase):
             Token(TokenType.TRUE, "true", True, 1),
             Token(TokenType.RIGHT_PAREN, ")", None, 1),
             Token(TokenType.LEFT_BRACE, "{", None, 1),
-            Token(TokenType.PRINT, "print", None, 1),
-            Token(TokenType.STRING, '"block"', "block", 1),
-            Token(TokenType.SEMICOLON, ";", None, 1),
-            Token(TokenType.RIGHT_BRACE, "}", None, 1),
-            Token(TokenType.EOF, "", None, 1),
+            Token(TokenType.PRINT, "print", None, 2),
+            Token(TokenType.STRING, '"block"', "block", 2),
+            Token(TokenType.SEMICOLON, ";", None, 2),
+            Token(TokenType.RIGHT_BRACE, "}", None, 3),
+            Token(TokenType.EOF, "", None, 3),
         ]
         parser = Parser(tokens)
         statements = parser.parse()
@@ -826,3 +827,61 @@ class TestParser(unittest.TestCase):
         self.assertIsInstance(expr.arguments[0], Call)
         self.assertEqual(expr.arguments[0].callee.name.lexeme, "inner")
         self.assertEqual(len(expr.arguments[0].arguments), 0)
+
+    def test_parse_function_declaration(self):
+        tokens = [
+            Token(TokenType.FUN, "fun", None, 1),
+            Token(TokenType.IDENTIFIER, "test", None, 1),
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.IDENTIFIER, "a", None, 1),
+            Token(TokenType.COMMA, ",", None, 1),
+            Token(TokenType.IDENTIFIER, "b", None, 1),
+            Token(TokenType.RIGHT_PAREN, ")", None, 1),
+            Token(TokenType.LEFT_BRACE, "{", None, 1),
+            Token(TokenType.PRINT, "print", None, 2),
+            Token(TokenType.IDENTIFIER, "a", None, 2),
+            Token(TokenType.SEMICOLON, ";", None, 2),
+            Token(TokenType.RIGHT_BRACE, "}", None, 3),
+            Token(TokenType.EOF, "", None, 3)
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+        self.assertEqual(len(statements), 1)
+        self.assertIsInstance(statements[0], Function)
+        self.assertEqual(statements[0].name.lexeme, "test")
+        self.assertEqual(len(statements[0].params), 2)
+        self.assertEqual(statements[0].params[0].lexeme, "a")
+        self.assertEqual(statements[0].params[1].lexeme, "b")
+        self.assertEqual(len(statements[0].body), 1)
+
+    def test_parse_empty_function(self):
+        tokens = [
+            Token(TokenType.FUN, "fun", None, 1),
+            Token(TokenType.IDENTIFIER, "test", None, 1),
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.RIGHT_PAREN, ")", None, 1),
+            Token(TokenType.LEFT_BRACE, "{", None, 1),
+            Token(TokenType.RIGHT_BRACE, "}", None, 1),
+            Token(TokenType.EOF, "", None, 1)
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+        self.assertEqual(len(statements), 1)
+        self.assertIsInstance(statements[0], Function)
+        self.assertEqual(len(statements[0].params), 0)
+        self.assertEqual(len(statements[0].body), 0)
+
+    def test_function_missing_paren(self):
+        tokens = [
+            Token(TokenType.FUN, "fun", None, 1),
+            Token(TokenType.IDENTIFIER, "test", None, 1),
+            Token(TokenType.LEFT_BRACE, "{", None, 1),
+            Token(TokenType.RIGHT_BRACE, "}", None, 1),
+            Token(TokenType.EOF, "", None, 1)
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+        self.assertTrue(statements is None or statements == [] or not any(isinstance(stmt, Function) for stmt in statements))
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,7 +1,7 @@
 import unittest
 from app.ast_printer import AstPrinter
 from app.expr import Binary, Unary, Literal, Grouping, Variable, Assign, Logical, Call
-from app.stmt import Expression, Print, Var, Block, If, While
+from app.stmt import Expression, Print, Var, Block, If, While, Function
 from app.token import Token
 from app.token_type import TokenType
 
@@ -130,6 +130,16 @@ class TestAstPrinter(unittest.TestCase):
 
         stmt = Block([var_stmt, print_stmt])
         self.assertEqual(self.printer.print(stmt), "(block (var x 10) (print x))")
+
+    def test_function_stmt(self):
+        # fun add(a, b) { print a; }
+        name_token = Token(TokenType.IDENTIFIER, "add", None, 1)
+        param_a = Token(TokenType.IDENTIFIER, "a", None, 1)
+        param_b = Token(TokenType.IDENTIFIER, "b", None, 1)
+        body_stmt = Print(Variable(param_a))
+        stmt = Function(name_token, [param_a, param_b], [body_stmt])
+        expected = "(fun add (a b) (print a))"
+        self.assertEqual(self.printer.print(stmt), expected)
 
     def test_if_stmt(self):
         # Test if statement without else (if (true) print "then";)

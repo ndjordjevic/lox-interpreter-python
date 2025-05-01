@@ -77,6 +77,14 @@ class AstPrinter(ExprVisitor, StmtVisitor):
     def visit_while_stmt(self, stmt):
         return self.parenthesize("while", stmt.condition, stmt.body)
 
+    def visit_function_stmt(self, stmt):
+        params = " ".join(param.lexeme for param in stmt.params)
+        body_strs = []
+        for s in stmt.body:
+            if s is not None:
+                body_strs.append(s.accept(self))
+        return f"(fun {stmt.name.lexeme} ({params}) {' '.join(body_strs)})"
+
     def parenthesize(self, name, *exprs):
         builder = []
         builder.append(f"({name}")

@@ -156,7 +156,7 @@ class Parser:
         self.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.")
         self.consume(TokenType.LEFT_BRACE, f"Expect '{{' before {kind} body.")
         body = self.block()
-        return StmtFunction(name, parameters, body)
+        return Function(name, parameters, body)
 
     def expression(self):
         return self.assignment()
