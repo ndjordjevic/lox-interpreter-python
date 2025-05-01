@@ -17,6 +17,9 @@ class Visitor:
     def visit_while_stmt(self, while_stmt):
         pass
 
+    def visit_function_stmt(self, function_stmt):
+        pass
+
 
 class Stmt:
     def accept(self, visitor):
@@ -73,3 +76,13 @@ class While(Stmt):
 
     def accept(self, visitor):
         return visitor.visit_while_stmt(self)
+
+
+class Function(Stmt):
+    def __init__(self, name, params, body):
+        self.name = name
+        self.params = params
+        self.body = body
+
+    def accept(self, visitor):
+        return visitor.visit_function_stmt(self)
