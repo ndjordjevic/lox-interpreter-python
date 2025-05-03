@@ -29,7 +29,7 @@ class TestLoxFunction(unittest.TestCase):
         self.declaration = Function(
             self.name_token, [self.param_a, self.param_b], self.body
         )
-        self.lox_function = LoxFunction(self.declaration)
+        self.lox_function = LoxFunction(self.declaration, Environment())
 
     def test_arity(self):
         self.assertEqual(self.lox_function.arity(), 2)

@@ -3,17 +3,17 @@ from .environment import Environment
 from .return_exception import ReturnException
 
 class LoxFunction(LoxCallable):
-    def __init__(self, declaration):
+    def __init__(self, declaration, closure):
         self.declaration = declaration  # This is a stmt.Function node
+        self.closure = closure
 
     def call(self, interpreter, arguments):
-        # Create a new environment for the function call, enclosing the global environment
-        environment = Environment(interpreter.globals)
+        # Create a new environment for the function call, enclosing the closure
+        environment = Environment(self.closure)
         # Bind parameters to arguments
         for i in range(len(self.declaration.params)):
             param_name = self.declaration.params[i].lexeme
             environment.define(param_name, arguments[i])
-        # Execute the function body in the new environment
         try:
             interpreter.execute_block(self.declaration.body, environment)
         except ReturnException as return_value:

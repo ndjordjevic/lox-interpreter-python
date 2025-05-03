@@ -30,24 +30,12 @@ class TestInterpreter(unittest.TestCase):
         else:
             with patch("sys.stdout", new=StringIO()) as mock_stdout:
                 # For multi-statement tests, we need a different approach
-                # Case 1: If there's a single expression statement, evaluate it directly
+                # Only print the value if the program consists of a single expression statement
                 if len(statements) == 1 and hasattr(statements[0], "expression"):
-                    expression = statements[0].expression
-                    value = interpreter.evaluate(expression)
-                    print(self.stringify_result(value))
-                # Case 2: If the last statement is an expression statement, run all but evaluate the last
-                elif statements and hasattr(statements[-1], "expression"):
-                    # Execute all but the last statement
-                    for stmt in statements[:-1]:
-                        interpreter.execute(stmt)
-
-                    # Evaluate the last expression separately
-                    last_expr = statements[-1].expression
-                    value = interpreter.evaluate(last_expr)
-                    print(self.stringify_result(value))
-                # Case 3: For print statements or other types of statements
-                else:
                     interpreter.interpret(statements, repl_mode=True)
+                else:
+                    # For multiple statements, interpret them all with repl_mode=False
+                    interpreter.interpret(statements, repl_mode=False)
 
                 self.assertFalse(
                     error_state["had_runtime_error"],
@@ -118,6 +106,60 @@ class TestInterpreter(unittest.TestCase):
     def test_string_concatenation(self):
         # Test interpreting string concatenation
         self.interpret_expression('"Hello, " + "world!"', "Hello, world!")
+
+    def test_if_else(self):
+        self.interpret_expression('if (true) { print 1; } else { print 2; }', '1')
+        self.interpret_expression('if (false) { print 1; } else { print 2; }', '2')
+        self.interpret_expression('if (false) { print 1; }', '')
+
+    def test_while_loop(self):
+        self.interpret_expression('var i = 0; while (i < 3) { print i; i = i + 1; }', '0\n1\n2')
+        self.interpret_expression('var i = 1; while (i > 1) { print i; i = i - 1; }', '')
+        # Loop with no print should not produce output
+        self.interpret_expression('var i = 0; while (i < 3) { i = i + 1; }', '')
+
+    def test_logical_expressions(self):
+        self.interpret_expression("var a = 1; false and (a = 2); print a;", "1")
+        # Logical with no print should not produce output
+        self.interpret_expression("var a = 1; false and (a = 2); a", "")
+        self.interpret_expression("var a = true; var b = false; a and b", "")
+        self.interpret_expression("var a = true; var b = false; print a and b;", "false")
+        self.interpret_expression('var b; b = 5; print b;', '5')
+        # Assignment with no print should not produce output
+        self.interpret_expression('var a = 1; a = 2; a', '')
+
+    def test_var_and_assign(self):
+        self.interpret_expression("var a = 10; a = 20; print a;", "20")
+        self.interpret_expression("var x = 10; var y = 20; x = y; print x;", "20")
+        self.interpret_expression(
+            'var str = "hello"; str = str + " world"; print str;', "hello world"
+        )
+        # Assignment with no print should not produce output
+        self.interpret_expression('var a = 1; a = 2; a', '')
+
+    def test_print(self):
+        self.interpret_expression("print 123;", "123")
+        self.interpret_expression('print "abc";', "abc")
+        self.interpret_expression("print true;", "true")
+        self.interpret_expression("print nil;", "nil")
+        self.interpret_expression("print 2 + 2;", "4")
+        self.interpret_expression('print 123;', '123')
+        self.interpret_expression('print "abc";', 'abc')
+
+    def test_unary_and_grouping(self):
+        self.interpret_expression('-5', '-5')
+        self.interpret_expression('!(false)', 'true')
+        self.interpret_expression('-(3 + 2)', '-5')
+
+    def test_binary_expr(self):
+        self.interpret_expression('2 + 3 * 4', '14')
+        self.interpret_expression('8 / 2 - 1', '3')
+        self.interpret_expression('7 * (2 + 1)', '21')
+
+    def test_function_declaration_and_call(self):
+        self.interpret_expression('fun add(a, b) { return a + b; } print add(2, 3);', '5')
+        self.interpret_expression('fun noop() { } print noop();', 'nil')
+        self.interpret_expression('fun early() { return 99; print 1; } print early();', '99')
 
     def test_return_statement(self):
         # Test simple return from function
@@ -261,18 +303,22 @@ class TestInterpreter(unittest.TestCase):
 
     def test_variable_expr(self):
         # Test defining and accessing variables
-        self.interpret_expression("var a = 42; a", "42")
-        self.interpret_expression('var name = "Bob"; name', "Bob")
-        self.interpret_expression("var isTrue = true; isTrue", "true")
-        self.interpret_expression("var empty; empty", "nil")
+        self.interpret_expression("var a = 42; print a;", "42")
+        self.interpret_expression('var name = "Bob"; print name;', "Bob")
+        self.interpret_expression("var isTrue = true; print isTrue;", "true")
+        self.interpret_expression("var empty; print empty;", "nil")
+        # No output expected without print
+        self.interpret_expression("var a = 42; a", "")
 
     def test_assignment_expr(self):
         # Test assigning to variables
-        self.interpret_expression("var a = 1; a = 2; a", "2")
-        self.interpret_expression("var x = 10; var y = 20; x = y; x", "20")
+        self.interpret_expression("var a = 1; a = 2; print a;", "2")
+        self.interpret_expression("var x = 10; var y = 20; x = y; print x;", "20")
         self.interpret_expression(
-            'var str = "hello"; str = str + " world"; str', "hello world"
+            'var str = "hello"; str = str + " world"; print str;', "hello world"
         )
+        # Assignment with no print should not produce output
+        self.interpret_expression('var a = 1; a = 2; a', '')
 
     def test_print_stmt(self):
         # Test print statements
@@ -284,9 +330,11 @@ class TestInterpreter(unittest.TestCase):
 
     def test_var_stmt(self):
         # Test variable declarations
-        self.interpret_expression("var a = 1; var b = 2; a + b", "3")
-        self.interpret_expression("var a; var b = a; b", "nil")
-        self.interpret_expression('var a = "global"; { var a = "local"; } a', "global")
+        self.interpret_expression("var a = 1; var b = 2; print a + b;", "3")
+        self.interpret_expression("var a; var b = a; print b;", "nil")
+        self.interpret_expression('var a = "global"; { var a = "local"; } print a;', "global")
+        # No output expected without print
+        self.interpret_expression("var a = 1; var b = 2; a + b", "")
 
     def test_block_stmt(self):
         # Test blocks and scope
@@ -303,10 +351,15 @@ class TestInterpreter(unittest.TestCase):
 
     def test_nested_expressions(self):
         # Test more complex nested expressions
-        self.interpret_expression("var a = 1; var b = 2; var c = 3; a + b * c", "7")
-        self.interpret_expression("var a = 5; var b = 10; (a + b) / 3", "5")
-        self.interpret_expression("var a = true; var b = false; !b", "true")
-        self.interpret_expression('var s = "test"; s == "test"', "true")
+        self.interpret_expression("var a = 1; var b = 2; var c = 3; print a + b * c;", "7")
+        # No output expected without print
+        self.interpret_expression("var a = 1; var b = 2; var c = 3; a + b * c", "")
+        self.interpret_expression("var a = 5; var b = 10; (a + b) / 3", "")
+        self.interpret_expression("var a = 5; var b = 10; print (a + b) / 3;", "5")
+        self.interpret_expression("var a = true; var b = false; !b", "")
+        self.interpret_expression("var a = true; var b = false; print !b;", "true")
+        self.interpret_expression('var s = "test"; s == "test"', "")
+        self.interpret_expression('var s = "test"; print s == "test";', "true")
 
     def test_if_stmt(self):
         # Test true condition
@@ -576,8 +629,9 @@ class TestInterpreter(unittest.TestCase):
         self.interpret_expression("(false or false) and true", "false")
 
         # Test logical operators with variables
-        self.interpret_expression("var a = true; var b = false; a and b", "false")
-        self.interpret_expression("var a = false; var b = true; a or b", "true")
+        self.interpret_expression("var a = true; var b = false; a and b", "")
+        self.interpret_expression("var a = false; var b = true; a or b", "")
+        self.interpret_expression("var a = false; var b = true; print a or b;", "true")
 
         # Test logical operators with comparison expressions
         self.interpret_expression("5 > 3 and 10 < 20", "true")
