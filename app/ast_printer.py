@@ -85,11 +85,15 @@ class AstPrinter(ExprVisitor, StmtVisitor):
                 body_strs.append(s.accept(self))
         return f"(fun {stmt.name.lexeme} ({params}) {' '.join(body_strs)})"
 
+    def visit_return_stmt(self, stmt):
+        if stmt.value is not None:
+            return self.parenthesize("return", stmt.value)
+        return "(return)"
+
     def parenthesize(self, name, *exprs):
-        builder = []
-        builder.append(f"({name}")
+        parts = [f"({name}"]
         for expr in exprs:
-            builder.append(" ")
-            builder.append(expr.accept(self))
-        builder.append(")")
-        return "".join(builder)
+            parts.append(" ")
+            parts.append(expr.accept(self))
+        parts.append(")")
+        return "".join(parts)

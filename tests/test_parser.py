@@ -4,10 +4,59 @@ from app.ast_printer import AstPrinter
 from app.token_type import TokenType
 from app.token import Token
 from app.error_handler import error_state
-from app.stmt import Function
+from app.stmt import Function, Return
 from app.expr import Literal, Call, Variable
 
 class TestParser(unittest.TestCase):
+    def test_return_statement_with_value(self):
+        tokens = [
+            Token(TokenType.RETURN, "return", None, 1),
+            Token(TokenType.NUMBER, "42", 42.0, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.EOF, "", None, 1)
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+        self.assertEqual(len(statements), 1)
+        self.assertIsInstance(statements[0], Return)
+        printer = AstPrinter()
+        self.assertEqual(printer.print(statements[0]), "(return 42.0)")
+
+    def test_return_statement_without_value(self):
+        tokens = [
+            Token(TokenType.RETURN, "return", None, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.EOF, "", None, 1)
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+        self.assertEqual(len(statements), 1)
+        self.assertIsInstance(statements[0], Return)
+        printer = AstPrinter()
+        self.assertEqual(printer.print(statements[0]), "(return)")
+
+    def test_return_statement_in_function(self):
+        tokens = [
+            Token(TokenType.FUN, "fun", None, 1),
+            Token(TokenType.IDENTIFIER, "f", None, 1),
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.RIGHT_PAREN, ")", None, 1),
+            Token(TokenType.LEFT_BRACE, "{", None, 1),
+            Token(TokenType.RETURN, "return", None, 1),
+            Token(TokenType.NUMBER, "7", 7.0, 1),
+            Token(TokenType.SEMICOLON, ";", None, 1),
+            Token(TokenType.RIGHT_BRACE, "}", None, 1),
+            Token(TokenType.EOF, "", None, 1)
+        ]
+        parser = Parser(tokens)
+        statements = parser.parse()
+        self.assertEqual(len(statements), 1)
+        self.assertTrue(hasattr(statements[0], "body"))
+        printer = AstPrinter()
+        func_str = printer.print(statements[0])
+        self.assertIn("(return 7.0)", func_str)
+
+    
     def test_expression_to_string(self):
         # Define a list of tokens representing the expression: -123 * (45.67)
         tokens = [
@@ -38,10 +87,8 @@ class TestParser(unittest.TestCase):
         ]
         parser = Parser(tokens)
         expression = parser.parse()
-
         ast_printer = AstPrinter()
         result = ast_printer.print(expression)
-
         expected = "(! false)"
         self.assertEqual(result, expected)
 
@@ -54,7 +101,6 @@ class TestParser(unittest.TestCase):
         ]
         parser = Parser(tokens)
         expression = parser.parse()
-
         result = ast_printer.print(expression)
         expected = "(! (! true))"
         self.assertEqual(result, expected)
@@ -69,10 +115,8 @@ class TestParser(unittest.TestCase):
         ]
         parser = Parser(tokens)
         expression = parser.parse()
-
         ast_printer = AstPrinter()
         result = ast_printer.print(expression)
-
         expected = "(group foo)"
         self.assertEqual(result, expected)
 
@@ -87,7 +131,6 @@ class TestParser(unittest.TestCase):
         ]
         parser = Parser(tokens)
         expression = parser.parse()
-
         result = ast_printer.print(expression)
         expected = "(group (group true))"
         self.assertEqual(expected, result)
@@ -100,10 +143,8 @@ class TestParser(unittest.TestCase):
         ]
         parser = Parser(tokens)
         expression = parser.parse()
-
         ast_printer = AstPrinter()
         result = ast_printer.print(expression)
-
         expected = "quz hello"
         self.assertEqual(result, expected)
 
@@ -114,7 +155,6 @@ class TestParser(unittest.TestCase):
         ]
         parser = Parser(tokens)
         expression = parser.parse()
-
         result = ast_printer.print(expression)
         expected = "76.0"
         self.assertEqual(result, expected)
@@ -126,7 +166,6 @@ class TestParser(unittest.TestCase):
         ]
         parser = Parser(tokens)
         expression = parser.parse()
-
         result = ast_printer.print(expression)
         expected = "true"
         self.assertEqual(result, expected)
@@ -138,7 +177,6 @@ class TestParser(unittest.TestCase):
         ]
         parser = Parser(tokens)
         expression = parser.parse()
-
         result = ast_printer.print(expression)
         expected = "nil"
         self.assertEqual(result, expected)
@@ -173,10 +211,10 @@ class TestParser(unittest.TestCase):
         statements = parser.parse()
 
         self.assertEqual(1, len(statements))
-
         ast_printer = AstPrinter()
         result = ast_printer.print(statements)
         expected = "(== 5.0 5.0)"
+        self.assertIn(expected, result)
         self.assertEqual(expected, result)
 
         # Test inequality (!=) expression

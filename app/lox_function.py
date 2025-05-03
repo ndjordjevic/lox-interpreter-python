@@ -1,5 +1,6 @@
 from .lox_callable import LoxCallable
 from .environment import Environment
+from .return_exception import ReturnException
 
 class LoxFunction(LoxCallable):
     def __init__(self, declaration):
@@ -13,7 +14,10 @@ class LoxFunction(LoxCallable):
             param_name = self.declaration.params[i].lexeme
             environment.define(param_name, arguments[i])
         # Execute the function body in the new environment
-        interpreter.execute_block(self.declaration.body, environment)
+        try:
+            interpreter.execute_block(self.declaration.body, environment)
+        except ReturnException as return_value:
+            return return_value.value
         return None  # Lox functions return nil by default
 
     def arity(self):

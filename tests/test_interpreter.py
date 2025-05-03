@@ -119,6 +119,41 @@ class TestInterpreter(unittest.TestCase):
         # Test interpreting string concatenation
         self.interpret_expression('"Hello, " + "world!"', "Hello, world!")
 
+    def test_return_statement(self):
+        # Test simple return from function
+        source = '''
+        fun foo() {
+            return 42;
+        }
+        print foo();
+        '''
+        self.interpret_expression(source, "42")
+
+    def test_early_return(self):
+        # Test return from inside a conditional
+        source = '''
+        fun test(n) {
+            if (n > 0) return n;
+            return 0;
+        }
+        print test(5);
+        print test(0);
+        '''
+        self.interpret_expression(source, "5\n0")
+
+    def test_recursive_fibonacci(self):
+        # Test recursive function with return
+        source = '''
+        fun fib(n) {
+            if (n <= 1) return n;
+            return fib(n - 2) + fib(n - 1);
+        }
+        print fib(0);
+        print fib(1);
+        print fib(5);
+        '''
+        self.interpret_expression(source, "0\n1\n5")
+
     def test_runtime_errors(self):
         # Unary operator errors
         self.interpret_expression('-"foo"', expected_error="Operand must be a number.")

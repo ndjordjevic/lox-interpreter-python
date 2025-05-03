@@ -8,6 +8,7 @@ from .native_functions import NativeClock
 
 
 from .lox_function import LoxFunction
+from .return_exception import ReturnException
 
 class Interpreter(ExprVisitor, StmtVisitor):
     def __init__(self):
@@ -54,6 +55,18 @@ class Interpreter(ExprVisitor, StmtVisitor):
         return None
 
     def visit_if_stmt(self, stmt):
+        if self.is_truthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.then_branch)
+        elif stmt.else_branch is not None:
+            self.execute(stmt.else_branch)
+        return None
+
+    def visit_return_stmt(self, stmt):
+        value = None
+        if stmt.value is not None:
+            value = self.evaluate(stmt.value)
+        raise ReturnException(value)
+
         if self.is_truthy(self.evaluate(stmt.condition)):
             self.execute(stmt.then_branch)
         elif stmt.else_branch is not None:

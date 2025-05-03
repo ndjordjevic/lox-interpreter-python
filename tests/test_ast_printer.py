@@ -1,7 +1,7 @@
 import unittest
 from app.ast_printer import AstPrinter
 from app.expr import Binary, Unary, Literal, Grouping, Variable, Assign, Logical, Call
-from app.stmt import Expression, Print, Var, Block, If, While, Function
+from app.stmt import Expression, Print, Var, Block, If, While, Function, Return
 from app.token import Token
 from app.token_type import TokenType
 
@@ -240,6 +240,32 @@ class TestAstPrinter(unittest.TestCase):
         self.assertEqual(
             self.printer.print(stmt), "(while (and (> x 0) (< x 10)) (print x))"
         )
+
+    def test_return_stmt_with_value(self):
+        stmt = Return(
+            Token(TokenType.RETURN, "return", None, 1),
+            Literal(42.0)
+        )
+        self.assertEqual(self.printer.print(stmt), "(return 42.0)")
+
+    def test_return_stmt_without_value(self):
+        stmt = Return(
+            Token(TokenType.RETURN, "return", None, 1),
+            None
+        )
+        self.assertEqual(self.printer.print(stmt), "(return)")
+
+    def test_return_stmt_with_expression(self):
+        expr = Binary(
+            Variable(Token(TokenType.IDENTIFIER, "x", None, 1)),
+            Token(TokenType.PLUS, "+", None, 1),
+            Literal(1.0)
+        )
+        stmt = Return(
+            Token(TokenType.RETURN, "return", None, 1),
+            expr
+        )
+        self.assertEqual(self.printer.print(stmt), "(return (+ x 1.0))")
 
     def test_multiple_statements(self):
         # Tests printing of multiple statements in sequence (var x = 42; print x;)
