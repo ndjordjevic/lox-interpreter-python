@@ -5,6 +5,7 @@ from .ast_printer import AstPrinter
 from .error_handler import error_state
 from .parser import Parser
 from .interpreter import Interpreter
+from .resolver import Resolver
 
 lox_interpreter = Interpreter()
 
@@ -49,7 +50,7 @@ def main():
         sys.exit(1)
 
     command = sys.argv[1]
-    
+
     if command == "prompt":
         run_prompt()
     elif len(sys.argv) < 3:
@@ -58,7 +59,7 @@ def main():
         sys.exit(1)
     else:
         filename = sys.argv[2]
-        
+
         if command == "tokenize":
             with open(filename, "r", encoding="utf-8") as file:
                 file_contents = file.read()
@@ -114,6 +115,19 @@ def run(source):
     statements = parser.parse()
 
     # Stop if there was a syntax error.
+    if error_state["had_error"]:
+        return
+
+    try:
+        # Resolve variables before interpreting
+        resolver = Resolver(lox_interpreter)
+        resolver.resolve(statements)
+    except Exception as e:
+        print(f"Resolution error: {str(e)}")
+        error_state["had_error"] = True
+        return
+
+    # Stop if there was a resolution error
     if error_state["had_error"]:
         return
 

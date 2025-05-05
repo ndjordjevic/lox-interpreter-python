@@ -1,3 +1,4 @@
+from enum import Enum, auto
 from typing import Dict, List
 from app.expr import Expr, Visitor as ExprVisitor
 from app.stmt import Stmt, Visitor as StmtVisitor, Block, Var, Function
@@ -5,10 +6,16 @@ from app.interpreter import Interpreter
 from app.token import Token
 
 
+class FunctionType(Enum):
+    NONE = auto()
+    FUNCTION = auto()
+
+
 class Resolver(ExprVisitor, StmtVisitor):
     def __init__(self, interpreter: Interpreter):
         self.interpreter = interpreter
         self.scopes: List[Dict[str, bool]] = []
+        self.current_function = FunctionType.NONE
 
     def resolve(self, statements: List[Stmt]) -> None:
         """Resolve a list of statements."""
@@ -102,17 +109,22 @@ class Resolver(ExprVisitor, StmtVisitor):
         """Visit a function declaration."""
         self._declare(stmt.name)
         self._define(stmt.name)
-        self._resolve_function(stmt)
+        self._resolve_function(stmt, FunctionType.FUNCTION)
         return None
 
-    def _resolve_function(self, function: Function) -> None:
+    def _resolve_function(self, function: Function, type: FunctionType) -> None:
         """Resolve a function's body."""
+        enclosing_function = self.current_function
+        self.current_function = type
+
         self._begin_scope()
         for param in function.params:
             self._declare(param)
             self._define(param)
         self.resolve(function.body)
         self._end_scope()
+
+        self.current_function = enclosing_function
 
     def visit_expression_stmt(self, stmt: Stmt) -> None:
         """Visit an expression statement."""
@@ -134,6 +146,8 @@ class Resolver(ExprVisitor, StmtVisitor):
 
     def visit_return_stmt(self, stmt: Stmt) -> None:
         """Visit a return statement."""
+        if self.current_function == FunctionType.NONE:
+            raise Exception("Can't return from top-level code.")
         if stmt.value is not None:
             self._resolve_expr(stmt.value)
         return None
