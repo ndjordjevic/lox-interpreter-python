@@ -26,6 +26,15 @@ class Interpreter(ExprVisitor, StmtVisitor):
                 self.execute(statement)
         except RuntimeError as error:
             report_runtime_error(error)
+            
+    def resolve(self, expr, depth):
+        """Resolve a variable to a specific scope depth.
+        
+        Args:
+            expr: The variable expression to resolve
+            depth: The number of scopes between the current scope and the scope where the variable is defined
+        """
+        expr.depth = depth
 
     def evaluate(self, expr):
         return expr.accept(self)

@@ -9,3 +9,4 @@ from .token import Token
 from .token_type import TokenType
 from .error_handler import error_state, error, report_error, report_runtime_error
 from .environment import Environment
+from .resolver import Resolver
