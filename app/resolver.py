@@ -4,6 +4,7 @@ from app.expr import Expr, Visitor as ExprVisitor
 from app.stmt import Stmt, Visitor as StmtVisitor, Block, Var, Function
 from app.interpreter import Interpreter
 from app.token import Token
+from app.error_handler import error
 
 
 class FunctionType(Enum):
@@ -49,7 +50,8 @@ class Resolver(ExprVisitor, StmtVisitor):
 
         scope = self.scopes[-1]
         if name.lexeme in scope:
-            raise Exception(f"Variable {name.lexeme} already declared in this scope.")
+            error(name, "Already a variable with this name in this scope.")
+            return
         scope[name.lexeme] = False
 
     def _define(self, name: Token) -> None:
@@ -92,9 +94,11 @@ class Resolver(ExprVisitor, StmtVisitor):
     def visit_variable_expr(self, expr: Expr) -> None:
         """Visit a variable expression."""
         if self.scopes and self.scopes[-1].get(expr.name.lexeme) is False:
-            raise Exception(
-                f"Can't read local variable {expr.name.lexeme} in its own initializer."
+            error(
+                expr.name,
+                f"Can't read local variable in its own initializer."
             )
+            return
 
         self._resolve_local(expr, expr.name)
         return None
@@ -147,7 +151,8 @@ class Resolver(ExprVisitor, StmtVisitor):
     def visit_return_stmt(self, stmt: Stmt) -> None:
         """Visit a return statement."""
         if self.current_function == FunctionType.NONE:
-            raise Exception("Can't return from top-level code.")
+            error(stmt.keyword, "Can't return from top-level code.")
+            return
         if stmt.value is not None:
             self._resolve_expr(stmt.value)
         return None

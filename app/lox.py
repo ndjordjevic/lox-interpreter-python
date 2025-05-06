@@ -106,32 +106,29 @@ def run_prompt():
         pass
 
 
-def run(source):
+def run(source: str) -> None:
+    """Run the Lox interpreter on the given source code.
+    
+    Args:
+        source: The source code to interpret
+    """
     scanner = Scanner(source)
     tokens = scanner.scan_tokens()
-
-    # Parse the tokens into a list of statements.
+    
     parser = Parser(tokens)
     statements = parser.parse()
-
-    # Stop if there was a syntax error.
+    
+    # Stop if there was a syntax error
     if error_state["had_error"]:
         return
-
-    try:
-        # Resolve variables before interpreting
-        resolver = Resolver(lox_interpreter)
-        resolver.resolve(statements)
-    except Exception as e:
-        print(f"Resolution error: {str(e)}")
-        error_state["had_error"] = True
-        return
-
+    
+    resolver = Resolver(lox_interpreter)
+    resolver.resolve(statements)
+    
     # Stop if there was a resolution error
     if error_state["had_error"]:
         return
-
-    # Interpret the parsed statements.
+    
     lox_interpreter.interpret(statements)
 
 
