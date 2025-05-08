@@ -2,6 +2,7 @@ from .lox_callable import LoxCallable
 from .environment import Environment
 from .return_exception import ReturnException
 
+
 class LoxFunction(LoxCallable):
     def __init__(self, declaration, closure):
         self.declaration = declaration  # This is a stmt.Function node
@@ -25,3 +26,6 @@ class LoxFunction(LoxCallable):
 
     def __str__(self):
         return f"<fn {self.declaration.name.lexeme}>"
+
+    def __call__(self, interpreter, arguments):
+        return self.call(interpreter, arguments)

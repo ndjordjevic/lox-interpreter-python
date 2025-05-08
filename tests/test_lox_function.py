@@ -2,9 +2,9 @@ import unittest
 from unittest.mock import MagicMock
 from app.lox_function import LoxFunction
 from app.stmt import Function
-from app.token import Token
-from app.token_type import TokenType
+from app.token import Token, TokenType
 from app.environment import Environment
+
 
 
 class DummyInterpreter:
@@ -17,6 +17,9 @@ class DummyInterpreter:
         self.executed_body = True
         self.last_environment = environment
         self.body = body
+
+    def get(self, name):
+        return self.last_environment.get(name)
 
 
 class TestLoxFunction(unittest.TestCase):
@@ -39,7 +42,7 @@ class TestLoxFunction(unittest.TestCase):
 
     def test_call_binds_parameters_and_executes_body(self):
         interpreter = DummyInterpreter()
-        result = self.lox_function.call(interpreter, [123, 456])
+        result = self.lox_function(interpreter, [123, 456])
         self.assertTrue(interpreter.executed_body)
         self.assertEqual(result, None)
         # Environment should have the parameters bound

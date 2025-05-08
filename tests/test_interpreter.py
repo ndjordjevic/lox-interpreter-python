@@ -5,6 +5,7 @@ from app.scanner import Scanner
 from app.parser import Parser
 from app.interpreter import Interpreter
 from app.error_handler import error_state
+from app.resolver import Resolver
 
 
 class TestInterpreter(unittest.TestCase):
@@ -17,8 +18,10 @@ class TestInterpreter(unittest.TestCase):
         parser = Parser(tokens)
         statements = parser.parse()
 
-        # Interpret the AST and capture the output or error
+        # Create interpreter and resolver
         interpreter = Interpreter()
+        resolver = Resolver(interpreter)
+        resolver.resolve(statements)
         if expected_error:
             with patch("sys.stderr", new=StringIO()) as mock_stderr:
                 interpreter.interpret(statements)
@@ -290,6 +293,8 @@ class TestInterpreter(unittest.TestCase):
             parser = Parser(tokens)
             statements = parser.parse()
             interpreter = Interpreter()
+            resolver = Resolver(interpreter)
+            resolver.resolve(statements)
             interpreter.interpret(statements)
             output = mock_stdout.getvalue().strip()
             self.assertEqual(output, 'Hello, World!')
@@ -342,8 +347,10 @@ class TestInterpreter(unittest.TestCase):
         self.interpret_expression(
             'var a = "outer"; { var a = "inner"; print a; } print a;', "inner\nouter"
         )
+        # Test using outer variable in inner scope
         self.interpret_expression(
-            "var a = 1; { var a = a + 1; print a; } print a;", "2\n1"
+            "var a = 1; { var b = a + 1; print b; } print a;",
+            "2\n1"
         )
         self.interpret_expression(
             "{ var a = 1; { var a = 2; print a; } print a; }", "2\n1"

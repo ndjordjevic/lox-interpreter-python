@@ -13,7 +13,7 @@ class TestNativeFunctions(unittest.TestCase):
         """Test that calling clock returns a float value representing time."""
         clock = NativeClock()
         interpreter = Mock()  # Mock interpreter, not used in clock function
-        result = clock.call(interpreter, [])
+        result = clock(interpreter, [])
         self.assertIsInstance(result, float)
         self.assertGreaterEqual(result, 0.0)
 
