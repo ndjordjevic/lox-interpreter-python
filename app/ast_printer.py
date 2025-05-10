@@ -1,4 +1,4 @@
-from .expr import Visitor as ExprVisitor, Variable
+from .expr import Visitor as ExprVisitor, Variable, Get
 from .stmt import Visitor as StmtVisitor
 
 
@@ -47,6 +47,9 @@ class AstPrinter(ExprVisitor, StmtVisitor):
 
     def visit_get_expr(self, expr):
         return self.parenthesize(".", expr.object, Variable(expr.name))
+
+    def visit_set_expr(self, expr):
+        return self.parenthesize("=", Get(expr.object, expr.name), expr.value)
 
     # Statement visitors
     def visit_expression_stmt(self, stmt):

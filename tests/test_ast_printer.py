@@ -1,6 +1,6 @@
 import unittest
 from app.ast_printer import AstPrinter
-from app.expr import Binary, Unary, Literal, Grouping, Variable, Assign, Logical, Call, Get
+from app.expr import Binary, Unary, Literal, Grouping, Variable, Assign, Logical, Call, Get, Set
 from app.stmt import Expression, Print, Var, Block, If, While, Function, Return
 from app.token import Token
 from app.token_type import TokenType
@@ -332,6 +332,19 @@ class TestAstPrinter(unittest.TestCase):
             name_token = Token(TokenType.IDENTIFIER, name, None, 1)
             expr = Get(instance, name_token)
             self.assertEqual(self.printer.print(expr), f"(. instance {name})")
+
+    def test_set_expr(self):
+        # Test simple property assignment (instance.property = value)
+        instance = Variable(Token(TokenType.IDENTIFIER, "instance", None, 1))
+        property_name = Token(TokenType.IDENTIFIER, "property", None, 1)
+        value = Literal(42)
+        expr = Set(instance, property_name, value)
+        self.assertEqual(self.printer.print(expr), "(= (. instance property) 42)")
+
+        # Test nested property assignment (instance.property.subproperty = value)
+        subproperty_name = Token(TokenType.IDENTIFIER, "subproperty", None, 1)
+        nested_expr = Set(Get(instance, property_name), subproperty_name, value)
+        self.assertEqual(self.printer.print(nested_expr), "(= (. (. instance property) subproperty) 42)")
 
 
 if __name__ == "__main__":

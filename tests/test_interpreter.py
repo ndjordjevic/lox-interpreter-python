@@ -672,6 +672,18 @@ class TestInterpreter(unittest.TestCase):
         # Test class redeclaration (should not error, last definition is used)
         self.interpret_expression("class MyClass { foo() { return 1; } } class MyClass { bar() { return 2; } } var obj = MyClass(); print obj != nil;", "true")
 
+    def test_instance_property_get_and_set(self):
+        # Set and get a property on an instance
+        self.interpret_expression('class Foo {} var f = Foo(); f.x = 123; print f.x;', '123')
+        # Overwrite property
+        self.interpret_expression('class Foo {} var f = Foo(); f.x = 1; f.x = 2; print f.x;', '2')
+        # Getting a non-existent property raises a runtime error
+        self.interpret_expression('class Foo {} var f = Foo(); print f.y;', expected_error="Undefined property 'y'.")
+        # Setting a property on a non-instance raises a runtime error
+        self.interpret_expression('var not_instance = 42; not_instance.x = 5;', expected_error="Only instances have fields.")
+        # Getting a property on a non-instance raises a runtime error
+        self.interpret_expression('var not_instance = 42; print not_instance.x;', expected_error="Only instances have properties.")
+
 
 if __name__ == "__main__":
     unittest.main()
