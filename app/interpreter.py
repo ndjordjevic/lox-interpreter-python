@@ -9,6 +9,7 @@ from .native_functions import NativeClock
 
 from .lox_function import LoxFunction
 from .return_exception import ReturnException
+from .lox_class import LoxClass
 
 
 class Interpreter(ExprVisitor, StmtVisitor):
@@ -41,6 +42,12 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
     def visit_block_stmt(self, stmt):
         self.execute_block(stmt.statements, Environment(self.environment))
+        return None
+
+    def visit_class_stmt(self, stmt):
+        self.environment.define(stmt.name.lexeme, None)
+        klass = LoxClass(stmt.name.lexeme)
+        self.environment.assign(stmt.name, klass)
         return None
 
     def execute_block(self, statements, environment):

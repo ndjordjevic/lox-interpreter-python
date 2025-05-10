@@ -83,6 +83,12 @@ class Resolver(ExprVisitor, StmtVisitor):
         self._end_scope()
         return None
 
+    def visit_class_stmt(self, stmt: Stmt) -> None:
+        """Visit a class declaration."""
+        self._declare(stmt.name)
+        self._define(stmt.name)
+        return None
+
     def visit_var_stmt(self, stmt: Var) -> None:
         """Visit a variable declaration statement."""
         self._declare(stmt.name)

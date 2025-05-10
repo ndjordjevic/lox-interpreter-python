@@ -23,6 +23,9 @@ class Visitor:
     def visit_return_stmt(self, return_stmt):
         pass
 
+    def visit_class_stmt(self, class_stmt):
+        pass
+
 
 class Stmt:
     def accept(self, visitor):
@@ -98,3 +101,13 @@ class Return(Stmt):
 
     def accept(self, visitor):
         return visitor.visit_return_stmt(self)
+
+
+class Class(Stmt):
+    def __init__(self, name, superclass, methods):
+        self.name = name
+        self.superclass = superclass
+        self.methods = methods
+
+    def accept(self, visitor):
+        return visitor.visit_class_stmt(self)
