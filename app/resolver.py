@@ -182,6 +182,11 @@ class Resolver(ExprVisitor, StmtVisitor):
             self._resolve_expr(argument)
         return None
 
+    def visit_get_expr(self, expr: Expr) -> None:
+        """Visit a get expression."""
+        self._resolve_expr(expr.object)
+        return None
+
     def visit_grouping_expr(self, expr: Expr) -> None:
         """Visit a grouping expression."""
         self._resolve_expr(expr.expression)
@@ -195,6 +200,12 @@ class Resolver(ExprVisitor, StmtVisitor):
         """Visit a logical expression."""
         self._resolve_expr(expr.left)
         self._resolve_expr(expr.right)
+        return None
+
+    def visit_set_expr(self, expr: Expr) -> None:
+        """Visit a set expression."""
+        self._resolve_expr(expr.value)
+        self._resolve_expr(expr.object)
         return None
 
     def visit_unary_expr(self, expr: Expr) -> None:

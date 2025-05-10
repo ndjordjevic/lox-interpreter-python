@@ -45,6 +45,9 @@ class AstPrinter(ExprVisitor, StmtVisitor):
         args = [expr.callee] + list(expr.arguments)
         return self.parenthesize("call", *args)
 
+    def visit_get_expr(self, expr):
+        return self.parenthesize(".", expr.object, Variable(expr.name))
+
     # Statement visitors
     def visit_expression_stmt(self, stmt):
         return stmt.expression.accept(self)

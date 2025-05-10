@@ -23,6 +23,12 @@ class Visitor:
     def visit_call_expr(self, call):
         pass
 
+    def visit_get_expr(self, get):
+        pass
+
+    def visit_set_expr(self, set):
+        pass
+
 
 class Expr:
     def accept(self, visitor):
@@ -99,3 +105,22 @@ class Call(Expr):
 
     def accept(self, visitor):
         return visitor.visit_call_expr(self)
+
+
+class Get(Expr):
+    def __init__(self, object, name):
+        self.object = object
+        self.name = name
+
+    def accept(self, visitor):
+        return visitor.visit_get_expr(self)
+
+
+class Set(Expr):
+    def __init__(self, object, name, value):
+        self.object = object
+        self.name = name
+        self.value = value
+
+    def accept(self, visitor):
+        return visitor.visit_set_expr(self)

@@ -6,6 +6,10 @@ from app.parser import Parser
 from app.interpreter import Interpreter
 from app.error_handler import error_state
 from app.resolver import Resolver
+from app.token import Token, TokenType
+from app.stmt import Class, Return, Function, Expression
+from app.expr import Assign, Literal, Variable
+from app.lox_class import LoxClass
 
 
 class TestInterpreter(unittest.TestCase):
@@ -657,6 +661,16 @@ class TestInterpreter(unittest.TestCase):
         self.interpret_expression("var a = 1; true or (a = 2); print a;", "1")
         self.interpret_expression("var a = 1; true and (a = 2); print a;", "2")
         self.interpret_expression("var a = 1; false or (a = 2); print a;", "2")
+
+    def test_class_declaration(self):
+        # Test basic class declaration (should not error, no output)
+        self.interpret_expression("class MyClass {}", "")
+
+        # Test class instantiation (should not be nil)
+        self.interpret_expression("class MyClass {} var obj = MyClass(); print obj != nil;", "true")
+
+        # Test class redeclaration (should not error, last definition is used)
+        self.interpret_expression("class MyClass { foo() { return 1; } } class MyClass { bar() { return 2; } } var obj = MyClass(); print obj != nil;", "true")
 
 
 if __name__ == "__main__":

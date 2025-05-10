@@ -1,6 +1,6 @@
 import unittest
 from app.ast_printer import AstPrinter
-from app.expr import Binary, Unary, Literal, Grouping, Variable, Assign, Logical, Call
+from app.expr import Binary, Unary, Literal, Grouping, Variable, Assign, Logical, Call, Get
 from app.stmt import Expression, Print, Var, Block, If, While, Function, Return
 from app.token import Token
 from app.token_type import TokenType
@@ -277,6 +277,61 @@ class TestAstPrinter(unittest.TestCase):
 
         statements = [stmt1, stmt2]
         self.assertEqual(self.printer.print(statements), "(var x 42)\n(print x)")
+
+    def test_get_expr(self):
+        # Test simple property access (instance.property)
+        instance = Variable(Token(TokenType.IDENTIFIER, "instance", None, 1))
+        property_name = Token(TokenType.IDENTIFIER, "property", None, 1)
+        expr = Get(instance, property_name)
+        self.assertEqual(self.printer.print(expr), "(. instance property)")
+
+        # Test nested property access (instance.property.subproperty)
+        subproperty_name = Token(TokenType.IDENTIFIER, "subproperty", None, 1)
+        nested_expr = Get(expr, subproperty_name)
+        self.assertEqual(self.printer.print(nested_expr), "(. (. instance property) subproperty)")
+
+        # Test property access on method call result (instance.method().property)
+        method_name = Token(TokenType.IDENTIFIER, "method", None, 1)
+        method_call = Call(Variable(method_name), Token(TokenType.RIGHT_PAREN, ")", None, 1), [])
+        method_expr = Get(instance, method_name)
+        method_call_expr = Call(method_expr, Token(TokenType.RIGHT_PAREN, ")", None, 1), [])
+        property_expr = Get(method_call_expr, property_name)
+        self.assertEqual(self.printer.print(property_expr), "(. (call (. instance method)) property)")
+
+        # Test property access on literal value (42.property)
+        literal = Literal(42)
+        expr = Get(literal, property_name)
+        self.assertEqual(self.printer.print(expr), "(. 42 property)")
+
+        # Test property access on binary expression ((1 + 2).property)
+        plus_token = Token(TokenType.PLUS, "+", None, 1)
+        binary_expr = Binary(Literal(1), plus_token, Literal(2))
+        expr = Get(binary_expr, property_name)
+        self.assertEqual(self.printer.print(expr), "(. (+ 1 2) property)")
+
+        # Test property access on unary expression (-42.property)
+        minus_token = Token(TokenType.MINUS, "-", None, 1)
+        unary_expr = Unary(minus_token, Literal(42))
+        expr = Get(unary_expr, property_name)
+        self.assertEqual(self.printer.print(expr), "(. (- 42) property)")
+
+        # Test property access on grouping expression ((42).property)
+        grouping_expr = Grouping(Literal(42))
+        expr = Get(grouping_expr, property_name)
+        self.assertEqual(self.printer.print(expr), "(. (group 42) property)")
+
+        # Test property access on logical expression (true and false).property
+        and_token = Token(TokenType.AND, "and", None, 1)
+        logical_expr = Logical(Literal(True), and_token, Literal(False))
+        expr = Get(logical_expr, property_name)
+        self.assertEqual(self.printer.print(expr), "(. (and true false) property)")
+
+        # Test property access with different property names
+        property_names = ["x", "y", "z", "value", "data", "result"]
+        for name in property_names:
+            name_token = Token(TokenType.IDENTIFIER, name, None, 1)
+            expr = Get(instance, name_token)
+            self.assertEqual(self.printer.print(expr), f"(. instance {name})")
 
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@ from .error_handler import report_runtime_error, RuntimeError
 from .environment import Environment
 from .lox_callable import LoxCallable
 from .native_functions import NativeClock
+from app.lox_instance import LoxInstance
 
 
 from .lox_function import LoxFunction
@@ -154,6 +155,23 @@ class Interpreter(ExprVisitor, StmtVisitor):
             )
 
         return callee.call(self, arguments)
+
+    def visit_get_expr(self, expr):
+        object = self.evaluate(expr.object)
+        if isinstance(object, LoxInstance):
+            return object.get(expr.name)
+
+        raise RuntimeError(expr.name, "Only instances have properties.")
+
+    def visit_set_expr(self, expr):
+        object = self.evaluate(expr.object)
+
+        if not isinstance(object, LoxInstance):
+            raise RuntimeError(expr.name, "Only instances have fields.")
+
+        value = self.evaluate(expr.value)
+        object.set(expr.name, value)
+        return value
 
     def visit_binary_expr(self, expr):
         left = self.evaluate(expr.left)

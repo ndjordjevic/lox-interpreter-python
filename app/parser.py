@@ -1,4 +1,4 @@
-from .expr import Binary, Literal, Grouping, Unary, Variable, Assign, Logical, Call
+from .expr import Binary, Literal, Grouping, Unary, Variable, Assign, Logical, Call, Get, Set
 from .token_type import TokenType
 from .error_handler import error
 from .stmt import (
@@ -186,6 +186,8 @@ class Parser:
             if isinstance(expr, Variable):
                 name = expr.name
                 return Assign(name, value)
+            elif isinstance(expr, Get):
+                return Set(expr.object, expr.name, value)
 
             self.error(equals, "Invalid assignment target.")
 
@@ -272,6 +274,9 @@ class Parser:
         while True:
             if self.match(TokenType.LEFT_PAREN):
                 expr = self.finish_call(expr)
+            elif self.match(TokenType.DOT):
+                name = self.consume(TokenType.IDENTIFIER, "Expect property name after '.'.")
+                expr = Get(expr, name)
             else:
                 break
         return expr
