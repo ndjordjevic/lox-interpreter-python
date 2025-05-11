@@ -1,4 +1,4 @@
-from .expr import Binary, Literal, Grouping, Unary, Variable, Assign, Logical, Call, Get, Set
+from .expr import Binary, Literal, Grouping, Unary, Variable, Assign, Logical, Call, Get, Set, This
 from .token_type import TokenType
 from .error_handler import error
 from .stmt import (
@@ -310,6 +310,9 @@ class Parser:
             expr = self.expression()
             self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
             return Grouping(expr)
+
+        if self.match(TokenType.THIS):
+            return This(self.previous())
 
         raise self.error(self.peek(), "Expect expression.")
 
