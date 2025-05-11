@@ -13,6 +13,10 @@ class LoxInstance:
         if name.lexeme in self.fields:
             return self.fields[name.lexeme]
 
+        method = self.klass.find_method(name.lexeme)
+        if method is not None:
+            return method
+
         raise RuntimeError(name, f"Undefined property '{name.lexeme}'.")
 
     def set(self, name, value):

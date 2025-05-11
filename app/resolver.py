@@ -10,6 +10,7 @@ from app.error_handler import error
 class FunctionType(Enum):
     NONE = auto()
     FUNCTION = auto()
+    METHOD = auto()
 
 
 class Resolver(ExprVisitor, StmtVisitor):
@@ -87,6 +88,15 @@ class Resolver(ExprVisitor, StmtVisitor):
         """Visit a class declaration."""
         self._declare(stmt.name)
         self._define(stmt.name)
+
+        # Check for duplicate method names
+        method_names = set()
+        for method in stmt.methods:
+            if method.name.lexeme in method_names:
+                error(method.name, f"Method '{method.name.lexeme}' is already defined in this class.")
+            method_names.add(method.name.lexeme)
+            self._resolve_function(method, FunctionType.METHOD)
+
         return None
 
     def visit_var_stmt(self, stmt: Var) -> None:
