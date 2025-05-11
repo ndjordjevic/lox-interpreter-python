@@ -11,6 +11,7 @@ class FunctionType(Enum):
     NONE = auto()
     FUNCTION = auto()
     METHOD = auto()
+    INITIALIZER = auto()
 
 
 class ClassType(Enum):
@@ -105,7 +106,13 @@ class Resolver(ExprVisitor, StmtVisitor):
             if method.name.lexeme in method_names:
                 error(method.name, f"Method '{method.name.lexeme}' is already defined in this class.")
             method_names.add(method.name.lexeme)
-            self._resolve_function(method, FunctionType.METHOD)
+            
+            # Determine if this is an initializer
+            declaration = FunctionType.METHOD
+            if method.name.lexeme == "init":
+                declaration = FunctionType.INITIALIZER
+            
+            self._resolve_function(method, declaration)
         self._end_scope()
 
         self.current_class = enclosing_class
@@ -182,6 +189,8 @@ class Resolver(ExprVisitor, StmtVisitor):
             error(stmt.keyword, "Can't return from top-level code.")
             return
         if stmt.value is not None:
+            if self.current_function == FunctionType.INITIALIZER:
+                error(stmt.keyword, "Can't return a value from an initializer.")
             self._resolve_expr(stmt.value)
         return None
 

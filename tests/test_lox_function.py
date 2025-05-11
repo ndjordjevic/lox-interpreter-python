@@ -51,6 +51,29 @@ class TestLoxFunction(unittest.TestCase):
         # The body passed to execute_block should be correct
         self.assertIs(interpreter.body, self.body)
 
+    def test_initializer_returns_this(self):
+        """Test that initializers return this instead of the return value"""
+        # Create a dummy function declaration node for an initializer
+        name_token = Token(TokenType.IDENTIFIER, "init", None, 1)
+        body = [MagicMock()]
+        declaration = Function(name_token, [], body)
+        
+        # Create an environment with a 'this' variable
+        environment = Environment()
+        instance = MagicMock()
+        environment.define("this", instance)
+        
+        # Create the initializer function
+        initializer = LoxFunction(declaration, environment, is_initializer=True)
+        
+        # Call the initializer
+        interpreter = DummyInterpreter()
+        result = initializer(interpreter, [])
+        
+        # Verify that it returns this instead of the return value
+        self.assertIs(result, instance)
+        self.assertTrue(interpreter.executed_body)
+
 
 if __name__ == "__main__":
     unittest.main()

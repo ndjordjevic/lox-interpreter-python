@@ -4,9 +4,10 @@ from .return_exception import ReturnException
 
 
 class LoxFunction(LoxCallable):
-    def __init__(self, declaration, closure):
+    def __init__(self, declaration, closure, is_initializer=False):
         self.declaration = declaration  # This is a stmt.Function node
         self.closure = closure
+        self.is_initializer = is_initializer
 
     def call(self, interpreter, arguments):
         # Create a new environment for the function call, enclosing the closure
@@ -18,7 +19,11 @@ class LoxFunction(LoxCallable):
         try:
             interpreter.execute_block(self.declaration.body, environment)
         except ReturnException as return_value:
+            if self.is_initializer:
+                return self.closure.get_at(0, "this")
             return return_value.value
+        if self.is_initializer:
+            return self.closure.get_at(0, "this")
         return None  # Lox functions return nil by default
 
     def arity(self):
@@ -33,4 +38,4 @@ class LoxFunction(LoxCallable):
     def bind(self, instance):
         environment = Environment(self.closure)
         environment.define("this", instance)
-        return LoxFunction(self.declaration, environment)
+        return LoxFunction(self.declaration, environment, self.is_initializer)

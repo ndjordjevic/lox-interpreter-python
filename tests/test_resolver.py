@@ -201,6 +201,24 @@ class TestResolver(unittest.TestCase):
             "Error should have been reported for duplicate method name."
         )
 
+    def test_initializer_return_error(self):
+        """Test that returning a value from an initializer is caught as an error"""
+        stmts = self.parse(
+            """
+            class Test {
+                init() {
+                    return "something else";  // Should error - can't return from initializer
+                }
+            }
+        """
+        )
+        error_state["had_error"] = False
+        self.resolver.resolve(stmts)
+        self.assertTrue(
+            error_state["had_error"],
+            "Error should have been reported for return in initializer."
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
