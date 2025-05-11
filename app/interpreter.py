@@ -237,6 +237,9 @@ class Interpreter(ExprVisitor, StmtVisitor):
         # If we couldn't short-circuit, evaluate and return the right operand
         return self.evaluate(expr.right)
 
+    def visit_this_expr(self, expr):
+        return self.look_up_variable(expr.keyword, expr)
+
     def look_up_variable(self, name, expr):
         """Look up a variable using its resolved scope depth if available."""
         distance = self.locals.get(expr)

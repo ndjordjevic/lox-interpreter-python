@@ -29,6 +29,9 @@ class Visitor:
     def visit_set_expr(self, set):
         pass
 
+    def visit_this_expr(self, this):
+        pass
+
 
 class Expr:
     def accept(self, visitor):
@@ -124,3 +127,11 @@ class Set(Expr):
 
     def accept(self, visitor):
         return visitor.visit_set_expr(self)
+
+
+class This(Expr):
+    def __init__(self, keyword):
+        self.keyword = keyword
+
+    def accept(self, visitor):
+        return visitor.visit_this_expr(self)

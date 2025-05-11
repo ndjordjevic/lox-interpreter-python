@@ -29,3 +29,8 @@ class LoxFunction(LoxCallable):
 
     def __call__(self, interpreter, arguments):
         return self.call(interpreter, arguments)
+
+    def bind(self, instance):
+        environment = Environment(self.closure)
+        environment.define("this", instance)
+        return LoxFunction(self.declaration, environment)

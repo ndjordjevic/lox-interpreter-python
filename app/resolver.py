@@ -13,11 +13,17 @@ class FunctionType(Enum):
     METHOD = auto()
 
 
+class ClassType(Enum):
+    NONE = auto()
+    CLASS = auto()
+
+
 class Resolver(ExprVisitor, StmtVisitor):
     def __init__(self, interpreter: Interpreter):
         self.interpreter = interpreter
         self.scopes: List[Dict[str, bool]] = []
         self.current_function = FunctionType.NONE
+        self.current_class = ClassType.NONE
 
     def resolve(self, statements: List[Stmt]) -> None:
         """Resolve a list of statements."""
@@ -89,14 +95,20 @@ class Resolver(ExprVisitor, StmtVisitor):
         self._declare(stmt.name)
         self._define(stmt.name)
 
-        # Check for duplicate method names
+        enclosing_class = self.current_class
+        self.current_class = ClassType.CLASS
+
+        self._begin_scope()
+        self.scopes[-1]["this"] = True
         method_names = set()
         for method in stmt.methods:
             if method.name.lexeme in method_names:
                 error(method.name, f"Method '{method.name.lexeme}' is already defined in this class.")
             method_names.add(method.name.lexeme)
             self._resolve_function(method, FunctionType.METHOD)
+        self._end_scope()
 
+        self.current_class = enclosing_class
         return None
 
     def visit_var_stmt(self, stmt: Var) -> None:
@@ -221,4 +233,12 @@ class Resolver(ExprVisitor, StmtVisitor):
     def visit_unary_expr(self, expr: Expr) -> None:
         """Visit a unary expression."""
         self._resolve_expr(expr.right)
+        return None
+
+    def visit_this_expr(self, expr: Expr) -> None:
+        """Visit a this expression."""
+        if self.current_class == ClassType.NONE:
+            error(expr.keyword, "Can't use 'this' outside of a class.")
+            return
+        self._resolve_local(expr, expr.keyword)
         return None
