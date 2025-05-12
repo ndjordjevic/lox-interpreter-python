@@ -10,6 +10,11 @@ class RuntimeError(Exception):
         self.token = token
 
 
+class Return(Exception):
+    def __init__(self, value):
+        self.value = value
+
+
 def error(arg, message):
     if isinstance(arg, int):
         report_error(arg, "", message)

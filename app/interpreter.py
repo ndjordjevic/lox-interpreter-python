@@ -1,15 +1,12 @@
 from .stmt import Visitor as StmtVisitor
 from .expr import Visitor as ExprVisitor
 from .token_type import TokenType
-from .error_handler import report_runtime_error, RuntimeError
+from .error_handler import report_runtime_error, RuntimeError, Return
 from .environment import Environment
 from .lox_callable import LoxCallable
 from .native_functions import NativeClock
 from app.lox_instance import LoxInstance
-
-
 from .lox_function import LoxFunction
-from .return_exception import ReturnException
 from .lox_class import LoxClass
 
 
@@ -50,8 +47,9 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
         methods = {}
         for method in stmt.methods:
-            function = LoxFunction(method, self.environment, 
-                                 method.name.lexeme == "init")
+            function = LoxFunction(
+                method, self.environment, method.name.lexeme == "init"
+            )
             methods[method.name.lexeme] = function
 
         klass = LoxClass(stmt.name.lexeme, methods)
@@ -86,7 +84,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
         value = None
         if stmt.value is not None:
             value = self.evaluate(stmt.value)
-        raise ReturnException(value)
+        raise Return(value)
 
     def visit_while_stmt(self, stmt):
         while self.is_truthy(self.evaluate(stmt.condition)):

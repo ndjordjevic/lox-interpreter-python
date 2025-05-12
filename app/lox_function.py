@@ -1,6 +1,6 @@
 from .lox_callable import LoxCallable
 from .environment import Environment
-from .return_exception import ReturnException
+from .error_handler import Return
 
 
 class LoxFunction(LoxCallable):
@@ -18,7 +18,7 @@ class LoxFunction(LoxCallable):
 
         try:
             interpreter.execute_block(self.declaration.body, environment)
-        except ReturnException as return_value:
+        except Return as return_value:
             if self.is_initializer:
                 return self.closure.get_at(0, "this")
             return return_value.value
