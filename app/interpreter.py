@@ -50,7 +50,8 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
         methods = {}
         for method in stmt.methods:
-            function = LoxFunction(method, self.environment)
+            function = LoxFunction(method, self.environment, 
+                                 method.name.lexeme == "init")
             methods[method.name.lexeme] = function
 
         klass = LoxClass(stmt.name.lexeme, methods)
@@ -86,12 +87,6 @@ class Interpreter(ExprVisitor, StmtVisitor):
         if stmt.value is not None:
             value = self.evaluate(stmt.value)
         raise ReturnException(value)
-
-        if self.is_truthy(self.evaluate(stmt.condition)):
-            self.execute(stmt.then_branch)
-        elif stmt.else_branch is not None:
-            self.execute(stmt.else_branch)
-        return None
 
     def visit_while_stmt(self, stmt):
         while self.is_truthy(self.evaluate(stmt.condition)):

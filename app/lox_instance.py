@@ -21,4 +21,4 @@ class LoxInstance:
         raise RuntimeError(name, f"Undefined property '{name.lexeme}'")
 
     def set(self, name, value):
-        self.fields[name.lexeme] = value 
+        self.fields[name.lexeme] = value

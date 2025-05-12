@@ -11,7 +11,7 @@ class LoxFunction(LoxCallable):
 
     def call(self, interpreter, arguments):
         environment = Environment(self.closure)
-        
+
         for i in range(len(self.declaration.params)):
             param_name = self.declaration.params[i].lexeme
             environment.define(param_name, arguments[i])
@@ -22,10 +22,10 @@ class LoxFunction(LoxCallable):
             if self.is_initializer:
                 return self.closure.get_at(0, "this")
             return return_value.value
-            
+
         if self.is_initializer:
             return self.closure.get_at(0, "this")
-            
+
         return None
 
     def arity(self):
