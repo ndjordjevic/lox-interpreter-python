@@ -14,9 +14,7 @@ class LoxClass(LoxCallable):
         instance = LoxInstance(self)
         initializer = self.find_method("init")
         if initializer is not None:
-            initializer = initializer.bind(instance)
-            initializer.is_initializer = True
-            return initializer.call(interpreter, arguments)
+            initializer.bind(instance).call(interpreter, arguments)
         return instance
 
     def arity(self):
@@ -26,4 +24,6 @@ class LoxClass(LoxCallable):
         return initializer.arity()
 
     def find_method(self, name):
-        return self.methods.get(name, None) 
+        if name in self.methods:
+            return self.methods[name]
+        return None
