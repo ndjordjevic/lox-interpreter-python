@@ -51,8 +51,7 @@ class TestInterpreter(unittest.TestCase):
                 # Compare outputs after stripping trailing whitespace and newlines
                 if expected_output is not None:
                     self.assertEqual(
-                        mock_stdout.getvalue().strip(),
-                        expected_output.strip()
+                        mock_stdout.getvalue().strip(), expected_output.strip()
                     )
 
     def stringify_result(self, value):
@@ -111,25 +110,31 @@ class TestInterpreter(unittest.TestCase):
         self.interpret_expression('"Hello, " + "world!"', "Hello, world!")
 
     def test_if_else(self):
-        self.interpret_expression('if (true) { print 1; } else { print 2; }', '1')
-        self.interpret_expression('if (false) { print 1; } else { print 2; }', '2')
-        self.interpret_expression('if (false) { print 1; }', '')
+        self.interpret_expression("if (true) { print 1; } else { print 2; }", "1")
+        self.interpret_expression("if (false) { print 1; } else { print 2; }", "2")
+        self.interpret_expression("if (false) { print 1; }", "")
 
     def test_while_loop(self):
-        self.interpret_expression('var i = 0; while (i < 3) { print i; i = i + 1; }', '0\n1\n2')
-        self.interpret_expression('var i = 1; while (i > 1) { print i; i = i - 1; }', '')
+        self.interpret_expression(
+            "var i = 0; while (i < 3) { print i; i = i + 1; }", "0\n1\n2"
+        )
+        self.interpret_expression(
+            "var i = 1; while (i > 1) { print i; i = i - 1; }", ""
+        )
         # Loop with no print should not produce output
-        self.interpret_expression('var i = 0; while (i < 3) { i = i + 1; }', '')
+        self.interpret_expression("var i = 0; while (i < 3) { i = i + 1; }", "")
 
     def test_logical_expressions(self):
         self.interpret_expression("var a = 1; false and (a = 2); print a;", "1")
         # Logical with no print should not produce output
         self.interpret_expression("var a = 1; false and (a = 2); a", "")
         self.interpret_expression("var a = true; var b = false; a and b", "")
-        self.interpret_expression("var a = true; var b = false; print a and b;", "false")
-        self.interpret_expression('var b; b = 5; print b;', '5')
+        self.interpret_expression(
+            "var a = true; var b = false; print a and b;", "false"
+        )
+        self.interpret_expression("var b; b = 5; print b;", "5")
         # Assignment with no print should not produce output
-        self.interpret_expression('var a = 1; a = 2; a', '')
+        self.interpret_expression("var a = 1; a = 2; a", "")
 
     def test_var_and_assign(self):
         self.interpret_expression("var a = 10; a = 20; print a;", "20")
@@ -138,7 +143,7 @@ class TestInterpreter(unittest.TestCase):
             'var str = "hello"; str = str + " world"; print str;', "hello world"
         )
         # Assignment with no print should not produce output
-        self.interpret_expression('var a = 1; a = 2; a', '')
+        self.interpret_expression("var a = 1; a = 2; a", "")
 
     def test_print(self):
         self.interpret_expression("print 123;", "123")
@@ -146,49 +151,53 @@ class TestInterpreter(unittest.TestCase):
         self.interpret_expression("print true;", "true")
         self.interpret_expression("print nil;", "nil")
         self.interpret_expression("print 2 + 2;", "4")
-        self.interpret_expression('print 123;', '123')
-        self.interpret_expression('print "abc";', 'abc')
+        self.interpret_expression("print 123;", "123")
+        self.interpret_expression('print "abc";', "abc")
 
     def test_unary_and_grouping(self):
-        self.interpret_expression('-5', '-5')
-        self.interpret_expression('!(false)', 'true')
-        self.interpret_expression('-(3 + 2)', '-5')
+        self.interpret_expression("-5", "-5")
+        self.interpret_expression("!(false)", "true")
+        self.interpret_expression("-(3 + 2)", "-5")
 
     def test_binary_expr(self):
-        self.interpret_expression('2 + 3 * 4', '14')
-        self.interpret_expression('8 / 2 - 1', '3')
-        self.interpret_expression('7 * (2 + 1)', '21')
+        self.interpret_expression("2 + 3 * 4", "14")
+        self.interpret_expression("8 / 2 - 1", "3")
+        self.interpret_expression("7 * (2 + 1)", "21")
 
     def test_function_declaration_and_call(self):
-        self.interpret_expression('fun add(a, b) { return a + b; } print add(2, 3);', '5')
-        self.interpret_expression('fun noop() { } print noop();', 'nil')
-        self.interpret_expression('fun early() { return 99; print 1; } print early();', '99')
+        self.interpret_expression(
+            "fun add(a, b) { return a + b; } print add(2, 3);", "5"
+        )
+        self.interpret_expression("fun noop() { } print noop();", "nil")
+        self.interpret_expression(
+            "fun early() { return 99; print 1; } print early();", "99"
+        )
 
     def test_return_statement(self):
         # Test simple return from function
-        source = '''
+        source = """
         fun foo() {
             return 42;
         }
         print foo();
-        '''
+        """
         self.interpret_expression(source, "42")
 
     def test_early_return(self):
         # Test return from inside a conditional
-        source = '''
+        source = """
         fun test(n) {
             if (n > 0) return n;
             return 0;
         }
         print test(5);
         print test(0);
-        '''
+        """
         self.interpret_expression(source, "5\n0")
 
     def test_recursive_fibonacci(self):
         # Test recursive function with return
-        source = '''
+        source = """
         fun fib(n) {
             if (n <= 1) return n;
             return fib(n - 2) + fib(n - 1);
@@ -196,7 +205,7 @@ class TestInterpreter(unittest.TestCase):
         print fib(0);
         print fib(1);
         print fib(5);
-        '''
+        """
         self.interpret_expression(source, "0\n1\n5")
 
     def test_runtime_errors(self):
@@ -297,7 +306,7 @@ class TestInterpreter(unittest.TestCase):
             resolver.resolve(statements)
             interpreter.interpret(statements)
             output = mock_stdout.getvalue().strip()
-            self.assertEqual(output, 'Hello, World!')
+            self.assertEqual(output, "Hello, World!")
 
         # Test function returns nil by default
         source = """
@@ -323,7 +332,7 @@ class TestInterpreter(unittest.TestCase):
             'var str = "hello"; str = str + " world"; print str;', "hello world"
         )
         # Assignment with no print should not produce output
-        self.interpret_expression('var a = 1; a = 2; a', '')
+        self.interpret_expression("var a = 1; a = 2; a", "")
 
     def test_print_stmt(self):
         # Test print statements
@@ -337,7 +346,9 @@ class TestInterpreter(unittest.TestCase):
         # Test variable declarations
         self.interpret_expression("var a = 1; var b = 2; print a + b;", "3")
         self.interpret_expression("var a; var b = a; print b;", "nil")
-        self.interpret_expression('var a = "global"; { var a = "local"; } print a;', "global")
+        self.interpret_expression(
+            'var a = "global"; { var a = "local"; } print a;', "global"
+        )
         # No output expected without print
         self.interpret_expression("var a = 1; var b = 2; a + b", "")
 
@@ -349,8 +360,7 @@ class TestInterpreter(unittest.TestCase):
         )
         # Test using outer variable in inner scope
         self.interpret_expression(
-            "var a = 1; { var b = a + 1; print b; } print a;",
-            "2\n1"
+            "var a = 1; { var b = a + 1; print b; } print a;", "2\n1"
         )
         self.interpret_expression(
             "{ var a = 1; { var a = 2; print a; } print a; }", "2\n1"
@@ -358,7 +368,9 @@ class TestInterpreter(unittest.TestCase):
 
     def test_nested_expressions(self):
         # Test more complex nested expressions
-        self.interpret_expression("var a = 1; var b = 2; var c = 3; print a + b * c;", "7")
+        self.interpret_expression(
+            "var a = 1; var b = 2; var c = 3; print a + b * c;", "7"
+        )
         # No output expected without print
         self.interpret_expression("var a = 1; var b = 2; var c = 3; a + b * c", "")
         self.interpret_expression("var a = 5; var b = 10; (a + b) / 3", "")
@@ -663,22 +675,40 @@ class TestInterpreter(unittest.TestCase):
         self.interpret_expression("class MyClass {}", "")
 
         # Test class instantiation (should not be nil)
-        self.interpret_expression("class MyClass {} var obj = MyClass(); print obj != nil;", "true")
+        self.interpret_expression(
+            "class MyClass {} var obj = MyClass(); print obj != nil;", "true"
+        )
 
         # Test class redeclaration (should not error, last definition is used)
-        self.interpret_expression("class MyClass { foo() { return 1; } } class MyClass { bar() { return 2; } } var obj = MyClass(); print obj != nil;", "true")
+        self.interpret_expression(
+            "class MyClass { foo() { return 1; } } class MyClass { bar() { return 2; } } var obj = MyClass(); print obj != nil;",
+            "true",
+        )
 
     def test_instance_property_get_and_set(self):
         # Set and get a property on an instance
-        self.interpret_expression('class Foo {} var f = Foo(); f.x = 123; print f.x;', '123')
+        self.interpret_expression(
+            "class Foo {} var f = Foo(); f.x = 123; print f.x;", "123"
+        )
         # Overwrite property
-        self.interpret_expression('class Foo {} var f = Foo(); f.x = 1; f.x = 2; print f.x;', '2')
+        self.interpret_expression(
+            "class Foo {} var f = Foo(); f.x = 1; f.x = 2; print f.x;", "2"
+        )
         # Getting a non-existent property raises a runtime error
-        self.interpret_expression('class Foo {} var f = Foo(); print f.y;', expected_error="Undefined property 'y'.")
+        self.interpret_expression(
+            "class Foo {} var f = Foo(); print f.y;",
+            expected_error="Undefined property 'y'",
+        )
         # Setting a property on a non-instance raises a runtime error
-        self.interpret_expression('var not_instance = 42; not_instance.x = 5;', expected_error="Only instances have fields.")
+        self.interpret_expression(
+            "var not_instance = 42; not_instance.x = 5;",
+            expected_error="Only instances have fields.",
+        )
         # Getting a property on a non-instance raises a runtime error
-        self.interpret_expression('var not_instance = 42; print not_instance.x;', expected_error="Only instances have properties.")
+        self.interpret_expression(
+            "var not_instance = 42; print not_instance.x;",
+            expected_error="Only instances have properties.",
+        )
 
     def test_class_method_execution(self):
         """Test basic method execution"""
@@ -692,7 +722,7 @@ class TestInterpreter(unittest.TestCase):
             var test = Test();
             print test.method();
             """,
-            expected_output="42\n"
+            expected_output="42\n",
         )
 
     def test_method_parameters(self):
@@ -707,7 +737,7 @@ class TestInterpreter(unittest.TestCase):
             var test = Test();
             print test.add(1, 2);
             """,
-            expected_output="3\n"
+            expected_output="3\n",
         )
 
     def test_method_variables(self):
@@ -724,7 +754,7 @@ class TestInterpreter(unittest.TestCase):
             var test = Test();
             print test.method();
             """,
-            expected_output="3\n"
+            expected_output="3\n",
         )
 
     def test_method_field_access(self):
@@ -744,7 +774,7 @@ class TestInterpreter(unittest.TestCase):
             test.init();
             print test.getX();
             """,
-            expected_output="42\n"
+            expected_output="42\n",
         )
 
     def test_method_errors(self):
@@ -756,7 +786,7 @@ class TestInterpreter(unittest.TestCase):
             var test = Test();
             test.nonexistent();
             """,
-            expected_error="Undefined property 'nonexistent'."
+            expected_error="Undefined property 'nonexistent'",
         )
 
         # Test wrong number of arguments
@@ -770,7 +800,7 @@ class TestInterpreter(unittest.TestCase):
             var test = Test();
             test.method(1);
             """,
-            expected_error="Expected 2 arguments but got 1."
+            expected_error="Expected 2 arguments but got 1.",
         )
 
 
