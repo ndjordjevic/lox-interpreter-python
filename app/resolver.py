@@ -99,19 +99,31 @@ class Resolver(ExprVisitor, StmtVisitor):
         enclosing_class = self.current_class
         self.current_class = ClassType.CLASS
 
+        if (
+            stmt.superclass is not None
+            and stmt.name.lexeme == stmt.superclass.name.lexeme
+        ):
+            error(stmt.superclass.name, "A class can't inherit from itself.")
+
+        if stmt.superclass is not None:
+            self._resolve(stmt.superclass)
+
         self._begin_scope()
         self.scopes[-1]["this"] = True
         method_names = set()
         for method in stmt.methods:
             if method.name.lexeme in method_names:
-                error(method.name, f"Method '{method.name.lexeme}' is already defined in this class.")
+                error(
+                    method.name,
+                    f"Method '{method.name.lexeme}' is already defined in this class.",
+                )
             method_names.add(method.name.lexeme)
-            
+
             # Determine if this is an initializer
             declaration = FunctionType.METHOD
             if method.name.lexeme == "init":
                 declaration = FunctionType.INITIALIZER
-            
+
             self._resolve_function(method, declaration)
         self._end_scope()
 
@@ -129,10 +141,7 @@ class Resolver(ExprVisitor, StmtVisitor):
     def visit_variable_expr(self, expr: Expr) -> None:
         """Visit a variable expression."""
         if self.scopes and self.scopes[-1].get(expr.name.lexeme) is False:
-            error(
-                expr.name,
-                f"Can't read local variable in its own initializer."
-            )
+            error(expr.name, f"Can't read local variable in its own initializer.")
             return
 
         self._resolve_local(expr, expr.name)

@@ -1,4 +1,16 @@
-from .expr import Binary, Literal, Grouping, Unary, Variable, Assign, Logical, Call, Get, Set, This
+from .expr import (
+    Binary,
+    Literal,
+    Grouping,
+    Unary,
+    Variable,
+    Assign,
+    Logical,
+    Call,
+    Get,
+    Set,
+    This,
+)
 from .token_type import TokenType
 from .error_handler import error
 from .stmt import (
@@ -10,7 +22,7 @@ from .stmt import (
     While as StmtWhile,
     Function,
     Return,
-    Class
+    Class,
 )
 
 
@@ -163,11 +175,15 @@ class Parser:
         self.consume(TokenType.LEFT_PAREN, f"Expect '(' after {kind} name.")
         parameters = []
         if not self.check(TokenType.RIGHT_PAREN):
-            parameters.append(self.consume(TokenType.IDENTIFIER, "Expect parameter name."))
+            parameters.append(
+                self.consume(TokenType.IDENTIFIER, "Expect parameter name.")
+            )
             while self.match(TokenType.COMMA):
                 if len(parameters) >= 255:
                     self.error(self.peek(), "Can't have more than 255 parameters.")
-                parameters.append(self.consume(TokenType.IDENTIFIER, "Expect parameter name."))
+                parameters.append(
+                    self.consume(TokenType.IDENTIFIER, "Expect parameter name.")
+                )
         self.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.")
         self.consume(TokenType.LEFT_BRACE, f"Expect '{{' before {kind} body.")
         body = self.block()
@@ -275,7 +291,9 @@ class Parser:
             if self.match(TokenType.LEFT_PAREN):
                 expr = self.finish_call(expr)
             elif self.match(TokenType.DOT):
-                name = self.consume(TokenType.IDENTIFIER, "Expect property name after '.'.")
+                name = self.consume(
+                    TokenType.IDENTIFIER, "Expect property name after '.'."
+                )
                 expr = Get(expr, name)
             else:
                 break
@@ -374,6 +392,12 @@ class Parser:
 
     def class_declaration(self):
         name = self.consume(TokenType.IDENTIFIER, "Expect class name.")
+
+        superclass = None
+        if self.match(TokenType.LESS):
+            self.consume(TokenType.IDENTIFIER, "Expect superclass name.")
+            superclass = Variable(self.previous())
+
         self.consume(TokenType.LEFT_BRACE, "Expect '{' before class body.")
 
         methods = []
@@ -382,7 +406,7 @@ class Parser:
 
         self.consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.")
 
-        return Class(name, None, methods)
+        return Class(name, superclass, methods)
 
 
 class ParseError(Exception):

@@ -43,6 +43,12 @@ class Interpreter(ExprVisitor, StmtVisitor):
         return None
 
     def visit_class_stmt(self, stmt):
+        superclass = None
+        if stmt.superclass is not None:
+            superclass = self.evaluate(stmt.superclass)
+            if not isinstance(superclass, LoxClass):
+                raise RuntimeError(stmt.superclass.name, "Superclass must be a class.")
+
         self.environment.define(stmt.name.lexeme, None)
 
         methods = {}
@@ -52,7 +58,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
             )
             methods[method.name.lexeme] = function
 
-        klass = LoxClass(stmt.name.lexeme, methods)
+        klass = LoxClass(stmt.name.lexeme, superclass, methods)
         self.environment.assign(stmt.name, klass)
         return None
 

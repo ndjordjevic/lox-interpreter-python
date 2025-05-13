@@ -3,8 +3,9 @@ from .lox_instance import LoxInstance
 
 
 class LoxClass(LoxCallable):
-    def __init__(self, name, methods=None):
+    def __init__(self, name, superclass=None, methods=None):
         self.name = name
+        self.superclass = superclass
         self.methods = methods or {}
 
     def __str__(self):
