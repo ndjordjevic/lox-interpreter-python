@@ -106,7 +106,7 @@ class Resolver(ExprVisitor, StmtVisitor):
             error(stmt.superclass.name, "A class can't inherit from itself.")
 
         if stmt.superclass is not None:
-            self._resolve(stmt.superclass)
+            self._resolve_expr(stmt.superclass)
 
         self._begin_scope()
         self.scopes[-1]["this"] = True
