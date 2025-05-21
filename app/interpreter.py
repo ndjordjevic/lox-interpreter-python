@@ -51,6 +51,10 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
         self.environment.define(stmt.name.lexeme, None)
 
+        if stmt.superclass is not None:
+            self.environment = Environment(self.environment)
+            self.environment.define("super", superclass)
+
         methods = {}
         for method in stmt.methods:
             function = LoxFunction(
@@ -59,6 +63,8 @@ class Interpreter(ExprVisitor, StmtVisitor):
             methods[method.name.lexeme] = function
 
         klass = LoxClass(stmt.name.lexeme, superclass, methods)
+        if stmt.superclass is not None:
+            self.environment = self.environment.enclosing
         self.environment.assign(stmt.name, klass)
         return None
 
@@ -238,6 +244,18 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
     def visit_this_expr(self, expr):
         return self.look_up_variable(expr.keyword, expr)
+
+    def visit_super_expr(self, expr):
+        distance = self.locals.get(expr)
+        superclass = self.environment.get_at(distance, "super")
+        # "this" is always one scope below "super"
+        object = self.environment.get_at(distance - 1, "this")
+
+        method = superclass.find_method(expr.method.lexeme)
+        if method is None:
+            raise RuntimeError(expr.method, f"Undefined property '{expr.method.lexeme}'.")
+
+        return method.bind(object)
 
     def look_up_variable(self, name, expr):
         """Look up a variable using its resolved scope depth if available."""

@@ -108,6 +108,9 @@ class Resolver(ExprVisitor, StmtVisitor):
         if stmt.superclass is not None:
             self._resolve_expr(stmt.superclass)
 
+            self._begin_scope()
+            self.scopes[-1]["super"] = True
+
         self._begin_scope()
         self.scopes[-1]["this"] = True
         method_names = set()
@@ -126,6 +129,9 @@ class Resolver(ExprVisitor, StmtVisitor):
 
             self._resolve_function(method, declaration)
         self._end_scope()
+
+        if stmt.superclass is not None:
+            self._end_scope()
 
         self.current_class = enclosing_class
         return None
@@ -258,5 +264,10 @@ class Resolver(ExprVisitor, StmtVisitor):
         if self.current_class == ClassType.NONE:
             error(expr.keyword, "Can't use 'this' outside of a class.")
             return
+        self._resolve_local(expr, expr.keyword)
+        return None
+
+    def visit_super_expr(self, expr: Expr) -> None:
+        """Visit a super expression."""
         self._resolve_local(expr, expr.keyword)
         return None
