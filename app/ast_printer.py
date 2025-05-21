@@ -51,6 +51,9 @@ class AstPrinter(ExprVisitor, StmtVisitor):
     def visit_set_expr(self, expr):
         return self.parenthesize("=", Get(expr.object, expr.name), expr.value)
 
+    def visit_super_expr(self, expr):
+        return self.parenthesize("super", Variable(expr.method))
+
     # Statement visitors
     def visit_expression_stmt(self, stmt):
         return stmt.expression.accept(self)

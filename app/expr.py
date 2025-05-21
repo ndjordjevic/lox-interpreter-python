@@ -32,6 +32,9 @@ class Visitor:
     def visit_this_expr(self, this):
         pass
 
+    def visit_super_expr(self, super_expr):
+        pass
+
 
 class Expr:
     def accept(self, visitor):
@@ -135,3 +138,15 @@ class This(Expr):
 
     def accept(self, visitor):
         return visitor.visit_this_expr(self)
+
+
+class Super(Expr):
+    def __init__(self, keyword, method):
+        self.keyword = keyword  # The 'super' keyword Token
+        self.method = method    # The method name Token
+
+    def accept(self, visitor):
+        return visitor.visit_super_expr(self)
+
+    def __str__(self):
+        return f"Super({self.keyword}, {self.method})"

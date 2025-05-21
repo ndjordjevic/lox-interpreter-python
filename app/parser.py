@@ -10,6 +10,7 @@ from .expr import (
     Get,
     Set,
     This,
+    Super,
 )
 from .token_type import TokenType
 from .error_handler import error
@@ -321,6 +322,15 @@ class Parser:
         if self.match(TokenType.NUMBER, TokenType.STRING):
             return Literal(self.previous().literal)
 
+        if self.match(TokenType.SUPER):
+            keyword = self.previous()
+            self.consume(TokenType.DOT, "Expect '.' after 'super'.")
+            method = self.consume(TokenType.IDENTIFIER, "Expect superclass method name.")
+            return Super(keyword, method)
+
+        if self.match(TokenType.THIS):
+            return This(self.previous())
+
         if self.match(TokenType.IDENTIFIER):
             return Variable(self.previous())
 
@@ -328,9 +338,6 @@ class Parser:
             expr = self.expression()
             self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
             return Grouping(expr)
-
-        if self.match(TokenType.THIS):
-            return This(self.previous())
 
         raise self.error(self.peek(), "Expect expression.")
 
