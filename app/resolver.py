@@ -17,6 +17,7 @@ class FunctionType(Enum):
 class ClassType(Enum):
     NONE = auto()
     CLASS = auto()
+    SUBCLASS = auto()
 
 
 class Resolver(ExprVisitor, StmtVisitor):
@@ -106,6 +107,7 @@ class Resolver(ExprVisitor, StmtVisitor):
             error(stmt.superclass.name, "A class can't inherit from itself.")
 
         if stmt.superclass is not None:
+            self.current_class = ClassType.SUBCLASS
             self._resolve_expr(stmt.superclass)
 
             self._begin_scope()
@@ -269,5 +271,10 @@ class Resolver(ExprVisitor, StmtVisitor):
 
     def visit_super_expr(self, expr: Expr) -> None:
         """Visit a super expression."""
+        if self.current_class == ClassType.NONE:
+            error(expr.keyword, "Can't use 'super' outside of a class.")
+        elif self.current_class != ClassType.SUBCLASS:
+            error(expr.keyword, "Can't use 'super' in a class with no superclass.")
+            
         self._resolve_local(expr, expr.keyword)
         return None
