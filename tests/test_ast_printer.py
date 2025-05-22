@@ -1,7 +1,7 @@
 import unittest
 from app.ast_printer import AstPrinter
-from app.expr import Binary, Unary, Literal, Grouping, Variable, Assign, Logical, Call, Get, Set
-from app.stmt import Expression, Print, Var, Block, If, While, Function, Return
+from app.expr import Binary, Unary, Literal, Grouping, Variable, Assign, Logical, Call, Get, Set, Super
+from app.stmt import Expression, Print, Var, Block, If, While, Function, Return, Class
 from app.token import Token
 from app.token_type import TokenType
 
@@ -345,6 +345,50 @@ class TestAstPrinter(unittest.TestCase):
         subproperty_name = Token(TokenType.IDENTIFIER, "subproperty", None, 1)
         nested_expr = Set(Get(instance, property_name), subproperty_name, value)
         self.assertEqual(self.printer.print(nested_expr), "(= (. (. instance property) subproperty) 42)")
+
+    def test_super_expr(self):
+        # Test basic super expression (super.method)
+        keyword = Token(TokenType.SUPER, "super", None, 1)
+        method = Token(TokenType.IDENTIFIER, "method", None, 1)
+        expr = Super(keyword, method)
+        self.assertEqual(self.printer.print(expr), "(super method)")
+
+        # Test super with different method names
+        method_names = ["init", "toString", "calculate", "getValue"]
+        for name in method_names:
+            method = Token(TokenType.IDENTIFIER, name, None, 1)
+            expr = Super(keyword, method)
+            self.assertEqual(self.printer.print(expr), f"(super {name})")
+
+    def test_class_stmt(self):
+        # Test basic class declaration (class MyClass {})
+        name = Token(TokenType.IDENTIFIER, "MyClass", None, 1)
+        stmt = Class(name, None, [])
+        self.assertEqual(self.printer.print(stmt), "(class MyClass)")
+
+        # Test class with a method (class MyClass { method() {} })
+        method_name = Token(TokenType.IDENTIFIER, "method", None, 1)
+        method = Function(method_name, [], [])
+        stmt = Class(name, None, [method])
+        self.assertEqual(self.printer.print(stmt), "(class MyClass (fun method () ))")
+
+        # Test class with inheritance (class Child < Parent {})
+        parent_name = Token(TokenType.IDENTIFIER, "Parent", None, 1)
+        parent_class = Variable(parent_name)
+        child_name = Token(TokenType.IDENTIFIER, "Child", None, 1)
+        stmt = Class(child_name, parent_class, [])
+        self.assertEqual(self.printer.print(stmt), "(class Child < Parent)")
+
+        # Test class with inheritance and methods
+        method1_name = Token(TokenType.IDENTIFIER, "method1", None, 1)
+        method2_name = Token(TokenType.IDENTIFIER, "method2", None, 1)
+        method1 = Function(method1_name, [], [])
+        method2 = Function(method2_name, [], [])
+        stmt = Class(child_name, parent_class, [method1, method2])
+        self.assertEqual(
+            self.printer.print(stmt),
+            "(class Child < Parent (fun method1 () ) (fun method2 () ))"
+        )
 
 
 if __name__ == "__main__":

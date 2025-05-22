@@ -12,10 +12,8 @@ class AstPrinter(ExprVisitor, StmtVisitor):
                     result.append(item.accept(self))
             return "\n".join(result)
 
-        # Handle individual expressions
         return obj.accept(self) if obj is not None else ""
 
-    # Expression visitors
     def visit_binary_expr(self, expr):
         return self.parenthesize(expr.operator.lexeme, expr.left, expr.right)
 
@@ -42,7 +40,6 @@ class AstPrinter(ExprVisitor, StmtVisitor):
         return self.parenthesize(expr.operator.lexeme, expr.left, expr.right)
 
     def visit_call_expr(self, expr):
-        # Print as (call callee arg1 arg2 ...)
         args = [expr.callee] + list(expr.arguments)
         return self.parenthesize("call", *args)
 
@@ -50,12 +47,12 @@ class AstPrinter(ExprVisitor, StmtVisitor):
         return self.parenthesize2(".", expr.object, expr.name.lexeme)
 
     def visit_set_expr(self, expr):
-        return self.parenthesize2("=", expr.object, expr.name.lexeme, expr.value)
+        get_expr = self.parenthesize2(".", expr.object, expr.name.lexeme)
+        return self.parenthesize2("=", get_expr, expr.value)
 
     def visit_super_expr(self, expr):
         return self.parenthesize2("super", expr.method)
 
-    # Statement visitors
     def visit_expression_stmt(self, stmt):
         return stmt.expression.accept(self)
 
@@ -76,10 +73,8 @@ class AstPrinter(ExprVisitor, StmtVisitor):
         return "".join(result)
 
     def visit_if_stmt(self, stmt):
-        # Handle if without else
         if stmt.else_branch is None:
             return self.parenthesize("if", stmt.condition, stmt.then_branch)
-        # Handle if with else
         return self.parenthesize(
             "if", stmt.condition, stmt.then_branch, stmt.else_branch
         )
