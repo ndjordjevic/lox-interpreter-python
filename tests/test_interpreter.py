@@ -803,6 +803,55 @@ class TestInterpreter(unittest.TestCase):
             expected_error="Expected 2 arguments but got 1.",
         )
 
+    def test_super_method_call(self):
+        # Test that a subclass can call a method from its superclass using 'super'
+        self.interpret_expression(
+            '''
+            class A {
+                method() {
+                    return "A method";
+                }
+            }
+            class B < A {
+                method() {
+                    return super.method();
+                }
+            }
+            var b = B();
+            print b.method();
+            ''',
+            expected_output="A method\n",
+        )
+
+        # Test that an error is raised if 'super' is used with no superclass
+        with self.assertRaises(TypeError):
+            self.interpret_expression(
+                '''
+                class A {
+                    method() {
+                        return super.method();
+                    }
+                }
+                var a = A();
+                a.method();
+                '''
+            )
+
+        # Test that an error is raised if the superclass does not have the method
+        self.interpret_expression(
+            '''
+            class A {}
+            class B < A {
+                method() {
+                    return super.nonexistent();
+                }
+            }
+            var b = B();
+            b.method();
+            ''',
+            expected_error="Undefined property 'nonexistent'",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
