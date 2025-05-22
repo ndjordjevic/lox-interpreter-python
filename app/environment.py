@@ -7,7 +7,8 @@ class Environment:
         self.enclosing = enclosing
 
     def define(self, name, value):
-        self.values[name] = value
+        """Define a new variable in the current scope."""
+        self.values[name.lexeme if hasattr(name, 'lexeme') else name] = value
 
     def get(self, name):
         if name.lexeme in self.values:
@@ -38,7 +39,7 @@ class Environment:
 
     def get_at(self, distance, name):
         """Get a variable's value from a specific scope depth."""
-        return self.ancestor(distance).values[name]
+        return self.ancestor(distance).values[name if isinstance(name, str) else name.lexeme]
 
     def assign_at(self, distance, name, value):
         """Assign to a variable at a specific scope depth."""
