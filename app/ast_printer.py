@@ -1,5 +1,6 @@
-from .expr import Visitor as ExprVisitor, Variable, Get
-from .stmt import Visitor as StmtVisitor
+from .expr import Visitor as ExprVisitor, Variable, Get, Expr
+from .stmt import Visitor as StmtVisitor, Stmt
+from .token import Token
 
 
 class AstPrinter(ExprVisitor, StmtVisitor):
@@ -35,7 +36,7 @@ class AstPrinter(ExprVisitor, StmtVisitor):
         return expr.name.lexeme
 
     def visit_assign_expr(self, expr):
-        return self.parenthesize("=", Variable(expr.name), expr.value)
+        return self.parenthesize2("=", expr.name.lexeme, expr.value)
 
     def visit_logical_expr(self, expr):
         return self.parenthesize(expr.operator.lexeme, expr.left, expr.right)
@@ -46,13 +47,13 @@ class AstPrinter(ExprVisitor, StmtVisitor):
         return self.parenthesize("call", *args)
 
     def visit_get_expr(self, expr):
-        return self.parenthesize(".", expr.object, Variable(expr.name))
+        return self.parenthesize2(".", expr.object, expr.name.lexeme)
 
     def visit_set_expr(self, expr):
-        return self.parenthesize("=", Get(expr.object, expr.name), expr.value)
+        return self.parenthesize2("=", expr.object, expr.name.lexeme, expr.value)
 
     def visit_super_expr(self, expr):
-        return self.parenthesize("super", Variable(expr.method))
+        return self.parenthesize2("super", expr.method)
 
     # Statement visitors
     def visit_expression_stmt(self, stmt):
@@ -99,6 +100,20 @@ class AstPrinter(ExprVisitor, StmtVisitor):
             return self.parenthesize("return", stmt.value)
         return "(return)"
 
+    def visit_class_stmt(self, stmt):
+        parts = [f"(class {stmt.name.lexeme}"]
+
+        if stmt.superclass is not None:
+            parts.append(" < ")
+            parts.append(stmt.superclass.accept(self))
+
+        for method in stmt.methods:
+            parts.append(" ")
+            parts.append(method.accept(self))
+
+        parts.append(")")
+        return "".join(parts)
+
     def parenthesize(self, name, *exprs):
         parts = [f"({name}"]
         for expr in exprs:
@@ -106,3 +121,26 @@ class AstPrinter(ExprVisitor, StmtVisitor):
             parts.append(expr.accept(self))
         parts.append(")")
         return "".join(parts)
+
+    def parenthesize2(self, name, *parts):
+        """Like parenthesize but handles a wider range of types."""
+        result = [f"({name}"]
+        self._transform(result, parts)
+        result.append(")")
+        return "".join(result)
+
+    def _transform(self, result, parts):
+        """Transform various types into their string representations."""
+
+        for part in parts:
+            result.append(" ")
+            if isinstance(part, Expr):
+                result.append(part.accept(self))
+            elif isinstance(part, Stmt):
+                result.append(part.accept(self))
+            elif isinstance(part, Token):
+                result.append(part.lexeme)
+            elif isinstance(part, list):
+                self._transform(result, part)
+            else:
+                result.append(str(part))
