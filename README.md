@@ -99,6 +99,7 @@ A variety of example Lox programs are provided in the `examples/` folder. These 
 - fibonacci.lox
 - fibonacci_loop.lox
 - hello_world.lox
+- inheritance_super_this.lox
 - linked_list_count.lox
 - linked_list_max_min.lox
 - linked_list_search.lox

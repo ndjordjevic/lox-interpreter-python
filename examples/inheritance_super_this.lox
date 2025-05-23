@@ -1,0 +1,46 @@
+// Demonstrates class inheritance, use of super, and this in Lox
+
+// Real-world example: Vehicle and Car demonstrating inheritance, super, and this
+
+class Vehicle {
+  init(type) {
+    this.type = type;
+  }
+  describe() {
+    print "This is a " + this.type + ".";
+  }
+}
+
+class Car < Vehicle {
+  init(brand) {
+    super.init("car");
+    this.brand = brand;
+  }
+  describe() {
+    super.describe();
+    print "It is a " + this.brand + ".";
+  }
+  honk() {
+    print this.brand + " goes beep beep!";
+  }
+}
+
+var v = Vehicle("vehicle");
+v.describe(); // This is a vehicle.
+
+var myCar = Car("Toyota");
+myCar.describe(); // This is a car. It is a Toyota.
+myCar.honk(); // Toyota goes beep beep!
+
+// Using 'this' in a method
+class Greeter {
+  init(name) {
+    this.name = name;
+  }
+  greet() {
+    print "Hello, " + this.name;
+  }
+}
+
+var g = Greeter("Lox");
+g.greet(); // Hello, Lox 
