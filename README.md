@@ -54,10 +54,14 @@ The interpreter is organized into several key components:
    ```sh
    ./your_program.sh [script]
    ```
-   Or start the REPL:
+   Or start the REPL (interactive mode):
    ```sh
    ./your_program.sh
    ```
+
+## REPL Mode
+
+If you run `./your_program.sh` with no arguments, it will start an interactive Lox REPL. You can type Lox statements and see their results immediately.
 
 ## How to Test
 - Unit tests are provided for all major components (scanner, parser, interpreter, etc.).
