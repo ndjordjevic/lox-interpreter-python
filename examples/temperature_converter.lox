@@ -1,0 +1,5 @@
+fun celsiusToFahrenheit(c) {
+  return c * 9 / 5 + 32;
+}
+print celsiusToFahrenheit(0);   // 32
+print celsiusToFahrenheit(100); // 212 

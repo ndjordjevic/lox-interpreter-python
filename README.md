@@ -86,6 +86,34 @@ The interpreter is organized into several key components:
 - [Crafting Interpreters](https://craftinginterpreters.com/) by Robert Nystrom
 - [Lox Language Specification](https://craftinginterpreters.com/the-lox-language.html)
 
+## Examples
+
+A variety of example Lox programs are provided in the `examples/` folder. These demonstrate data structures, algorithms, and language features. Example files include:
+
+- all_in_one.lox
+- binary_tree.lox
+- calculator.lox
+- counter_closure.lox
+- doubly_linked_list.lox
+- factorial.lox
+- fibonacci.lox
+- fibonacci_loop.lox
+- hello_world.lox
+- linked_list_count.lox
+- linked_list_max_min.lox
+- linked_list_search.lox
+- linked_list_sort.lox
+- list.lox
+- queue.lox
+- stack.lox
+- temperature_converter.lox
+
+You can run any of these with:
+
+```sh
+./your_program.sh examples/<example_file>
+```
+
 ---
 
 This project is a personal learning exercise and a demonstration of building a programming language interpreter from scratch in Python. Contributions and suggestions are welcome!

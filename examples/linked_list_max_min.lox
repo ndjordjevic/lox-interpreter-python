@@ -1,0 +1,50 @@
+class Node {
+  init(value, next) {
+    this.value = value;
+    this.next = next;
+  }
+}
+
+class LinkedList {
+  init() {
+    this.head = nil;
+  }
+
+  push(value) {
+    var node = Node(value, this.head);
+    this.head = node;
+  }
+
+  findMax() {
+    if (this.head == nil) return nil;
+    var max = this.head.value;
+    var current = this.head.next;
+    while (current != nil) {
+      if (current.value > max) max = current.value;
+      current = current.next;
+    }
+    return max;
+  }
+
+  findMin() {
+    if (this.head == nil) return nil;
+    var min = this.head.value;
+    var current = this.head.next;
+    while (current != nil) {
+      if (current.value < min) min = current.value;
+      current = current.next;
+    }
+    return min;
+  }
+}
+
+var list = LinkedList();
+list.push(3);
+list.push(1);
+list.push(4);
+list.push(2);
+list.push(5);
+print "Max:";
+print list.findMax(); // 5
+print "Min:";
+print list.findMin(); // 1 

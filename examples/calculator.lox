@@ -1,0 +1,11 @@
+fun calc(a, b, op) {
+  if (op == "+") return a + b;
+  if (op == "-") return a - b;
+  if (op == "*") return a * b;
+  if (op == "/") return a / b;
+  return nil;
+}
+print calc(10, 5, "+"); // 15
+print calc(10, 5, "-"); // 5
+print calc(10, 5, "*"); // 50
+print calc(10, 5, "/"); // 2 

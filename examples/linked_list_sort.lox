@@ -1,0 +1,55 @@
+class Node {
+  init(value, next) {
+    this.value = value;
+    this.next = next;
+  }
+}
+
+class LinkedList {
+  init() {
+    this.head = nil;
+  }
+
+  push(value) {
+    var node = Node(value, this.head);
+    this.head = node;
+  }
+
+  printList() {
+    var current = this.head;
+    while (current != nil) {
+      print current.value;
+      current = current.next;
+    }
+  }
+
+  bubbleSort() {
+    if (this.head == nil) return;
+    var swapped = true;
+    while (swapped) {
+      swapped = false;
+      var current = this.head;
+      while (current.next != nil) {
+        if (current.value > current.next.value) {
+          var temp = current.value;
+          current.value = current.next.value;
+          current.next.value = temp;
+          swapped = true;
+        }
+        current = current.next;
+      }
+    }
+  }
+}
+
+var list = LinkedList();
+list.push(3);
+list.push(1);
+list.push(4);
+list.push(2);
+list.push(5);
+print "Before sorting:";
+list.printList();
+list.bubbleSort();
+print "After sorting:";
+list.printList(); 

@@ -1,0 +1,33 @@
+class Node {
+  init(value, next) {
+    this.value = value;
+    this.next = next;
+  }
+}
+
+class LinkedList {
+  init() {
+    this.head = nil;
+  }
+
+  push(value) {
+    var node = Node(value, this.head);
+    this.head = node;
+  }
+
+  search(target) {
+    var current = this.head;
+    while (current != nil) {
+      if (current.value == target) return true;
+      current = current.next;
+    }
+    return false;
+  }
+}
+
+var list = LinkedList();
+list.push(3);
+list.push(2);
+list.push(1);
+print list.search(2); // true
+print list.search(4); // false 

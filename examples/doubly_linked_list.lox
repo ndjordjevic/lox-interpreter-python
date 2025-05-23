@@ -1,0 +1,45 @@
+class Node {
+  init(value, prev, next) {
+    this.value = value;
+    this.prev = prev;
+    this.next = next;
+  }
+}
+
+class DoublyLinkedList {
+  init() {
+    this.head = nil;
+    this.tail = nil;
+  }
+
+  push(value) {
+    var node = Node(value, this.tail, nil);
+    if (this.tail != nil) {
+      this.tail.next = node;
+    } else {
+      this.head = node;
+    }
+    this.tail = node;
+  }
+
+  pop() {
+    if (this.tail == nil) return nil;
+    var value = this.tail.value;
+    this.tail = this.tail.prev;
+    if (this.tail != nil) {
+      this.tail.next = nil;
+    } else {
+      this.head = nil;
+    }
+    return value;
+  }
+}
+
+var dll = DoublyLinkedList();
+dll.push(1);
+dll.push(2);
+dll.push(3);
+print dll.pop(); // 3
+print dll.pop(); // 2
+print dll.pop(); // 1
+print dll.pop(); // nil 

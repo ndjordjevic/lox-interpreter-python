@@ -1,0 +1,33 @@
+class Node {
+  init(value, next) {
+    this.value = value;
+    this.next = next;
+  }
+}
+
+class Stack {
+  init() {
+    this.top = nil;
+  }
+
+  push(value) {
+    var node = Node(value, this.top);
+    this.top = node;
+  }
+
+  pop() {
+    if (this.top == nil) return nil;
+    var value = this.top.value;
+    this.top = this.top.next;
+    return value;
+  }
+}
+
+var stack = Stack();
+stack.push(1);
+stack.push(2);
+stack.push(3);
+print stack.pop(); // 3
+print stack.pop(); // 2
+print stack.pop(); // 1
+print stack.pop(); // nil 

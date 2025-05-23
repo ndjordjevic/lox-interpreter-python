@@ -1,0 +1,36 @@
+class Node {
+  init(value, next) {
+    this.value = value;
+    this.next = next;
+  }
+}
+
+class LinkedList {
+  init() {
+    this.head = nil;
+  }
+
+  push(value) {
+    var node = Node(value, this.head);
+    this.head = node;
+  }
+
+  count() {
+    var current = this.head;
+    var cnt = 0;
+    while (current != nil) {
+      cnt = cnt + 1;
+      current = current.next;
+    }
+    return cnt;
+  }
+}
+
+var list = LinkedList();
+list.push(3);
+list.push(1);
+list.push(4);
+list.push(2);
+list.push(5);
+print "Count:";
+print list.count(); // 5 

@@ -1,0 +1,183 @@
+// Variable declaration and assignment
+var a = 1;
+var b;
+b = 2;
+
+// Function declaration and call (with multiple parameters and arguments)
+fun add(x, y) {
+  return x + y;
+}
+print add(a, b); // 3
+
+// Function with no parameters
+fun greet() {
+  print "Hello from greet!";
+}
+greet();
+
+// Function with no return value
+fun noReturn() {
+  print "No return here";
+}
+noReturn();
+
+// Block statement and variable scope
+{
+  var blockVar = "I'm in a block";
+  print blockVar;
+}
+// print blockVar; // Uncommenting this should error (out of scope)
+
+// If-else statement
+if (a < b) {
+  print "a is less than b";
+} else {
+  print "a is not less than b";
+}
+
+// While loop
+var i = 0;
+while (i < 2) {
+  print i;
+  i = i + 1;
+}
+
+// For loop with varDecl, exprStmt, and empty
+for (var j = 0; j < 2; j = j + 1) {
+  print j;
+}
+for (; i < 4; i = i + 1) {
+  print i;
+}
+for (;;) {
+  print "Infinite loop (Lox does not support break, so this is commented out)";
+  // break; // Lox does not support 'break', so this would run forever if uncommented
+  // To avoid an infinite loop, this is commented out.
+}
+
+// Logical operators
+print true or false; // true
+print true and false; // false
+
+// Equality, comparison, arithmetic, unary
+print 1 == 1; // true
+print 2 != 1; // true
+print 2 > 1; // true
+print 2 >= 2; // true
+print 1 < 2; // true
+print 2 <= 2; // true
+print 1 + 2 * 3 - 4 / 2; // 5
+print -a; // -1
+print !false; // true
+
+// Grouping
+print (1 + 2) * 3; // 9
+
+// String, number, boolean, nil literals
+print "string";
+print 123.45;
+print true;
+print false;
+print nil;
+
+// Class declaration, inheritance, method, field assignment, this, super
+class A {
+  method() {
+    print "A method";
+  }
+}
+class B < A {
+  method() {
+    print "B method";
+  }
+  testSuper() {
+    super.method();
+  }
+}
+var objA = A();
+objA.method(); // A method
+var objB = B();
+objB.method(); // B method
+objB.testSuper(); // A method
+
+// Field assignment and access
+class Point {
+  init(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+  printPoint() {
+    print "(" + this.x + ", " + this.y + ")";
+  }
+}
+var p = Point(3, 4);
+p.printPoint(); // (3, 4)
+p.x = 10;
+p.printPoint(); // (10, 4)
+
+// Using 'this' in method
+class Greeter {
+  init(name) {
+    this.name = name;
+  }
+  greet() {
+    print "Hello, " + this.name;
+  }
+}
+var g = Greeter("Lox");
+g.greet(); // Hello, Lox
+
+// Closures and nested functions
+fun makeCounter() {
+  var count = 0;
+  fun counter() {
+    count = count + 1;
+    return count;
+  }
+  return counter;
+}
+var counter = makeCounter();
+print counter(); // 1
+print counter(); // 2
+
+// Return statement with and without value
+fun retTest(x) {
+  if (x > 0) return x;
+  return;
+}
+print retTest(5); // 5
+print retTest(-1); // nil
+
+// Chained calls and property access
+class Chain {
+  getValue() {
+    return 42;
+  }
+}
+var ch = Chain();
+print ch.getValue(); // 42
+
+// Use of 'super' in chained call
+class SuperChain < Chain {
+  getValue() {
+    return super.getValue() + 1;
+  }
+}
+var sch = SuperChain();
+print sch.getValue(); // 43
+
+// Grouping, call, and property access in one
+print (sch).getValue(); // 43
+
+// Use of all primary expressions
+print true;
+print false;
+print nil;
+print 123;
+print "abc";
+print a;
+print (1 + 2);
+// print this; // Only valid inside class method
+
+// Demonstrate error for invalid assignment (uncomment to test error)
+// 123 = 5; 

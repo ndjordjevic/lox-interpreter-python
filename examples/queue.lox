@@ -1,0 +1,41 @@
+class Node {
+  init(value, next) {
+    this.value = value;
+    this.next = next;
+  }
+}
+
+class Queue {
+  init() {
+    this.head = nil;
+    this.tail = nil;
+  }
+
+  enqueue(value) {
+    var node = Node(value, nil);
+    if (this.tail == nil) {
+      this.head = node;
+      this.tail = node;
+    } else {
+      this.tail.next = node;
+      this.tail = node;
+    }
+  }
+
+  dequeue() {
+    if (this.head == nil) return nil;
+    var value = this.head.value;
+    this.head = this.head.next;
+    if (this.head == nil) this.tail = nil;
+    return value;
+  }
+}
+
+var queue = Queue();
+queue.enqueue(1);
+queue.enqueue(2);
+queue.enqueue(3);
+print queue.dequeue(); // 1
+print queue.dequeue(); // 2
+print queue.dequeue(); // 3
+print queue.dequeue(); // nil 
