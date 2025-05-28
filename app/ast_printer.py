@@ -1,4 +1,4 @@
-from .expr import Visitor as ExprVisitor, Variable, Get, Expr
+from .expr import Visitor as ExprVisitor, Variable, Expr
 from .stmt import Visitor as StmtVisitor, Stmt
 from .token import Token
 

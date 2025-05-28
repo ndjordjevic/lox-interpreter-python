@@ -101,7 +101,6 @@ class Parser:
 
     def expression_statement(self):
         expr = self.expression()
-        # Allow semicolon to be optional if at the end of the file
         if self.is_at_end() or self.peek().type == TokenType.EOF:
             return StmtExpression(expr)
         self.consume(TokenType.SEMICOLON, "Expect ';' after expression.")
@@ -131,7 +130,6 @@ class Parser:
     def for_statement(self):
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.")
 
-        # Parse initializer
         initializer = None
         if self.match(TokenType.SEMICOLON):
             initializer = None
@@ -140,32 +138,25 @@ class Parser:
         else:
             initializer = self.expression_statement()
 
-        # Parse condition
         condition = None
         if not self.check(TokenType.SEMICOLON):
             condition = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after loop condition.")
 
-        # Parse increment
         increment = None
         if not self.check(TokenType.RIGHT_PAREN):
             increment = self.expression()
         self.consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.")
 
-        # Parse body
         body = self.statement()
 
-        # Desugar for loop into while loop
-        # 1. If there's an increment, add it to the end of the body
         if increment is not None:
             body = StmtBlock([body, StmtExpression(increment)])
 
-        # 2. Add condition to create a while loop (use 'true' for infinite loop if no condition)
         if condition is None:
             condition = Literal(True)
         body = StmtWhile(condition, body)
 
-        # 3. If there's an initializer, run it once before the loop
         if initializer is not None:
             body = StmtBlock([initializer, body])
 
@@ -211,7 +202,6 @@ class Parser:
         return expr
 
     def or_expr(self):
-        # or → and ( "or" and )*
         expr = self.and_expr()
 
         while self.match(TokenType.OR):
@@ -222,7 +212,6 @@ class Parser:
         return expr
 
     def and_expr(self):
-        # and → equality ( "and" equality )*
         expr = self.equality()
 
         while self.match(TokenType.AND):

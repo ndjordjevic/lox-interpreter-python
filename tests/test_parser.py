@@ -184,17 +184,15 @@ class TestParser(unittest.TestCase):
     def test_unmatched_parenthesis(self):
         # Test case: (foo
         tokens = [
-            Token(TokenType.LEFT_PAREN, "(", None, 1),  # Left parenthesis
-            Token(TokenType.IDENTIFIER, "foo", "foo", 1),  # Identifier
-            Token(TokenType.EOF, "", None, 1),  # End of file
+            Token(TokenType.LEFT_PAREN, "(", None, 1),
+            Token(TokenType.IDENTIFIER, "foo", "foo", 1),
+            Token(TokenType.EOF, "", None, 1),
         ]
         parser = Parser(tokens)
 
-        # Reset error state before test
         error_state["had_error"] = False
 
         result = parser.parse()
-        # The parser returns [None] when there's an error (not None)
         self.assertEqual([None], result, "Parser should return [None] on error")
         self.assertTrue(error_state["had_error"], "Error state should be set")
 

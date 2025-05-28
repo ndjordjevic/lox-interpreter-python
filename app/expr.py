@@ -142,8 +142,8 @@ class This(Expr):
 
 class Super(Expr):
     def __init__(self, keyword, method):
-        self.keyword = keyword  # The 'super' keyword Token
-        self.method = method    # The method name Token
+        self.keyword = keyword
+        self.method = method
 
     def accept(self, visitor):
         return visitor.visit_super_expr(self)
