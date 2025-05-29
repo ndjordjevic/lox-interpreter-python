@@ -10,12 +10,7 @@ class TestResolver(unittest.TestCase):
     def setUp(self):
         self.interpreter = Interpreter()
         self.resolver = Resolver(self.interpreter)
-
-    def parse(self, source):
-        scanner = Scanner(source)
-        tokens = scanner.scan_tokens()
-        parser = Parser(tokens)
-        return parser.parse()
+        self.parse = lambda src: Parser(Scanner(src).scan_tokens()).parse()
 
     def test_resolve_variable_declaration(self):
         """Test basic variable declaration and usage"""
@@ -102,8 +97,13 @@ class TestResolver(unittest.TestCase):
 
     def test_uninitialized_variable(self):
         """Test using variable before declaration"""
+        error_state["had_error"] = False  # Reset error state
         stmts = self.parse("print x; var x = 1;")
         self.resolver.resolve(stmts)
+        self.assertTrue(
+            error_state["had_error"],
+            "Resolver should report an error for using 'x' before declaration."
+        )
 
     def test_class_method_resolution(self):
         """Test basic class method resolution"""
@@ -218,15 +218,6 @@ class TestResolver(unittest.TestCase):
             error_state["had_error"],
             "Error should have been reported for return in initializer."
         )
-
-
-class TestResolverExprCoverage(unittest.TestCase):
-    def setUp(self):
-        from app.resolver import Resolver
-        from app.interpreter import Interpreter
-        self.interpreter = Interpreter()
-        self.resolver = Resolver(self.interpreter)
-        self.parse = lambda src: Parser(Scanner(src).scan_tokens()).parse()
 
     def test_binary_expr(self):
         stmts = self.parse("print 1 + 2;")

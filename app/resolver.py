@@ -23,7 +23,7 @@ class ClassType(Enum):
 class Resolver(ExprVisitor, StmtVisitor):
     def __init__(self, interpreter: Interpreter):
         self.interpreter = interpreter
-        self.scopes: List[Dict[str, bool]] = []
+        self.scopes: List[Dict[str, bool]] = [{}]  # Always have a global scope
         self.current_function = FunctionType.NONE
         self.current_class = ClassType.NONE
 
@@ -150,6 +150,15 @@ class Resolver(ExprVisitor, StmtVisitor):
         """Visit a variable expression."""
         if self.scopes and self.scopes[-1].get(expr.name.lexeme) is False:
             error(expr.name, f"Can't read local variable in its own initializer.")
+            return
+
+        declared = False
+        for scope in reversed(self.scopes):
+            if expr.name.lexeme in scope:
+                declared = True
+                break
+        if not declared and self.scopes:
+            error(expr.name, f"Variable '{expr.name.lexeme}' used before declaration.")
             return
 
         self._resolve_local(expr, expr.name)
